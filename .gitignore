@@ -1,0 +1,9 @@
+node_modules/
+dist/
+vendor/
+public/gamedata/
+public/images/
+tests/golden/fixtures/
+*.log
+.DS_Store
+*.tsbuildinfo

@@ -1,0 +1,637 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------------------------------
+   Theme tokens (RGB triplets so tailwind can apply alpha). Warm parchment light theme and a
+   deep slate / brass dark theme.
+------------------------------------------------------------------------------------------- */
+:root {
+  --bg: 246 242 234;
+  --panel: 252 250 245;
+  --raised: 255 255 255;
+  --line: 222 213 196;
+  --fg: 38 32 26;
+  --muted: 118 106 92;
+  --accent: 152 64 34;
+  --good: 46 125 80;
+  --bad: 190 50 50;
+  --link: 40 92 160;
+  --row-hover: 240 232 216;
+  --row-active: 233 219 192;
+  --stat-bg: 245 239 228;
+  --font-scale: 1;
+  color-scheme: light;
+}
+.dark {
+  --bg: 17 20 25;
+  --panel: 24 28 35;
+  --raised: 31 36 45;
+  --line: 48 55 67;
+  --fg: 229 225 216;
+  --muted: 150 147 138;
+  --accent: 222 168 86;
+  --good: 110 200 140;
+  --bad: 240 110 110;
+  --link: 125 175 240;
+  --row-hover: 33 39 49;
+  --row-active: 52 46 34;
+  --stat-bg: 30 35 44;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+html {
+  font-size: calc(14px * var(--font-scale));
+}
+body {
+  @apply bg-bg text-fg font-sans antialiased;
+  overflow: hidden;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--line)) transparent;
+}
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 1px;
+}
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.font-display {
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', serif;
+  letter-spacing: 0.01em;
+}
+
+@layer components {
+/* form controls */
+.input {
+  @apply w-full rounded-md border border-line bg-raised px-2.5 py-1.5 text-sm text-fg placeholder:text-muted/70;
+  @apply focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25;
+}
+.btn {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-md border border-line bg-raised px-2.5 py-1.5 text-sm text-fg transition-colors;
+  @apply hover:border-accent/60 hover:bg-row-hover disabled:opacity-50;
+}
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted transition-colors hover:bg-row-hover hover:text-fg;
+}
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90;
+}
+.dark .btn-primary {
+  @apply text-bg;
+}
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full border border-line bg-raised px-2 py-0.5 text-xs text-fg;
+}
+.kbd {
+  @apply rounded border border-line bg-raised px-1 font-mono text-[10px] text-muted;
+}
+.section-label {
+  @apply text-[11px] font-semibold uppercase tracking-wider text-muted;
+}
+}
+
+/* ------------------------------------------------------------------------------------------
+   Icons used by legacy html and the new UI
+------------------------------------------------------------------------------------------- */
+.pathicon,
+.gemicon,
+.abilityicon {
+  color: transparent;
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 1.05em;
+  height: 1.05em;
+  vertical-align: -0.18em;
+  overflow: hidden;
+  user-select: none;
+}
+.abilityicon {
+  width: 1.15em;
+  height: 1.15em;
+}
+.pathicon.Path_F { background-image: url('/images/magicicons/Path_F.png'); }
+.pathicon.Path_A { background-image: url('/images/magicicons/Path_A.png'); }
+.pathicon.Path_W { background-image: url('/images/magicicons/Path_W.png'); }
+.pathicon.Path_E { background-image: url('/images/magicicons/Path_E.png'); }
+.pathicon.Path_S { background-image: url('/images/magicicons/Path_S.png'); }
+.pathicon.Path_D { background-image: url('/images/magicicons/Path_D.png'); }
+.pathicon.Path_N { background-image: url('/images/magicicons/Path_N.png'); }
+.pathicon.Path_G { background-image: url('/images/magicicons/Path_G.png'); }
+.pathicon.Path_B { background-image: url('/images/magicicons/Path_B.png'); }
+.pathicon.Path_H { background-image: url('/images/magicicons/Path_H.png'); }
+.pathicon.Path_U { background-image: url('/images/magicicons/Path_U.png'); }
+.pathicon.Path_R { background-image: url('/images/magicicons/Path_R.png'); }
+.gemicon.Gem_F { background-image: url('/images/magicicons/Gem_F.png'); }
+.gemicon.Gem_A { background-image: url('/images/magicicons/Gem_A.png'); }
+.gemicon.Gem_W { background-image: url('/images/magicicons/Gem_W.png'); }
+.gemicon.Gem_E { background-image: url('/images/magicicons/Gem_E.png'); }
+.gemicon.Gem_S { background-image: url('/images/magicicons/Gem_S.png'); }
+.gemicon.Gem_D { background-image: url('/images/magicicons/Gem_D.png'); }
+.gemicon.Gem_N { background-image: url('/images/magicicons/Gem_N.png'); }
+.gemicon.Gem_G { background-image: url('/images/magicicons/Gem_G.png'); }
+.gemicon.Gem_B { background-image: url('/images/magicicons/Gem_B.png'); }
+.gemicon.Gem_H { background-image: url('/images/magicicons/Gem_H.png'); }
+.abilityicon.holy { background-image: url('/images/abilityicons/holy.png'); }
+
+/* ------------------------------------------------------------------------------------------
+   Results table
+------------------------------------------------------------------------------------------- */
+.grid-row {
+  @apply cursor-pointer border-b border-line/50;
+}
+.grid-row:hover {
+  background: rgb(var(--row-hover));
+}
+.grid-row[aria-selected='true'] {
+  background: rgb(var(--row-active));
+  box-shadow: inset 3px 0 0 rgb(var(--accent));
+}
+.grid-cell {
+  @apply truncate px-2.5;
+}
+.grid-cell.numeric {
+  @apply text-right tabular-nums;
+}
+.grid-cell .national-spell {
+  display: inline;
+  border-bottom: 2px solid rgb(var(--accent) / 0.55);
+}
+.grid-cell a.ref {
+  color: inherit;
+  text-decoration: none;
+}
+.sprite-thumb {
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+/* ------------------------------------------------------------------------------------------
+   Legacy detail html (rendered by the ported upstream renderers), restyled.
+   Visibility classes are switched by root classes set from the settings menu:
+     .opt-advanced  -> .hidden-*   (ids, extra rows)
+     .opt-moreinfo  -> .modding-*  (modder info)
+     .opt-keys      -> .internal-* (database keys)
+     .opt-nodescr   -> hides descriptions
+------------------------------------------------------------------------------------------- */
+.legacy {
+  @apply text-[13px] leading-snug text-fg;
+}
+.legacy .hidden-row,
+.legacy .hidden-block,
+.legacy .hidden-inline,
+.legacy .modding-row,
+.legacy .modding-block,
+.legacy .modding-inline,
+.legacy .internal-row,
+.legacy .internal-block,
+.legacy .internal-inline {
+  display: none;
+}
+.opt-advanced .legacy .hidden-block { display: block; }
+.opt-advanced .legacy tr.hidden-row { display: table-row; }
+.opt-advanced .legacy .hidden-inline { display: inline; }
+.opt-moreinfo .legacy .modding-block { display: block; }
+.opt-moreinfo .legacy tr.modding-row { display: table-row; }
+.opt-moreinfo .legacy .modding-inline { display: inline; }
+.opt-keys .legacy .internal-block { display: block; }
+.opt-keys .legacy tr.internal-row { display: table-row; }
+.opt-keys .legacy .internal-inline { display: inline; }
+.opt-nodescr .legacy .overlay-descr { display: none !important; }
+
+.legacy .hidden-row,
+.legacy .hidden-block,
+.legacy .hidden-inline {
+  color: rgb(var(--muted));
+  background: rgb(var(--link) / 0.07);
+}
+.legacy .modding-row,
+.legacy .modding-block,
+.legacy .modding-inline {
+  color: rgb(var(--link) / 0.9);
+  background: rgb(var(--link) / 0.06);
+}
+.legacy .internal-inline,
+.legacy .internal-block {
+  color: rgb(var(--bad) / 0.8);
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+}
+.legacy .strange {
+  background: rgb(64 224 208 / 0.18);
+}
+
+.legacy a,
+.legacy a.ref {
+  color: rgb(var(--link));
+  text-decoration: none;
+  cursor: pointer;
+  border-bottom: 1px solid rgb(var(--link) / 0.25);
+}
+.legacy a.ref:hover {
+  border-bottom-color: rgb(var(--link));
+}
+.legacy span.refid {
+  font-size: 0.75em;
+  opacity: 0.8;
+}
+.legacy .overlay-pin {
+  display: none;
+}
+
+/* header */
+.legacy .overlay-header {
+  @apply relative rounded-t-lg px-4 pb-3 pt-3.5;
+  background: linear-gradient(180deg, rgb(var(--raised)), rgb(var(--panel)));
+  border-bottom: 1px solid rgb(var(--line));
+}
+.legacy .overlay-header .h2replace {
+  @apply font-display text-xl font-bold leading-tight text-fg;
+  margin: 0 0 0.25rem;
+  padding-right: 4rem;
+}
+.legacy .overlay-header p {
+  @apply text-xs text-muted;
+  margin: 0;
+}
+.legacy .overlay-header .item-image {
+  float: right;
+}
+.legacy .overlay-header .item-image img {
+  margin: 0 !important;
+  max-width: 48px;
+  image-rendering: pixelated;
+}
+.legacy .overlay-header span.modding-inline {
+  visibility: visible;
+}
+
+/* main */
+.legacy .overlay-main {
+  @apply px-4 py-3;
+  clear: both;
+}
+.legacy .overlay-main h4,
+.legacy h4 {
+  @apply section-label mb-1 mt-3;
+}
+.legacy table.overlay-table {
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+  width: auto;
+}
+.legacy table.overlay-table th {
+  @apply pr-3 text-left align-top font-normal text-muted;
+  white-space: nowrap;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+.legacy table.overlay-table td {
+  @apply align-top;
+  padding: 1px 0.4rem 1px 0;
+  min-width: 2em;
+}
+.legacy table.overlay-table tr[title] {
+  cursor: help;
+}
+.legacy table.overlay-table tr[title] td {
+  text-decoration: underline dotted rgb(var(--muted) / 0.6);
+  text-underline-offset: 3px;
+}
+.legacy table.overlay-table tr[title]:hover {
+  background: rgb(var(--row-hover));
+}
+.legacy th:first-letter,
+.legacy span.flag:first-letter {
+  text-transform: capitalize;
+}
+.legacy span.flag {
+  font-style: normal;
+}
+.legacy td.widecell {
+  @apply text-muted;
+}
+
+/* key/value ability table: two neat columns with subtle zebra */
+.legacy table.overlay-table:not(.wpn-table) > tbody > tr:nth-child(even) > th,
+.legacy table.overlay-table:not(.wpn-table) > tbody > tr:nth-child(even) > td {
+  background: rgb(var(--stat-bg) / 0.6);
+}
+
+/* weapon / armor tables */
+.legacy table.wpn-table,
+.legacy table.armor-table {
+  @apply mt-1 w-full rounded-md;
+  background: rgb(var(--stat-bg));
+}
+.legacy table.wpn-table th,
+.legacy table.wpn-table td,
+.legacy table.armor-table th,
+.legacy table.armor-table td {
+  padding: 2px 8px;
+}
+.legacy .equip-table {
+  @apply my-2 w-full overflow-hidden rounded-md border border-line text-[12.5px];
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.legacy .equip-table tr:first-child td {
+  @apply section-label bg-raised;
+  font-size: 10px;
+}
+.legacy .equip-table td {
+  @apply border-b border-line/60 px-2 py-1;
+  background: transparent !important;
+}
+.legacy .equip-table tr:last-child td {
+  border-bottom: 0;
+}
+.legacy .equip-table tr {
+  background: transparent !important;
+}
+
+/* ------------------------------------------------------------------------------------------
+   Unit card (built by ui/unitCard.ts), modelled on the in-game unit window
+------------------------------------------------------------------------------------------- */
+.legacy {
+  container-type: inline-size;
+}
+.unit.overlay-contents > .overlay-header .h2replace {
+  display: inline-block;
+  padding: 0.15rem 0.9rem 0.2rem;
+  margin-bottom: 0.4rem;
+  border-radius: 6px 6px 3px 3px;
+  font-style: italic;
+  color: #2b2218;
+  background: linear-gradient(180deg, #efe3c6, #d9c59d);
+  box-shadow: inset 0 0 0 1px #a88d5f, 0 1px 2px rgb(0 0 0 / 0.25);
+}
+.legacy .ucard {
+  @apply mb-3 rounded-lg p-2.5;
+  background: rgb(var(--stat-bg) / 0.55);
+  border: 1px solid rgb(var(--line));
+  box-shadow: inset 0 0 0 1px rgb(var(--panel) / 0.6);
+}
+.legacy .ucard-top {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  column-gap: 1.1rem;
+  align-items: center;
+}
+.legacy .ucol {
+  min-width: 0;
+}
+.legacy .ustat {
+  @apply flex h-[1.6rem] items-center gap-1.5 text-[13px];
+}
+.legacy .ustat .uicon {
+  font-size: 15px;
+}
+.legacy .ustat-label {
+  @apply min-w-0 flex-1 truncate text-fg/85;
+}
+.legacy .ustat-label::first-letter {
+  text-transform: capitalize;
+}
+.legacy .ustat .stat-value {
+  @apply shrink-0 text-right font-semibold tabular-nums text-fg;
+}
+.legacy .ustat[title] {
+  cursor: help;
+}
+.legacy .ustat[title] .stat-value {
+  text-decoration: underline dotted rgb(var(--accent) / 0.8);
+  text-underline-offset: 3px;
+}
+.legacy .ustat.hidden-row {
+  display: none;
+}
+.opt-advanced .legacy .ustat.hidden-row {
+  display: flex;
+}
+.legacy .uicon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.15em;
+  filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.35));
+}
+.legacy .uicon svg {
+  stroke-width: 2.2;
+}
+.legacy .uicon .abilityicon {
+  width: 1.15em;
+  height: 1.15em;
+}
+.legacy .usprite {
+  @apply flex min-w-[4.5rem] flex-col items-center justify-center gap-2 self-stretch rounded-md px-2;
+  background: radial-gradient(ellipse at center 60%, rgb(var(--panel)) 0%, transparent 70%);
+}
+.legacy .usprite img.unit-sprite {
+  float: none;
+  margin: 0;
+  cursor: pointer;
+  image-rendering: pixelated;
+  max-width: 160px;
+  background: none;
+}
+.legacy .uslots {
+  @apply mt-2 flex flex-wrap gap-1 border-t border-line/60 pt-2;
+}
+.legacy .uslot {
+  @apply flex h-7 w-7 items-center justify-center rounded text-[15px] text-muted;
+  background: rgb(var(--bg) / 0.8);
+  box-shadow: inset 0 0 0 1px rgb(var(--line)), inset 0 1px 3px rgb(0 0 0 / 0.25);
+}
+.legacy .uicons {
+  @apply mt-2 flex flex-wrap items-center gap-1.5 text-[12.5px];
+}
+.legacy .upaths {
+  @apply mr-1 inline-flex items-center gap-0.5 font-semibold tabular-nums;
+}
+.legacy .upaths .pathicon {
+  width: 1.3em;
+  height: 1.3em;
+  margin-left: 0.15em;
+}
+.legacy .uchip {
+  @apply inline-flex items-center gap-1 rounded-full border border-line bg-raised py-0.5 pl-1.5 pr-2;
+}
+.legacy .uchip[title] {
+  cursor: help;
+}
+.legacy .uchip .uicon {
+  font-size: 14px;
+}
+.legacy .uchip-label {
+  @apply text-fg/85;
+}
+.legacy .uchip-label::first-letter {
+  text-transform: capitalize;
+}
+.legacy .uchip .stat-value {
+  @apply font-semibold tabular-nums text-fg;
+}
+.legacy .uchip .internal-inline {
+  font-weight: normal;
+}
+.legacy .uequip {
+  @apply mt-2.5 flex flex-wrap items-start gap-x-6 gap-y-1 rounded-md px-2.5 py-1.5;
+  color: #2b2218;
+  background: linear-gradient(180deg, #ecdfc2 0%, #dccaa5 100%);
+  box-shadow: inset 0 0 0 1px #b39a6c, 0 1px 2px rgb(0 0 0 / 0.25);
+}
+.legacy .uequip .equip-table {
+  @apply my-0 w-auto border-0;
+  flex: 1 1 auto;
+}
+.legacy .uequip .equip-table tr:first-child td {
+  background: transparent;
+  color: #6e5c43;
+}
+.legacy .uequip .equip-table td {
+  border-color: rgb(110 92 67 / 0.25);
+  padding: 2px 6px 2px 0;
+}
+.legacy .uequip a.ref {
+  color: #2b4f86;
+  border-bottom-color: rgb(43 79 134 / 0.3);
+}
+.legacy .uequip .refid {
+  color: #6e5c43;
+}
+@container (max-width: 560px) {
+  .legacy .ucard-top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .legacy .usprite {
+    grid-column: 1 / -1;
+    order: -1;
+    flex-direction: row;
+    padding: 0.25rem 0 0.5rem;
+  }
+}
+@container (max-width: 330px) {
+  .legacy .ucard-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* flags as chips */
+.legacy .flag-list {
+  @apply my-2 flex flex-wrap gap-1;
+}
+.legacy .flag-list .flag {
+  @apply rounded-full border border-line bg-raised px-2 py-0.5 text-[11.5px];
+}
+
+/* footer */
+.legacy .overlay-footer {
+  @apply border-t border-line px-4 py-3;
+}
+.legacy .overlay-footer p.firstline {
+  @apply text-[12.5px];
+  margin: 0 0 0.35rem;
+}
+.legacy .overlay-descr,
+.legacy .overlay-details {
+  @apply mt-2 text-[13px] leading-relaxed;
+}
+.legacy .overlay-descr p,
+.legacy .overlay-details p {
+  margin: 0 0 0.5rem;
+}
+.legacy .overlay-descr {
+  @apply font-display italic text-fg/85;
+}
+.legacy .overlay-details {
+  @apply rounded-md px-3 py-2;
+  background: rgb(var(--accent) / 0.08);
+}
+.legacy .overlay-wiki-link {
+  display: none;
+}
+.legacy input.inline-button {
+  @apply ml-1 cursor-pointer rounded border border-line bg-raised px-1.5 text-xs text-fg;
+}
+.legacy .national-spell {
+  border-bottom: 2px solid rgb(var(--accent) / 0.55);
+}
+.legacy details.mod-cmds-block {
+  @apply my-2 rounded-md border border-line px-2 py-1 text-xs;
+  background: rgb(var(--link) / 0.06);
+}
+.legacy details.mod-cmds-block summary {
+  @apply cursor-pointer select-none font-medium text-muted;
+}
+.legacy p.mod-cmds {
+  @apply mt-1 font-mono text-[11px] leading-snug;
+  color: rgb(var(--link));
+}
+.legacy .mod-error {
+  color: rgb(var(--bad));
+  font-weight: bold;
+}
+.legacy div.modded,
+.legacy tr.modded td {
+  background: rgb(64 224 208 / 0.1);
+}
+.legacy table.spell-effect.nextspell {
+  border-top: 1px dashed rgb(var(--line));
+  margin-top: 0.4rem;
+}
+.legacy .nation-section {
+  @apply mt-3;
+}
+.legacy .nation-section .refs {
+  @apply mt-1 flex flex-wrap gap-x-3 gap-y-1;
+}
+
+/* compare view: highlight differing values */
+.legacy .cmp-diff td,
+.legacy [data-key].cmp-diff {
+  box-shadow: inset 0 0 0 1px rgb(var(--accent) / 0.7);
+  background: rgb(var(--accent) / 0.1) !important;
+}
+
+/* hover preview card */
+.preview-card .legacy {
+  font-size: 12px;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-in {
+  animation: fade-in 120ms ease-out;
+}
+
+.opt-advanced .opt-advanced-only {
+  display: inline !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-in {
+    animation: none;
+  }
+}
+.legacy .uslots-text {
+  @apply ml-1.5 self-center text-xs text-muted;
+}

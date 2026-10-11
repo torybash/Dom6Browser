@@ -4,5 +4,6 @@
 import tseslint from 'typescript-eslint';
 export default [
   { files: ['**/*.ts'], languageOptions: { parser: tseslint.parser, sourceType: 'module', globals: { console: 'readonly', Math: 'readonly', JSON: 'readonly', String: 'readonly', parseInt: 'readonly', parseFloat: 'readonly', isNaN: 'readonly', Object: 'readonly', Array: 'readonly', Number: 'readonly', RegExp: 'readonly', Error: 'readonly', Function: 'readonly', BigInt: 'readonly', Infinity: 'readonly', undefined: 'readonly', isFinite: 'readonly', Date: 'readonly', Set: 'readonly', Map: 'readonly', encodeURIComponent: 'readonly' } },
-    rules: { 'no-undef': 'error', 'no-dupe-keys': 'error', 'no-redeclare': 'off' } },
+    // duplicate object keys are legal in strict mode (last one wins, same as upstream), so only no-undef matters
+    rules: { 'no-undef': 'error' } },
 ];

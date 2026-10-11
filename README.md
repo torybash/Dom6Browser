@@ -5,6 +5,9 @@ nations, weapons and armor, with mod (`.dm`) support. It is a rebuild of
 [larzm42/dom6inspector](https://github.com/larzm42/dom6inspector) with a new interface. The game data and
 the data-derivation logic come from that project, so this project is also licensed under **GPLv3**.
 
+**Live site:** https://torybash.github.io/Dom6Browser/ (deployed from `master` by
+`.github/workflows/deploy.yml`, which syncs the game data, runs the tests and builds).
+
 ## Running it
 
 ```bash

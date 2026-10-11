@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Popover from '@radix-ui/react-popover';
-import { Columns3, SlidersHorizontal, X } from 'lucide-react';
+import { Columns3, LayoutGrid, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { PAGE_BY_ID, PAGES, type PageDef } from '../pages';
 import { useData } from '../state/data';
@@ -30,9 +30,17 @@ function useMediaQuery(q: string) {
   return m;
 }
 
+function readStored(key: string) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
 function useStoredNumber(key: string, initial: number) {
   const [v, setV] = useState(() => {
-    const n = Number(localStorage.getItem(key));
+    const n = Number(readStored(key));
     return Number.isFinite(n) && n > 0 ? n : initial;
   });
   useEffect(() => {
@@ -43,6 +51,31 @@ function useStoredNumber(key: string, initial: number) {
     }
   }, [key, v]);
   return [v, setV] as const;
+}
+
+function useStoredBool(key: string, initial: boolean) {
+  const [v, setV] = useState(() => {
+    const s = readStored(key);
+    return s === null ? initial : s === '1';
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(key, v ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+  }, [key, v]);
+  return [v, setV] as const;
+}
+
+function useWindowWidth() {
+  const [w, setW] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const on = () => setW(window.innerWidth);
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  return w;
 }
 
 /** Applies theme / text size / advanced-visibility classes on <html>. */
@@ -124,9 +157,17 @@ const EMPTY = {};
 function DesktopWorkspace({ wide }: { wide: boolean }) {
   const pageId = useView((s) => s.page);
   const page = PAGE_BY_ID[pageId];
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sidebarW, setSidebarW] = useStoredNumber('dom6browser:sidebarW', 290);
-  const [detailW, setDetailW] = useStoredNumber('dom6browser:detailW', wide ? 620 : 440);
+  const hasDetail = useView((s) => !!s.detailRef);
+  const [sidebarOpen, setSidebarOpen] = useStoredBool('dom6browser:sidebarOpen', true);
+  const [sidebarW, setSidebarW] = useStoredNumber('dom6browser:sidebarW', SIDEBAR_DEFAULT);
+  const detailDefault = wide ? 620 : 440;
+  // 0 = follow the default for the current window size until the user drags
+  const [storedDetailW, setStoredDetailW] = useStoredNumber('dom6browser:detailW', 0);
+  const winW = useWindowWidth();
+  // never let the detail panel squeeze the table below MIN_MAIN
+  const detailMax = Math.max(DETAIL_MIN, Math.min(DETAIL_MAX, winW - (sidebarOpen ? sidebarW : 0) - MIN_MAIN));
+  const detailW = clamp(storedDetailW || detailDefault, DETAIL_MIN, detailMax);
+  const setDetailW = (f: (w: number) => number) => setStoredDetailW(clamp(f(detailW), DETAIL_MIN, detailMax));
 
   return (
     <div className="flex h-full flex-col">
@@ -140,7 +181,14 @@ function DesktopWorkspace({ wide }: { wide: boolean }) {
                 <PageFilters page={page} />
               </div>
             </aside>
-            <Resizer onResize={(d) => setSidebarW((w) => clamp(w + d, 220, 460))} />
+            <Resizer
+              label="Resize sidebar"
+              value={sidebarW}
+              min={SIDEBAR_MIN}
+              max={SIDEBAR_MAX}
+              onResize={(d) => setSidebarW((w) => clamp(w + d, SIDEBAR_MIN, SIDEBAR_MAX))}
+              onReset={() => setSidebarW(SIDEBAR_DEFAULT)}
+            />
           </>
         )}
         <main className="flex min-w-0 flex-1 flex-col">
@@ -148,12 +196,24 @@ function DesktopWorkspace({ wide }: { wide: boolean }) {
             <ResultsPane page={page} />
           </ErrorBoundary>
         </main>
-        <Resizer onResize={(d) => setDetailW((w) => clamp(w - d, 320, 900))} />
-        <div className="min-h-0 shrink-0 border-l border-line" style={{ width: detailW }}>
-          <ErrorBoundary label="the detail panel">
-            <DetailPanel />
-          </ErrorBoundary>
-        </div>
+        {hasDetail && (
+          <>
+            <Resizer
+              label="Resize detail panel"
+              value={detailW}
+              min={DETAIL_MIN}
+              max={detailMax}
+              invert
+              onResize={(d) => setDetailW((w) => w - d)}
+              onReset={() => setStoredDetailW(0)}
+            />
+            <div className="min-h-0 shrink-0 border-l border-line" style={{ width: detailW }}>
+              <ErrorBoundary label="the detail panel">
+                <DetailPanel />
+              </ErrorBoundary>
+            </div>
+          </>
+        )}
       </div>
       <PinTray />
     </div>
@@ -161,12 +221,58 @@ function DesktopWorkspace({ wide }: { wide: boolean }) {
 }
 
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+const SIDEBAR_MIN = 220;
+const SIDEBAR_MAX = 460;
+const SIDEBAR_DEFAULT = 290;
+const DETAIL_MIN = 320;
+const DETAIL_MAX = 900;
+const MIN_MAIN = 360;
 
-function Resizer({ onResize }: { onResize: (delta: number) => void }) {
+function Resizer({
+  label,
+  value,
+  min,
+  max,
+  invert,
+  onResize,
+  onReset,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  /** the panel sits to the right of the handle, so dragging left grows it */
+  invert?: boolean;
+  onResize: (delta: number) => void;
+  onReset: () => void;
+}) {
   const last = useRef(0);
   return (
     <div
-      className="group relative z-10 -mx-1 w-2 shrink-0 cursor-col-resize"
+      tabIndex={0}
+      aria-label={label}
+      aria-valuenow={Math.round(value)}
+      aria-valuemin={min}
+      aria-valuemax={Math.round(max)}
+      title="Drag to resize · double-click to reset"
+      onDoubleClick={onReset}
+      onKeyDown={(e) => {
+        const step = e.shiftKey ? 64 : 16;
+        // keep the global shortcuts (Enter pins, arrows move the selection) from also firing
+        if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter'].includes(e.key)) e.stopPropagation();
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          onResize(e.key === 'ArrowRight' ? step : -step);
+        } else if (e.key === 'Home' || e.key === 'End') {
+          e.preventDefault();
+          const target = (e.key === 'Home') !== !!invert ? min : max;
+          onResize(invert ? value - target : target - value);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          onReset();
+        }
+      }}
+      className="group relative z-10 -mx-1 w-2 shrink-0 cursor-col-resize outline-none"
       onPointerDown={(e) => {
         e.preventDefault();
         last.current = e.clientX;
@@ -186,7 +292,7 @@ function Resizer({ onResize }: { onResize: (delta: number) => void }) {
       role="separator"
       aria-orientation="vertical"
     >
-      <div className="mx-auto h-full w-px bg-transparent transition-colors group-hover:bg-accent/60" />
+      <div className="mx-auto h-full w-px bg-transparent transition-colors group-hover:bg-accent/60 group-focus-visible:w-0.5 group-focus-visible:bg-accent" />
     </div>
   );
 }
@@ -353,7 +459,7 @@ function MobileWorkspace() {
           className={'flex flex-1 flex-col items-center justify-center gap-0.5 text-[10px] ' + (!['unit', 'spell', 'item', 'site'].includes(pageId) ? 'text-accent' : 'text-muted')}
           onClick={() => setPagesOpen(true)}
         >
-          <SlidersHorizontal size={18} className="rotate-90" />
+          <LayoutGrid size={18} />
           More
         </button>
       </nav>

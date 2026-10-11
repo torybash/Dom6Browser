@@ -1,5 +1,5 @@
 import * as Dropdown from '@radix-ui/react-dropdown-menu';
-import { Check, Monitor, Moon, Package, PanelLeft, Search, Settings2, Sun } from 'lucide-react';
+import { Check, Monitor, Moon, Package, PanelLeft, Search, Settings, Sun } from 'lucide-react';
 import { useData } from '../state/data';
 import { useMods } from '../state/mods';
 import { useSettings, type Theme } from '../state/settings';
@@ -75,7 +75,7 @@ function SettingsMenu() {
   return (
     <Dropdown.Root>
       <Dropdown.Trigger className="btn-ghost" aria-label="Settings" title="Display & advanced options">
-        <Settings2 size={17} />
+        <Settings size={17} />
       </Dropdown.Trigger>
       <Dropdown.Portal>
         <Dropdown.Content align="end" sideOffset={6} className="z-50 w-72 rounded-lg border border-line bg-panel p-1.5 shadow-xl animate-in">

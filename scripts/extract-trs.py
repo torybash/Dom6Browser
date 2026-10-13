@@ -79,6 +79,9 @@ UNIT_ICONS = {
     'abil-demon': ('res', 57), 'abil-ethereal': ('res', 21), 'abil-unseen': ('res', 337), 'abil-spiritsight': ('res', 300),
     'abil-magicbeing': ('res', 36), 'abil-trample': ('res', 25), 'abil-coldblood': ('res', 19),
     'abil-stormimmune': ('res', 217), 'abil-neednoteat': ('res', 43),
+    # "Susceptible to ..." (negative resistance); fire, cold and acid checked in game
+    'sus-fireres': ('res', 75), 'sus-coldres': ('res', 76), 'sus-poisonres': ('res', 109),
+    'sus-shockres': ('res', 110), 'sus-acidres': ('res', 370),
 }
 
 

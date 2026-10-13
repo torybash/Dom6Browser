@@ -86,6 +86,9 @@ const ABILITY_ICONS: Record<string, ChipIcon> = {
   eyes: [Eye, '#ddd5c7'],
 };
 
+/** Resistances with an in-game "susceptible to" icon for negative values, public/gameicons/sus-<key>.png. */
+const SUSCEPTIBLE = new Set(['fireres', 'coldres', 'shockres', 'poisonres', 'acidres']);
+
 /** Boolean flags shown as icons (label in the tooltip). */
 const FLAG_ICONS: Record<string, ChipIcon> = {
   holy: 'game',
@@ -238,7 +241,9 @@ export function enhanceUnitCard(main: HTMLElement) {
     const td = tr.querySelector(':scope > td');
     if (!def || !th || !td || td.querySelector('a, table')) return;
     const label = (th.textContent ?? key).replace(/\[.*?\]/, '').replace(/:\s*$/, '').trim();
-    const chip = el('span', 'uchip', chipIcon(key, def) + `<span class="uchip-label">${label}</span><span class="stat-value">${td.innerHTML}</span>`);
+    // like the game, a negative resistance shows the crossed-out "susceptible to" icon
+    const susceptible = SUSCEPTIBLE.has(key) && parseFloat(td.textContent ?? '') < 0;
+    const chip = el('span', 'uchip', (susceptible ? gameIcon('sus-' + key) : chipIcon(key, def)) + `<span class="uchip-label">${label}</span><span class="stat-value">${td.innerHTML}</span>`);
     chip.dataset.key = key;
     chip.title = `${label}: ${td.textContent?.trim()}` + (tr.title ? `\n${tr.title}` : '');
     const keySpan = th.querySelector('.internal-inline');

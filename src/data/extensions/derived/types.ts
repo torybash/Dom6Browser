@@ -65,6 +65,8 @@ export interface DerivedValue {
   /** Property name on unit objects; also the column id and filter key. */
   field: string;
   label: string;
+  /** Table column header. */
+  shortLabel: string;
   confidence: Confidence;
   /** Human-readable formula for the tooltip. */
   formula: string;

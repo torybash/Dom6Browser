@@ -13,6 +13,9 @@ export interface GridColumn {
   sortCmp?: string;
   cssClass?: string;
   nameHtml?: string;
+  /** calculated value column (src/data/extensions/derived): hidden unless chosen */
+  derived?: boolean;
+  title?: string;
   formatter?: (row: number, cell: number, value: any, col: GridColumn, o: any) => string;
 }
 

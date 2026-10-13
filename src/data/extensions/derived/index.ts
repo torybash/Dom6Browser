@@ -3,7 +3,7 @@
 // while legacy code, which only walks enumerable keys, and the golden parity tests never see it.
 import type { DMI } from '../../load';
 import { readUnitInputs, snapshotRawUnitFields, type RawUnitFields } from './inputs';
-import { UNIT_DERIVED, resolveConfidence } from './registry';
+import { UNIT_DERIVED, formatDerived, resolveConfidence } from './registry';
 import type { DerivedContext, DerivedResult, DerivedValue } from './types';
 
 export { snapshotRawUnitFields, UNIT_DERIVED };
@@ -64,4 +64,47 @@ export function installDerived(DMI: DMI, raw: RawUnitFields) {
       });
     }
   }
+
+  // table columns, hidden until chosen in the column picker
+  for (const def of UNIT_DERIVED) {
+    DMI.MUnit.grid.columns.push({
+      id: def.field,
+      field: def.field,
+      name: def.shortLabel,
+      title: `${def.label}: ${def.formula}`,
+      width: 44,
+      sortable: true,
+      cssClass: 'numeric',
+      derived: true,
+      formatter: (_row: number, _cell: number, _v: any, _col: any, o: any) => formatDerived(def, api.get(o, def.id)),
+    });
+  }
+
+  // units without a value sort last in either direction
+  const makeSortCmp = DMI.makeSortCmp;
+  DMI.makeSortCmp = (column: any, asc: boolean, prev?: (a: any, b: any) => number) => {
+    if (!column.derived) return makeSortCmp(column, asc, prev);
+    const f = column.field;
+    return (a: any, b: any) => {
+      const x = a[f], y = b[f];
+      if (x === y) return prev ? prev(a, b) : 0;
+      if (x === undefined) return 1;
+      if (y === undefined) return -1;
+      return (x > y ? 1 : -1) * (asc ? 1 : -1);
+    };
+  };
+
+  // legacy >= / <= property filters compare integers; calculated values have decimals
+  const buildPropertyArgs = DMI.buildPropertyArgs;
+  DMI.buildPropertyArgs = (rows: any[] = []) => {
+    const isCalc = (r: any) => /^calc_/i.test(String(r.key ?? '').trim()) && (r.comp === '>=' || r.comp === '<=');
+    const args = buildPropertyArgs(rows.filter((r) => !isCalc(r)));
+    for (const r of rows.filter(isCalc)) {
+      const c = parseFloat(r.val);
+      if (!Number.isFinite(c)) continue;
+      const comp = r.comp === '>=' ? (v: any) => parseFloat(v) >= c : (v: any) => parseFloat(v) <= c;
+      args.push({ key: String(r.key).toLowerCase().trim(), not: r.not ? 1 : 0, val: c, comp });
+    }
+    return args;
+  };
 }

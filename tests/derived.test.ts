@@ -128,3 +128,42 @@ describe('Calculated section', () => {
     expect(withCalculated(DMI, spell, 'x')).toBe('x');
   });
 });
+
+describe('calculated columns and filters', () => {
+  it('sorts units without a value last in both directions', async () => {
+    const DMI = await vanilla();
+    const col = DMI.MUnit.grid.columns.find((c: any) => c.id === 'calc_patrol');
+    expect(col.derived).toBe(true);
+    const rows = [...DMI.modctx.unitdata];
+    for (const asc of [true, false]) {
+      rows.sort(DMI.makeSortCmp(col, asc));
+      expect(rows[0].calc_patrol).toBeDefined();
+      expect(rows[rows.length - 1].calc_patrol).toBeUndefined();
+      const a = rows[0].calc_patrol, b = rows[1].calc_patrol;
+      expect(asc ? a <= b : a >= b).toBe(true);
+    }
+  });
+
+  it('compares property filters on calculated values as decimals', async () => {
+    const DMI = await vanilla();
+    const [arg] = DMI.buildPropertyArgs([{ key: 'calc_patrol', comp: '>=', val: '1.35' }]);
+    const spearman = DMI.modctx.unitlookup[61]; // 1.3
+    expect(DMI.matchProperty(spearman, arg.key, arg.comp, arg.val)).toBeFalsy();
+    const [arg2] = DMI.buildPropertyArgs([{ key: 'calc_patrol', comp: '<=', val: '1.35' }]);
+    expect(DMI.matchProperty(spearman, arg2.key, arg2.comp, arg2.val)).toBe(true);
+  });
+
+  it('keeps chosen columns in the URL and shows a sorted-by column', async () => {
+    const { useView, stateToHash, applyHash } = await import('../src/state/view');
+    const { shownCalcColumns } = await import('../src/ui/ResultsTable');
+    useView.setState({ page: 'unit', calcCols: { unit: ['calc_patrol', 'calc_siege'] } });
+    const hash = stateToHash(useView.getState());
+    expect(hash).toContain('calc=patrol%2Csiege');
+    useView.setState({ calcCols: {} });
+    applyHash(hash);
+    expect(useView.getState().calcCols.unit).toEqual(['calc_patrol', 'calc_siege']);
+    expect(useView.getState().filters.unit).toEqual({});
+    expect(shownCalcColumns(['calc_patrol'], 'calc_upkeep')).toEqual(['calc_patrol', 'calc_upkeep']);
+    expect(shownCalcColumns(undefined, 'name')).toEqual([]);
+  });
+});

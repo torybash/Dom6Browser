@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { PAGE_BY_ID, UNIT_TYPE_VALUES, type PageId } from '../pages';
 import type { DMI } from '../data/load';
 import type { Filters, Sort } from './view';
+import { inCalcRanges } from '../data/extensions/derived';
 
 export interface GridColumn {
   id: string;
@@ -132,6 +133,7 @@ export function useResults(
     try {
       const args = buildArgs(DMI, grid, f);
       rows = data.filter((o) => grid.searchFilter(o, args));
+      if (page === 'unit') rows = rows.filter((o) => inCalcRanges(o, filters));
       if (DMI.customJsError) error = DMI.customJsError;
     } catch (e: any) {
       console.error(e);

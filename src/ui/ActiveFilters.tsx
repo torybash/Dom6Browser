@@ -4,6 +4,7 @@ import type { DMI } from '../data/load';
 import { useSettings } from '../state/settings';
 import { useView, type Filters } from '../state/view';
 import { nationLabel } from './FilterPanel';
+import { UNIT_DERIVED, parseRange } from '../data/extensions/derived';
 
 interface Chip {
   id: string;
@@ -61,6 +62,14 @@ export function activeChips(page: PageDef, f: Filters, DMI: DMI, o: { advanced: 
       });
     }
     if (d.type === 'number' && o.moreInfo && f[d.key]) chips.push({ id: d.key, label: `${d.label} ${f[d.key]}`, clear: { [d.key]: '' } });
+    if (d.type === 'calculated') {
+      for (const c of UNIT_DERIVED) {
+        const r = parseRange(f[c.field]);
+        if (!r) continue;
+        const range = r.min !== undefined && r.max !== undefined ? `${r.min}–${r.max}` : r.min !== undefined ? `≥ ${r.min}` : `≤ ${r.max}`;
+        chips.push({ id: c.field, label: `${c.shortLabel} ${range}`, clear: { [c.field]: '' } });
+      }
+    }
   }
   if (o.advanced && Array.isArray(f.properties)) {
     f.properties.forEach((p: any, i: number) => {

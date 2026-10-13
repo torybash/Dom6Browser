@@ -108,3 +108,30 @@ export function installDerived(DMI: DMI, raw: RawUnitFields) {
     return args;
   };
 }
+
+/* Range filters: filter key = field (calc_patrol), value "min..max" with either side optional. */
+
+export function parseRange(v: unknown): { min?: number; max?: number } | null {
+  if (typeof v !== 'string' || !v.includes('..')) return null;
+  const [a, b] = v.split('..').map((s) => (s.trim() === '' ? undefined : parseFloat(s)));
+  const min = Number.isFinite(a) ? a : undefined;
+  const max = Number.isFinite(b) ? b : undefined;
+  return min === undefined && max === undefined ? null : { min, max };
+}
+
+export function formatRange(min: string, max: string): string {
+  return min.trim() || max.trim() ? `${min.trim()}..${max.trim()}` : '';
+}
+
+/** True if the unit passes every calculated-value range in the filters; units without a value fail. */
+export function inCalcRanges(o: any, filters: Record<string, any>): boolean {
+  for (const def of UNIT_DERIVED) {
+    const r = parseRange(filters[def.field]);
+    if (!r) continue;
+    const v = o[def.field];
+    if (v === undefined) return false;
+    if (r.min !== undefined && v < r.min - 1e-9) return false;
+    if (r.max !== undefined && v > r.max + 1e-9) return false;
+  }
+  return true;
+}

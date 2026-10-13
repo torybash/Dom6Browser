@@ -167,3 +167,27 @@ describe('calculated columns and filters', () => {
     expect(shownCalcColumns(undefined, 'name')).toEqual([]);
   });
 });
+
+describe('calculated range filters', () => {
+  it('parses open and closed ranges', async () => {
+    const { parseRange, formatRange } = await import('../src/data/extensions/derived');
+    expect(parseRange('1.5..3')).toEqual({ min: 1.5, max: 3 });
+    expect(parseRange('..3')).toEqual({ min: undefined, max: 3 });
+    expect(parseRange('-2..')).toEqual({ min: -2, max: undefined });
+    expect(parseRange('..')).toBeNull();
+    expect(parseRange('3')).toBeNull();
+    expect(formatRange('', '')).toBe('');
+    expect(formatRange('1', '')).toBe('1..');
+  });
+
+  it('filters units by range and drops units without a value', async () => {
+    const { inCalcRanges } = await import('../src/data/extensions/derived');
+    const DMI = await vanilla();
+    const unit = (id: number) => DMI.modctx.unitlookup[id];
+    expect(inCalcRanges(unit(61), { calc_patrol: '1.3..1.3' })).toBe(true);
+    expect(inCalcRanges(unit(61), { calc_patrol: '1.31..' })).toBe(false);
+    expect(inCalcRanges(unit(61), { calc_patrol: '..2', calc_siege: '1..' })).toBe(true);
+    expect(inCalcRanges(unit(2660), { calc_patrol: '..100' })).toBe(false);
+    expect(inCalcRanges(unit(2660), {})).toBe(true);
+  });
+});

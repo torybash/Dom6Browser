@@ -18,7 +18,9 @@ export type FilterDef =
   | { type: 'paths'; key: string; paths: string; icon: 'Path' | 'Gem'; label: string; inclusiveKey?: string }
   | { type: 'pathLevels'; key: string; paths: string; label: string }
   | { type: 'scope'; nationalKey: string; genericKey: string }
-  | { type: 'number'; key: string; label: string; title: string; mask?: boolean; moreInfo?: boolean };
+  | { type: 'number'; key: string; label: string; title: string; mask?: boolean; moreInfo?: boolean }
+  /** min/max ranges for calculated unit values (src/data/extensions/derived) */
+  | { type: 'calculated' };
 
 export interface PageDef {
   id: PageId;
@@ -84,6 +86,7 @@ export const PAGES: PageDef[] = [
         ],
       },
       { type: 'scope', nationalKey: 'national', genericKey: 'generic' },
+      { type: 'calculated' },
     ],
     thumb: (o, DMI) => {
       DMI.MUnit.prepareForRender(o);

@@ -151,6 +151,10 @@ describe('calculated columns and filters', () => {
     expect(DMI.matchProperty(spearman, arg.key, arg.comp, arg.val)).toBeFalsy();
     const [arg2] = DMI.buildPropertyArgs([{ key: 'calc_patrol', comp: '<=', val: '1.35' }]);
     expect(DMI.matchProperty(spearman, arg2.key, arg2.comp, arg2.val)).toBe(true);
+    // a value of 0 still matches (legacy matchProperty treats 0 as missing)
+    const free = DMI.modctx.unitdata.find((o: any) => o.calc_upkeep === 0);
+    const [zero] = DMI.buildPropertyArgs([{ key: 'calc_upkeep', comp: '<=', val: '0' }]);
+    expect(free.matchProperty(free, zero.key, zero.comp, zero.val)).toBe(true);
   });
 
   it('keeps chosen columns in the URL and shows a sorted-by column', async () => {
@@ -171,23 +175,23 @@ describe('calculated columns and filters', () => {
 describe('calculated range filters', () => {
   it('parses open and closed ranges', async () => {
     const { parseRange, formatRange } = await import('../src/data/extensions/derived');
-    expect(parseRange('1.5..3')).toEqual({ min: 1.5, max: 3 });
-    expect(parseRange('..3')).toEqual({ min: undefined, max: 3 });
-    expect(parseRange('-2..')).toEqual({ min: -2, max: undefined });
-    expect(parseRange('..')).toBeNull();
+    expect(parseRange('1.5~3')).toEqual({ min: 1.5, max: 3 });
+    expect(parseRange('~3')).toEqual({ min: undefined, max: 3 });
+    expect(parseRange('-2~')).toEqual({ min: -2, max: undefined });
+    expect(parseRange('~')).toBeNull();
     expect(parseRange('3')).toBeNull();
     expect(formatRange('', '')).toBe('');
-    expect(formatRange('1', '')).toBe('1..');
+    expect(formatRange('1.', '')).toBe('1.~');
   });
 
   it('filters units by range and drops units without a value', async () => {
     const { inCalcRanges } = await import('../src/data/extensions/derived');
     const DMI = await vanilla();
     const unit = (id: number) => DMI.modctx.unitlookup[id];
-    expect(inCalcRanges(unit(61), { calc_patrol: '1.3..1.3' })).toBe(true);
-    expect(inCalcRanges(unit(61), { calc_patrol: '1.31..' })).toBe(false);
-    expect(inCalcRanges(unit(61), { calc_patrol: '..2', calc_siege: '1..' })).toBe(true);
-    expect(inCalcRanges(unit(2660), { calc_patrol: '..100' })).toBe(false);
+    expect(inCalcRanges(unit(61), { calc_patrol: '1.3~1.3' })).toBe(true);
+    expect(inCalcRanges(unit(61), { calc_patrol: '1.31~' })).toBe(false);
+    expect(inCalcRanges(unit(61), { calc_patrol: '~2', calc_siege: '1~' })).toBe(true);
+    expect(inCalcRanges(unit(2660), { calc_patrol: '~100' })).toBe(false);
     expect(inCalcRanges(unit(2660), {})).toBe(true);
   });
 });

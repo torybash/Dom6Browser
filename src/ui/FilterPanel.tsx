@@ -257,7 +257,7 @@ export const PATH_NAMES: Record<string, string> = {
 };
 const orderPaths = (s: string) => 'FAWESDNGBH'.split('').filter((p) => s.includes(p)).join('');
 
-/** Min/max boxes for each calculated unit value; stored as "min..max" under the value's field. */
+/** Min/max boxes for each calculated unit value; stored as "min~max" under the value's field. */
 function CalculatedRanges({ filters, patch }: { filters: Filters; patch: (p: Filters) => void }) {
   const active = UNIT_DERIVED.some((d) => filters[d.field]);
   return (
@@ -272,7 +272,7 @@ function CalculatedRanges({ filters, patch }: { filters: Filters; patch: (p: Fil
         <span className="text-[11px] text-muted">min</span>
         <span className="text-[11px] text-muted">max</span>
         {UNIT_DERIVED.map((d) => {
-          const [min = '', max = ''] = String(filters[d.field] ?? '').split('..');
+          const [min = '', max = ''] = String(filters[d.field] ?? '').split('~');
           const set = (lo: string, hi: string) => patch({ [d.field]: formatRange(lo, hi) });
           const box = (v: string, onChange: (v: string) => void, label: string) => (
             <input

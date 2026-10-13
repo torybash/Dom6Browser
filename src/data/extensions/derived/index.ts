@@ -4,7 +4,7 @@
 import type { DMI } from '../../load';
 import { readUnitInputs, snapshotRawUnitFields, type RawUnitFields } from './inputs';
 import { UNIT_DERIVED, formatDerived, resolveConfidence } from './registry';
-import type { DerivedContext, DerivedResult, DerivedValue } from './types';
+import type { DerivedContext, DerivedResult, DerivedValue, UnitInputs } from './types';
 
 export { snapshotRawUnitFields, UNIT_DERIVED };
 export type { DerivedValue, DerivedResult, DerivedContext };
@@ -24,11 +24,18 @@ export interface DerivedApi {
 export function installDerived(DMI: DMI, raw: RawUnitFields) {
   const byId = new Map(UNIT_DERIVED.map((d) => [d.id, d]));
   const cache = new WeakMap<object, Map<string, ResolvedResult>>();
+  const neutralInputs = new WeakMap<object, UnitInputs>();
+  const inputsFor = (o: any, ctx: DerivedContext): UnitInputs => {
+    if (Object.keys(ctx).length) return readUnitInputs(DMI, raw, o, ctx);
+    let i = neutralInputs.get(o);
+    if (!i) neutralInputs.set(o, (i = readUnitInputs(DMI, raw, o, ctx)));
+    return i;
+  };
 
   const compute = (o: any, def: DerivedValue, ctx: DerivedContext): ResolvedResult => {
     let r: DerivedResult;
     try {
-      r = def.compute(readUnitInputs(DMI, raw, o, ctx), ctx);
+      r = def.compute(inputsFor(o, ctx), ctx);
     } catch (e) {
       console.warn(`calculated ${def.id} failed for unit ${o.id}`, e);
       r = { value: null };
@@ -56,6 +63,15 @@ export function installDerived(DMI: DMI, raw: RawUnitFields) {
   DMI.Derived = api;
 
   for (const o of DMI.modctx.unitdata) {
+    // legacy matchProperty treats a value of 0 as missing; calculated values are often 0
+    const legacyMatch = o.matchProperty;
+    if (typeof legacyMatch === 'function') {
+      o.matchProperty = (u: any, key: string, comp: (v: any, c: any) => any, match: any) => {
+        if (!/^calc_/.test(key)) return legacyMatch(u, key, comp, match);
+        const v = u[key];
+        return v === undefined ? undefined : comp(v, match) ? true : undefined;
+      };
+    }
     for (const def of UNIT_DERIVED) {
       Object.defineProperty(o, def.field, {
         get: () => api.get(o, def.id).value ?? undefined,
@@ -109,18 +125,18 @@ export function installDerived(DMI: DMI, raw: RawUnitFields) {
   };
 }
 
-/* Range filters: filter key = field (calc_patrol), value "min..max" with either side optional. */
+/* Range filters: filter key = field (calc_patrol), value "min~max" with either side optional. */
 
 export function parseRange(v: unknown): { min?: number; max?: number } | null {
-  if (typeof v !== 'string' || !v.includes('..')) return null;
-  const [a, b] = v.split('..').map((s) => (s.trim() === '' ? undefined : parseFloat(s)));
+  if (typeof v !== 'string' || !v.includes('~')) return null;
+  const [a, b] = v.split('~').map((s) => (s.trim() === '' ? undefined : parseFloat(s)));
   const min = Number.isFinite(a) ? a : undefined;
   const max = Number.isFinite(b) ? b : undefined;
   return min === undefined && max === undefined ? null : { min, max };
 }
 
 export function formatRange(min: string, max: string): string {
-  return min.trim() || max.trim() ? `${min.trim()}..${max.trim()}` : '';
+  return min.trim() || max.trim() ? `${min.trim()}~${max.trim()}` : '';
 }
 
 /** True if the unit passes every calculated-value range in the filters; units without a value fail. */

@@ -412,11 +412,16 @@ function ColumnPicker({ page, results, prefs, setPrefs }: { page: PageDef; resul
                 Calculated
               </div>
               {calcColumns.map((c: any) => (
-                <label key={c.id} title={c.title} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-row-hover">
+                <label
+                  key={c.id}
+                  title={c.id === sortCol ? 'Shown because the table is sorted by it' : c.title}
+                  className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-row-hover"
+                >
                   <input
                     type="checkbox"
                     className="accent-[rgb(var(--accent))]"
                     checked={shownCalc.includes(c.id)}
+                    disabled={c.id === sortCol}
                     onChange={(e) => setCalcCols(e.target.checked ? [...shownCalc, c.id] : shownCalc.filter((f) => f !== c.id))}
                   />
                   {c.name}

@@ -111,3 +111,20 @@ describe('calculated values on loaded units', () => {
     expect(DMI.Derived.all(o).length).toBeGreaterThan(3);
   });
 });
+
+describe('Calculated section', () => {
+  it('is inserted before the unit footer with ≈ markers and escaped tooltips', async () => {
+    const { withCalculated } = await import('../src/ui/calculated');
+    const DMI = await vanilla();
+    const o = DMI.modctx.unitlookup[61];
+    const html = withCalculated(DMI, o, o.renderOverlay(o));
+    const at = html.indexOf('<div class="calc-section">');
+    expect(at).toBeGreaterThan(0);
+    expect(at).toBeLessThan(html.indexOf('<div class="overlay-footer">'));
+    expect(html).toContain('data-key="calc_patrol"');
+    expect(html).toContain('≈1.3');
+    expect(html).not.toMatch(/title="[^"]*</);
+    const spell = DMI.modctx.spelllookup[1];
+    expect(withCalculated(DMI, spell, 'x')).toBe('x');
+  });
+});

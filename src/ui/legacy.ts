@@ -2,6 +2,7 @@
 import type { DMI } from '../data/load';
 import { fetchText } from '../state/data';
 import { enhanceUnitCard } from './unitCard';
+import { withCalculated } from './calculated';
 
 export interface RenderedPane {
   html: string;
@@ -25,7 +26,7 @@ export function renderRef(DMI: DMI, ref: string, showModCmds: boolean): Rendered
   DMI.takeContentJobs();
   let html: string;
   try {
-    html = r.kind === 'rndmagic' ? wrapRandomMagic(DMI.MUnit.renderRandomMagic(r.o), r.o) : r.o.renderOverlay(r.o);
+    html = r.kind === 'rndmagic' ? wrapRandomMagic(DMI.MUnit.renderRandomMagic(r.o), r.o) : withCalculated(DMI, r.o, r.o.renderOverlay(r.o));
   } catch (e: any) {
     console.error(e);
     html = `<div class="overlay-main"><p class="text-bad">Failed to render ${ref}: ${escapeHtml(String(e?.message ?? e))}</p></div>`;
@@ -50,6 +51,10 @@ export function escapeHtml(s: string) {
 
 export function enhance(root: HTMLElement) {
   root.querySelectorAll<HTMLElement>('.unit.overlay-contents > .overlay-main').forEach(enhanceUnitCard);
+  // the Calculated section goes right under the stat card
+  root.querySelectorAll<HTMLElement>('.calc-section').forEach((sec) => {
+    sec.closest('.overlay-contents')?.querySelector('.ucard')?.after(sec);
+  });
   root.querySelectorAll<HTMLImageElement>('img').forEach(fixImage);
   root.querySelectorAll<HTMLTableElement>('table.overlay-table').forEach((t) => {
     const first = t.rows[0];

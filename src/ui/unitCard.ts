@@ -5,11 +5,11 @@
 // Only layout changes: all upstream content (links, tooltips, advanced-mode classes) is kept, and
 // abilities without an icon stay as regular text rows.
 import {
-  Anchor, Angry, Axe, BicepsFlexed, Biohazard, Bird, Bone, BookOpen, Brain, Bug, Castle, CircleDot, CloudLightning, Coins, Compass,
-  Crosshair, Crown, Dna, Drama, Droplet, Droplets, Eye, EyeOff, Feather, Fish, Flag, Flame, Footprints, Gauge, Gem, Ghost, Hammer, Hand,
-  HardHat, HeartPulse, Hexagon, Hourglass, Infinity as InfinityIcon, Leaf, Lock, Megaphone, Moon, Mountain, Pentagon,
-  PersonStanding, ScanEye, Shield, ShieldHalf, Shirt, Skull, Snowflake, Sparkles, Sprout, Sun, Sword, Swords, Target, Tent,
-  TreePine, Users, WandSparkles, Waves, Weight, Wheat, Wind, Wrench, Zap,
+  Anchor, Angry, Axe, Biohazard, Bird, Bone, BookOpen, Brain, Bug, Castle, CircleDot, CloudLightning, Coins, Compass,
+  Dna, Drama, Droplet, Droplets, Eye, EyeOff, Feather, Fish, Flag, Flame, Footprints, Ghost, Hammer, Hand,
+  HeartPulse, Hexagon, Hourglass, Infinity as InfinityIcon, Leaf, Lock, Megaphone, Moon, Mountain,
+  ScanEye, ShieldHalf, Skull, Snowflake, Sparkles, Sprout, Sun, Sword, Swords, Target,
+  TreePine, Users, Waves, Wheat, Wind, Wrench, Zap,
 } from 'lucide-static';
 
 type IconDef = [svg: string, color: string];
@@ -17,29 +17,11 @@ type IconDef = [svg: string, color: string];
 const Venus =
   '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="9" r="5"/><path d="M12 14v7M9 18h6"/></svg>';
 
-/** Main stats (the three upstream stat tables). */
-const STAT_ICONS: Record<string, IconDef> = {
-  id: [Hexagon, '#8a8f99'],
-  goldcost: [Coins, '#e2b33e'],
-  hp: [Droplet, '#e0443a'],
-  size: [PersonStanding, '#b9a98f'],
-  prot: [Shield, '#a9b3bf'],
-  mr: [Pentagon, '#c86ad8'],
-  mor: [Flag, '#e8e2d4'],
-  leader: [Megaphone, '#e0503f'],
-  rcost: [Hammer, '#a5aeb9'],
-  str: [BicepsFlexed, '#e58a3d'],
-  att: [Sword, '#cfd4db'],
-  def: [ShieldHalf, '#5d93df'],
-  prec: [Crosshair, '#dca469'],
-  ap: [Gauge, '#cdb48b'],
-  magicleader: [WandSparkles, '#9a86ea'],
-  rpcost: [Tent, '#e58a3d'],
-  mapmove: [Footprints, '#cba66b'],
-  enc: [Weight, '#a5aeb9'],
-  maxage: [Hourglass, '#ddd5c7'],
-  undeadleader: [Skull, '#b67fdd'],
-};
+/** Main stats (the three upstream stat tables) with an in-game icon, public/gameicons/stat-<key>.png. */
+const GAME_STAT_ICONS = new Set([
+  'goldcost', 'hp', 'size', 'prot', 'mr', 'mor', 'leader', 'rcost', 'str', 'att', 'def', 'prec', 'ap',
+  'magicleader', 'rpcost', 'mapmove', 'enc', 'maxage', 'undeadleader',
+]);
 
 /** Column of each main stat, following the in-game window. Unknown keys join the previous row's column. */
 const STAT_COLUMN: Record<string, number> = {
@@ -149,19 +131,21 @@ const FLAG_ICONS: Record<string, IconDef | 'holy'> = {
   undisciplined: [Angry, '#c9a46a'],
 };
 
-/** Item slot words from the "item slots" row. */
+/** Item slot words from the "item slots" row -> in-game icon (public/gameicons/slot-<name>.png), tooltip. */
 const SLOT_ICONS: [RegExp, string, string][] = [
-  [/hand/, Sword, 'hand'],
-  [/bow/, Crosshair, 'bow (missile weapon)'],
-  [/crown/, Crown, 'crown'],
-  [/head/, HardHat, 'head'],
-  [/body/, Shirt, 'body'],
-  [/feet/, Footprints, 'feet'],
-  [/misc/, Gem, 'miscellaneous'],
+  [/hand/, 'hand', 'hand'],
+  [/bow/, 'bow', 'bow (missile weapon)'],
+  [/crown/, 'head', 'crown'],
+  [/head/, 'head', 'head'],
+  [/body/, 'body', 'body'],
+  [/feet/, 'feet', 'feet'],
+  [/misc/, 'misc', 'miscellaneous'],
 ];
 
 const icon = ([svg, color]: IconDef, cls = 'uicon') =>
   `<span class="${cls}" style="color:${color}">${svg.replace(/width="24"/, 'width="1em"').replace(/height="24"/, 'height="1em"')}</span>`;
+
+const gameIcon = (name: string) => `<span class="uicon gicon"><img src="gameicons/${name}.png" alt=""></span>`;
 
 const holyIcon = '<span class="uicon"><span class="abilityicon holy">&nbsp;</span></span>';
 
@@ -199,7 +183,7 @@ export function enhanceUnitCard(main: HTMLElement) {
     // renderDetailsRows2 puts the [key] span in the next row
     const keySpan = tr.nextElementSibling?.querySelector(':scope > th > .internal-inline');
     row.innerHTML =
-      icon(STAT_ICONS[key] ?? [CircleDot, '#8a8f99']) +
+      (GAME_STAT_ICONS.has(key) ? gameIcon('stat-' + key) : icon([key === 'id' ? Hexagon : CircleDot, '#8a8f99'])) +
       `<span class="ustat-label">${label}${keySpan ? keySpan.outerHTML : ''}</span>` +
       `<span class="stat-value">${td.innerHTML}</span>`;
     columns[col].appendChild(row);
@@ -225,7 +209,9 @@ export function enhanceUnitCard(main: HTMLElement) {
       const word = m ? m[2] : part;
       const slot = SLOT_ICONS.find(([re]) => re.test(word));
       for (let i = 0; i < n; i++) {
-        bar.appendChild(el('span', 'uslot', slot ? icon([slot[1], 'currentColor'], 'uicon') : `<span class="text-[10px]">${word}</span>`)).title = slot ? slot[2] : word;
+        // like the in-game window, the second hand slot shows a shield
+        const name = slot && (slot[1] === 'hand' && i === 1 ? 'offhand' : slot[1]);
+        bar.appendChild(el('span', 'uslot', name ? gameIcon('slot-' + name) : `<span class="text-[10px]">${word}</span>`)).title = slot ? slot[2] : word;
       }
     }
     bar.appendChild(el('span', 'stat-value uslots-text', text));

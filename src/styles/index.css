@@ -434,6 +434,17 @@ button {
   width: 1.15em;
   height: 1.15em;
 }
+.legacy .gicon {
+  width: 1.45em;
+}
+.legacy .gicon img {
+  width: 100%;
+  height: auto;
+}
+.legacy .uslot .gicon {
+  width: 100%;
+  filter: none;
+}
 .legacy .usprite {
   @apply flex min-w-[4.5rem] flex-col items-center justify-center gap-2 self-stretch rounded-md px-2;
   background: radial-gradient(ellipse at center 60%, rgb(var(--panel)) 0%, transparent 70%);

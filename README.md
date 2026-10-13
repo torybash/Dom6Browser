@@ -23,8 +23,8 @@ npm run dev       # http://localhost:5173
 
 - **3-pane workspace.** Pages and filters sit on the left, a virtualized sortable table in the middle,
   and a docked detail panel on the right with back/forward history. This replaces the draggable popups.
-- **Unit cards modelled on the in-game window.** Stat columns have icons, the sprite sits on the right,
-  and there are rows for item slots and path/ability icons. Weapons and armor share a parchment strip.
+- **Unit cards modelled on the in-game window.** Stat columns and item slots use the game's own icons,
+  the sprite sits on the right, and there is a row of path/ability icons. Weapons and armor share a parchment strip.
 - **Hover previews** for every link. **Shift+click** a link or row to pin it; **Compare** shows pinned
   entries side by side and highlights the values that differ.
 - **Global search (Ctrl+K or /)** across every entity type.
@@ -44,6 +44,7 @@ npm run dev       # http://localhost:5173
 | `src/data/legacy/` | Near-mechanical TypeScript port of upstream `scripts/DMI/*.js`, `parsemod.js` and `modconstants.js`. Data preparation, mod parsing and the html detail renderers are kept as-is; jQuery, the DOM and SlickGrid are removed. |
 | `src/data/load.ts` | The loading pipeline (TSV tables → PreMod → mods → PostMod). It builds a fresh namespace for every load. |
 | `src/ui/` | React UI. `legacy.ts` and `unitCard.ts` restyle the upstream html in the DOM without changing its content. |
+| `public/gameicons/` | Stat and item-slot icons extracted from the game's `.trs` texture archives with `scripts/extract-trs.py --unit-icons <Dominions6/data> public/gameicons`. Unlike `public/images/`, these are committed. |
 | `tests/golden/` | Runs the **original** upstream scripts in jsdom and records every entity's derived fields and detail html. |
 
 ### Tests

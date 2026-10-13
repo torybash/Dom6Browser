@@ -5,14 +5,16 @@
 // Only layout changes: all upstream content (links, tooltips, advanced-mode classes) is kept, and
 // abilities without an icon stay as regular text rows.
 import {
-  Anchor, Angry, Axe, Biohazard, Bird, Bone, BookOpen, Brain, Bug, Castle, CircleDot, CloudLightning, Coins, Compass,
-  Dna, Drama, Droplet, Droplets, Eye, EyeOff, Feather, Fish, Flag, Flame, Footprints, Ghost, Hammer, Hand,
+  Anchor, Angry, Axe, Biohazard, Bird, Bone, BookOpen, Brain, Bug, CircleDot, CloudLightning, Coins, Compass,
+  Dna, Drama, Droplet, Droplets, Eye, EyeOff, Feather, Fish, Flame, Footprints, Ghost, Hammer, Hand,
   HeartPulse, Hexagon, Hourglass, Infinity as InfinityIcon, Leaf, Lock, Megaphone, Moon, Mountain,
-  ScanEye, ShieldHalf, Skull, Snowflake, Sparkles, Sprout, Sun, Sword, Swords, Target,
-  TreePine, Users, Waves, Wheat, Wind, Wrench, Zap,
+  ScanEye, ShieldHalf, Skull, Snowflake, Sparkles, Sun, Sword, Target,
+  Users, Waves, Wind, Wrench,
 } from 'lucide-static';
 
 type IconDef = [svg: string, color: string];
+/** 'game': use the in-game icon public/gameicons/abil-<key>.png */
+type ChipIcon = IconDef | 'game';
 
 const Venus =
   '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="9" r="5"/><path d="M12 14v7M9 18h6"/></svg>';
@@ -31,35 +33,35 @@ const STAT_COLUMN: Record<string, number> = {
 };
 
 /** Ability rows (key: value) shown as icon chips. */
-const ABILITY_ICONS: Record<string, IconDef> = {
-  fireres: [Flame, '#f07a2a'],
-  coldres: [Snowflake, '#82d4f2'],
-  shockres: [Zap, '#f2d443'],
-  poisonres: [Biohazard, '#6fc24c'],
+const ABILITY_ICONS: Record<string, ChipIcon> = {
+  fireres: 'game',
+  coldres: 'game',
+  shockres: 'game',
+  poisonres: 'game',
   acidres: [Droplets, '#a9d343'],
   diseaseres: [Bug, '#9fbf6a'],
-  darkvision: [Eye, '#b3baff'],
-  stealthy: [EyeOff, '#a5aeb9'],
-  supplybonus: [Wheat, '#dcb84c'],
+  darkvision: 'game',
+  stealthy: 'game',
+  supplybonus: 'game',
   fear: [Ghost, '#c7c7d6'],
-  awe: [Sun, '#f2d483'],
+  awe: 'game',
   animalawe: [Sun, '#c9e08a'],
-  berserk: [Angry, '#e5513f'],
+  berserk: 'game',
   regeneration: [HeartPulse, '#e65d6c'],
-  heat: [Flame, '#ff9147'],
-  cold: [Snowflake, '#a8e4ff'],
-  fireshield: [Flame, '#ff6a2a'],
+  heat: 'game',
+  cold: 'game',
+  fireshield: 'game',
   iceprot: [Snowflake, '#cdeeff'],
   poisoncloud: [Biohazard, '#93d04c'],
   poisonarmor: [Biohazard, '#5fae3c'],
   invulnerable: [ShieldHalf, '#f2f2f2'],
-  siegebonus: [Castle, '#c5b08a'],
-  castledef: [Castle, '#a5aeb9'],
+  siegebonus: 'game',
+  castledef: 'game',
   patrolbonus: [Compass, '#cba66b'],
   pillagebonus: [Coins, '#e58a3d'],
-  mastersmith: [Hammer, '#e2b33e'],
+  mastersmith: 'game',
   inspirational: [Megaphone, '#f2d483'],
-  standard: [Flag, '#f2d483'],
+  standard: 'game',
   magicpower: [Sparkles, '#c86ad8'],
   firepower: [Flame, '#f07a2a'],
   coldpower: [Snowflake, '#82d4f2'],
@@ -67,49 +69,49 @@ const ABILITY_ICONS: Record<string, IconDef> = {
   darkpower: [Moon, '#9a86ea'],
   chaospower: [InfinityIcon, '#e5513f'],
   waterbreathing: [Waves, '#4f97df'],
-  autohealer: [HeartPulse, '#66c486'],
+  autohealer: 'game',
   autodishealer: [Bug, '#66c486'],
-  ambidextrous: [Swords, '#cfd4db'],
+  ambidextrous: 'game',
   heretic: [BookOpen, '#c96565'],
   douse: [Droplet, '#b3262a'],
   voidsanity: [Brain, '#b3baff'],
   taskmaster: [Hand, '#cba66b'],
   beastmaster: [Bird, '#c5b08a'],
-  bodyguard: [ShieldHalf, '#cba66b'],
+  bodyguard: 'game',
   formationfighter: [Users, '#a5aeb9'],
   skirmisher: [Wind, '#c7d6e0'],
-  seduce: [Drama, '#e57fb8'],
+  seduce: 'game',
   patience: [Hourglass, '#ddd5c7'],
   blind: [ScanEye, '#a5aeb9'],
   eyes: [Eye, '#ddd5c7'],
 };
 
 /** Boolean flags shown as icons (label in the tooltip). */
-const FLAG_ICONS: Record<string, IconDef | 'holy'> = {
-  holy: 'holy',
+const FLAG_ICONS: Record<string, ChipIcon> = {
+  holy: 'game',
   female: [Venus, '#e88fb8'],
   neednoteat: [Leaf, '#9fbf6a'],
-  forestsurvival: [TreePine, '#5fa556'],
+  forestsurvival: 'game',
   spiritsight: [Eye, '#b3baff'],
-  amphibian: [Waves, '#4f97df'],
+  amphibian: 'game',
   pooramphibian: [Waves, '#7f9fbf'],
-  aquatic: [Fish, '#4fb4df'],
+  aquatic: 'game',
   swimming: [Fish, '#7fc9e8'],
-  flying: [Feather, '#e6e6e6'],
+  flying: 'game',
   float: [Feather, '#b3d4f2'],
-  mountainsurvival: [Mountain, '#ad9d85'],
-  wastesurvival: [Sun, '#e2b33e'],
-  swampsurvival: [Sprout, '#7fa645'],
+  mountainsurvival: 'game',
+  wastesurvival: 'game',
+  swampsurvival: 'game',
   snowmove: [Snowflake, '#e6f6ff'],
   magicbeing: [Sparkles, '#c86ad8'],
   undead: [Skull, '#b67fdd'],
-  demon: [Flame, '#c83434'],
+  demon: 'game',
   inanimate: [Wrench, '#a5aeb9'],
   stonebeing: [Mountain, '#8a8f99'],
   animal: [Bone, '#dccb9f'],
   mind: [Brain, '#8a8f99'],
   coldblood: [Dna, '#6fc2a8'],
-  ethereal: [Ghost, '#c7d6ff'],
+  ethereal: 'game',
   spiritform: [Ghost, '#9aa8d6'],
   pierceres: [Target, '#cfd4db'],
   bluntres: [Hammer, '#cfd4db'],
@@ -147,7 +149,7 @@ const icon = ([svg, color]: IconDef, cls = 'uicon') =>
 
 const gameIcon = (name: string) => `<span class="uicon gicon"><img src="gameicons/${name}.png" alt=""></span>`;
 
-const holyIcon = '<span class="uicon"><span class="abilityicon holy">&nbsp;</span></span>';
+const chipIcon = (key: string, def: ChipIcon) => (def === 'game' ? gameIcon('abil-' + key) : icon(def));
 
 const rowKey = (el: Element) => (el.getAttribute('class') ?? '').trim().split(/\s+/)[0];
 
@@ -236,7 +238,7 @@ export function enhanceUnitCard(main: HTMLElement) {
     const td = tr.querySelector(':scope > td');
     if (!def || !th || !td || td.querySelector('a, table')) return;
     const label = (th.textContent ?? key).replace(/\[.*?\]/, '').replace(/:\s*$/, '').trim();
-    const chip = el('span', 'uchip', icon(def) + `<span class="uchip-label">${label}</span><span class="stat-value">${td.innerHTML}</span>`);
+    const chip = el('span', 'uchip', chipIcon(key, def) + `<span class="uchip-label">${label}</span><span class="stat-value">${td.innerHTML}</span>`);
     chip.dataset.key = key;
     chip.title = `${label}: ${td.textContent?.trim()}` + (tr.title ? `\n${tr.title}` : '');
     const keySpan = th.querySelector('.internal-inline');
@@ -252,7 +254,7 @@ export function enhanceUnitCard(main: HTMLElement) {
     if (f.parentElement) flagParents.add(f.parentElement);
     const label = (f.firstChild?.textContent ?? key).replace(/-/g, ' ').trim();
     const name = label.charAt(0).toUpperCase() + label.slice(1);
-    const chip = el('span', 'uchip uflag', (def === 'holy' ? holyIcon : icon(def)) + `<span class="uchip-label">${name}</span>`);
+    const chip = el('span', 'uchip uflag', chipIcon(key, def) + `<span class="uchip-label">${name}</span>`);
     chip.dataset.key = key;
     const keySpan = f.querySelector('.internal-inline');
     if (keySpan) chip.appendChild(keySpan.cloneNode(true));

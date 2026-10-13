@@ -62,6 +62,16 @@ UNIT_ICONS = {
     'stat-fatigue': ('res', 393), 'stat-maxage': ('res', 394), 'stat-xp': ('res', 395),
     'slot-hand': ('misc2', 0), 'slot-offhand': ('misc2', 1), 'slot-bow': ('misc2', 2), 'slot-head': ('misc2', 3),
     'slot-body': ('misc2', 4), 'slot-feet': ('misc2', 5), 'slot-misc': ('misc2', 6),
+    # abilities and flags (ability row keys / flag names in the upstream html)
+    'abil-fireres': ('res', 1), 'abil-coldres': ('res', 2), 'abil-poisonres': ('res', 3), 'abil-shockres': ('res', 4),
+    'abil-heat': ('res', 9), 'abil-cold': ('res', 10), 'abil-fireshield': ('res', 59), 'abil-darkvision': ('res', 96),
+    'abil-supplybonus': ('res', 87), 'abil-stealthy': ('res', 21), 'abil-awe': ('res', 24), 'abil-standard': ('res', 41),
+    'abil-berserk': ('res', 63), 'abil-bodyguard': ('res', 64), 'abil-ambidextrous': ('res', 183),
+    'abil-siegebonus': ('res', 81), 'abil-castledef': ('res', 88), 'abil-mastersmith': ('res', 89),
+    'abil-autohealer': ('res', 83), 'abil-seduce': ('res', 95),
+    'abil-holy': ('res', 17), 'abil-forestsurvival': ('res', 73), 'abil-mountainsurvival': ('res', 72),
+    'abil-wastesurvival': ('res', 71), 'abil-swampsurvival': ('res', 74), 'abil-flying': ('res', 28),
+    'abil-aquatic': ('res', 14), 'abil-amphibian': ('res', 16), 'abil-demon': ('res', 57), 'abil-ethereal': ('res', 53),
 }
 
 

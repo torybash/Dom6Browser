@@ -22,6 +22,8 @@ interface ViewState {
   page: PageId;
   filters: Partial<Record<PageId, Filters>>;
   sorts: Partial<Record<PageId, Sort>>;
+  /** calculated-value columns shown in the table (field names, e.g. calc_patrol) */
+  calcCols: Partial<Record<PageId, string[]>>;
   selected: Partial<Record<PageId, string>>;
   detailRef: string | null;
   history: string[];
@@ -34,6 +36,7 @@ interface ViewState {
   patchFilters: (patch: Filters) => void;
   resetFilters: (keys?: string[]) => void;
   setSort: (sort: Sort | undefined) => void;
+  setCalcCols: (fields: string[]) => void;
   /** select a row in the current page's table */
   select: (ref: string | null) => void;
   /** open a ref in the detail panel (cross-links), recording history */
@@ -60,6 +63,7 @@ export const useView = create<ViewState>((set, get) => ({
   page: 'unit',
   filters: {},
   sorts: {},
+  calcCols: {},
   selected: {},
   detailRef: null,
   history: [],
@@ -124,6 +128,7 @@ export const useView = create<ViewState>((set, get) => ({
     const i = s.historyIndex + 1;
     set({ historyIndex: i, detailRef: s.history[i] });
   },
+  setCalcCols: (fields) => set({ calcCols: { ...get().calcCols, [get().page]: fields } }),
   togglePin: (ref) => {
     const s = get();
     set({ pins: s.pins.includes(ref) ? s.pins.filter((p) => p !== ref) : [...s.pins, ref] });
@@ -168,7 +173,7 @@ export function paramsToFilters(p: URLSearchParams): Filters {
   const f: Filters = {};
   const props: PropertyFilter[] = [];
   p.forEach((v, k) => {
-    if (k === 'sort' || k === 'sel' || k === 'pins') return;
+    if (k === 'sort' || k === 'sel' || k === 'pins' || k === 'calc') return;
     if (k === 'q') f.str = v;
     else if (k === 'lv') {
       const lv: Record<string, number> = {};
@@ -189,6 +194,8 @@ export function stateToHash(s: ViewState): string {
   filtersToParams(s.filters[s.page] ?? {}, p);
   const sort = s.sorts[s.page];
   if (sort) p.set('sort', `${sort.col}.${sort.asc ? 'a' : 'd'}`);
+  const calc = s.calcCols[s.page];
+  if (calc?.length) p.set('calc', calc.map((f) => f.replace(/^calc_/, '')).join(','));
   if (s.detailRef) p.set('sel', encRef(s.detailRef));
   if (s.pins.length) p.set('pins', s.pins.map(encRef).join(','));
   const qs = p.toString();
@@ -212,6 +219,7 @@ export function applyHash(hash: string): boolean {
       [page]: sortStr ? { col: sortStr.replace(/\.[ad]$/, ''), asc: !sortStr.endsWith('.d') } : undefined,
     },
     pins: pins ? pins.split(',').filter(Boolean).map(decRef) : [],
+    calcCols: { ...s.calcCols, [page]: (p.get('calc') ?? '').split(',').filter(Boolean).map((id) => 'calc_' + id) },
   };
   if (sel) {
     const ref = decRef(sel);

@@ -56,12 +56,25 @@ interface ViewColumn {
   numeric?: boolean;
 }
 
-export function tableColumns(page: PageDef, results: Results, advanced: boolean, thumbnails: boolean, prefs: ColPrefs): ViewColumn[] {
+/** Calculated-value columns to show: the chosen ones, plus the sort column so a shared sort is visible. */
+export function shownCalcColumns(calcCols: string[] | undefined, sortCol: string | undefined): string[] {
+  const shown = calcCols ?? [];
+  return sortCol?.startsWith('calc_') && !shown.includes(sortCol) ? [...shown, sortCol] : shown;
+}
+
+export function tableColumns(
+  page: PageDef,
+  results: Results,
+  advanced: boolean,
+  thumbnails: boolean,
+  prefs: ColPrefs,
+  shownCalc: string[] = [],
+): ViewColumn[] {
   const cols: ViewColumn[] = [];
   if (thumbnails && page.thumb) cols.push({ id: '__thumb', label: '', width: 40, minWidth: 40, kind: 'thumb' });
   if (advanced) cols.push({ id: '__id', label: 'id', width: 56, minWidth: 40, kind: 'id', numeric: true });
   for (const c of results.grid.columns) {
-    if (prefs.hidden.includes(c.id)) continue;
+    if (c.derived ? !shownCalc.includes(c.id) : prefs.hidden.includes(c.id)) continue;
     const isName = c.id === 'name' || c.id === 'description';
     cols.push({
       id: c.id,
@@ -99,7 +112,12 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
   const showPreview = usePreview((s) => s.show);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const cols = useMemo(() => tableColumns(page, results, advanced, thumbnails, prefs), [page, results, advanced, thumbnails, prefs]);
+  const calcCols = useView((s) => s.calcCols[page.id]);
+  const shownCalc = useMemo(() => shownCalcColumns(calcCols, sort?.col), [calcCols, sort?.col]);
+  const cols = useMemo(
+    () => tableColumns(page, results, advanced, thumbnails, prefs, shownCalc),
+    [page, results, advanced, thumbnails, prefs, shownCalc],
+  );
   const template = cols.map((c) => (c.kind === 'data' && (c.id === 'name' || c.id === 'description') && prefs.widths[c.id] === undefined ? `minmax(${c.width}px, 3fr)` : `${c.width}px`)).join(' ');
   const totalMin = cols.reduce((a, c) => a + c.width, 0);
 
@@ -215,7 +233,7 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
                   (active ? 'text-fg' : '')
                 }
                 onClick={() => onHeaderClick(c)}
-                title={c.col?.sortable ? (/listed_mpath|listed_gempath|boosterssort/.test(c.col.field) ? 'Sort by path; click again to rotate the priority path' : 'Sort') : undefined}
+                title={c.col?.title ?? (c.col?.sortable ? (/listed_mpath|listed_gempath|boosterssort/.test(c.col.field) ? 'Sort by path; click again to rotate the priority path' : 'Sort') : undefined)}
               >
                 {c.html ? <span className="legacy" dangerouslySetInnerHTML={{ __html: c.html }} /> : <span className="truncate">{c.label}</span>}
                 {showSortIcon && (

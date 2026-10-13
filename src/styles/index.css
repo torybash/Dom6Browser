@@ -703,3 +703,57 @@ button {
 .legacy .uslots-text {
   @apply ml-1.5 self-center text-xs text-muted;
 }
+
+/* Calculated values (src/ui/calculated.ts): set apart from raw game data by a dashed frame. */
+.legacy .calc-section {
+  @apply mb-3 rounded-lg px-2.5 py-2;
+  border: 1px dashed rgb(var(--accent) / 0.55);
+  background: rgb(var(--accent) / 0.04);
+}
+.legacy .calc-head {
+  @apply mb-1 flex flex-wrap items-baseline gap-x-2 text-[13px];
+}
+.legacy .calc-head .uicon {
+  align-self: center;
+  color: rgb(var(--accent));
+  filter: none;
+}
+.legacy .calc-title {
+  @apply font-semibold;
+}
+.legacy .calc-sub,
+.legacy .calc-legend,
+.legacy .calc-source {
+  @apply text-[11.5px] text-muted;
+}
+.legacy .calc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  column-gap: 1.1rem;
+}
+.legacy .calc-row.calc-likely .stat-value {
+  @apply font-normal italic;
+}
+.legacy .calc-legend {
+  @apply mb-0 mt-1;
+}
+.legacy .calc-formulas {
+  @apply mt-1 text-[11.5px];
+}
+.legacy .calc-formulas summary {
+  @apply cursor-pointer text-muted;
+}
+.legacy .calc-formulas dt {
+  @apply mt-1 font-semibold;
+}
+.legacy .calc-formulas dd {
+  @apply ml-0;
+}
+/* the raw rec points value is an autocalc code (e.g. 10000); shown only with database keys / modder info */
+.legacy .ustat[data-key='rpcost'] {
+  display: none;
+}
+.opt-keys .legacy .ustat[data-key='rpcost'],
+.opt-moreinfo .legacy .ustat[data-key='rpcost'] {
+  display: flex;
+}

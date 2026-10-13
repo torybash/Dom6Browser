@@ -17,7 +17,7 @@ import { FilterPanel } from './FilterPanel';
 import { GlobalSearch, useGlobalSearch } from './GlobalSearch';
 import { HoverPreview, usePreview } from './HoverPreview';
 import { ModsDialog } from './ModsDialog';
-import { ResultsTable, tableApi, useColumnPrefs } from './ResultsTable';
+import { ResultsTable, shownCalcColumns, tableApi, useColumnPrefs } from './ResultsTable';
 import { LoadingScreen, TopBar } from './TopBar';
 
 function useMediaQuery(q: string) {
@@ -380,6 +380,11 @@ function ResultsPane({ page, onOpenFilters, onActivate }: { page: PageDef; onOpe
 function ColumnPicker({ page, results, prefs, setPrefs }: { page: PageDef; results: any; prefs: any; setPrefs: any }) {
   const thumbnails = useSettings((s) => s.thumbnails);
   const set = useSettings((s) => s.set);
+  const calcCols = useView((s) => s.calcCols[page.id]);
+  const sortCol = useView((s) => s.sorts[page.id]?.col);
+  const setCalcCols = useView((s) => s.setCalcCols);
+  const shownCalc = shownCalcColumns(calcCols, sortCol);
+  const calcColumns = results.grid.columns.filter((c: any) => c.derived);
   return (
     <Popover.Root>
       <Popover.Trigger className="btn-ghost" title="Columns" aria-label="Choose columns">
@@ -394,7 +399,7 @@ function ColumnPicker({ page, results, prefs, setPrefs }: { page: PageDef; resul
               Thumbnail
             </label>
           )}
-          {results.grid.columns.map((c: any) => (
+          {results.grid.columns.filter((c: any) => !c.derived).map((c: any) => (
             <label key={c.id} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-row-hover">
               <input
                 type="checkbox"
@@ -408,7 +413,36 @@ function ColumnPicker({ page, results, prefs, setPrefs }: { page: PageDef; resul
               {c.name}
             </label>
           ))}
-          <button className="btn-ghost mt-1 w-full justify-start px-1 text-xs" onClick={() => setPrefs(() => ({ hidden: [], widths: {} }))}>
+          {calcColumns.length > 0 && (
+            <>
+              <div className="section-label px-1 pb-1 pt-2" title="Values the game calculates; ≈ marks formulas not yet confirmed in game">
+                Calculated
+              </div>
+              {calcColumns.map((c: any) => (
+                <label
+                  key={c.id}
+                  title={c.id === sortCol ? 'Shown because the table is sorted by it' : c.title}
+                  className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-row-hover"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-[rgb(var(--accent))]"
+                    checked={shownCalc.includes(c.id)}
+                    disabled={c.id === sortCol}
+                    onChange={(e) => setCalcCols(e.target.checked ? [...shownCalc, c.id] : shownCalc.filter((f) => f !== c.id))}
+                  />
+                  {c.name}
+                </label>
+              ))}
+            </>
+          )}
+          <button
+            className="btn-ghost mt-1 w-full justify-start px-1 text-xs"
+            onClick={() => {
+              setPrefs(() => ({ hidden: [], widths: {} }));
+              setCalcCols([]);
+            }}
+          >
             Reset columns
           </button>
         </Popover.Content>

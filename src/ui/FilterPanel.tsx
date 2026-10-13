@@ -1,11 +1,12 @@
 import * as Popover from '@radix-ui/react-popover';
 import { Check, ChevronDown, Minus, Plus, RotateCcw, Search, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { FilterDef, PageDef } from '../pages';
 import type { DMI } from '../data/load';
 import { useSettings } from '../state/settings';
 import { useView, type Filters, type PropertyFilter } from '../state/view';
 import { tableApi } from './ResultsTable';
+import { UNIT_DERIVED, formatRange } from '../data/extensions/derived';
 
 interface Props {
   page: PageDef;
@@ -44,7 +45,7 @@ export function FilterPanel({ page, DMI }: Props) {
 }
 
 const EMPTY: Filters = {};
-const keyOf = (d: FilterDef) => (d.type === 'scope' ? 'scope' : d.key);
+const keyOf = (d: FilterDef) => (d.type === 'scope' || d.type === 'calculated' ? d.type : d.key);
 
 function Section({ label, active, onReset, children, hint }: { label: string; active: boolean; onReset: () => void; children: React.ReactNode; hint?: string }) {
   return (
@@ -160,6 +161,8 @@ function FilterControl({ def, filters, DMI, setFilter, patch }: ControlProps) {
           </div>
         </Section>
       );
+    case 'calculated':
+      return <CalculatedRanges filters={filters} patch={patch} />;
     case 'scope': {
       const v = filters[def.nationalKey] ? 'national' : filters[def.genericKey] ? 'generic' : '';
       return (
@@ -253,6 +256,47 @@ export const PATH_NAMES: Record<string, string> = {
   F: 'Fire', A: 'Air', W: 'Water', E: 'Earth', S: 'Astral', D: 'Death', N: 'Nature', G: 'Glamour', B: 'Blood', H: 'Holy',
 };
 const orderPaths = (s: string) => 'FAWESDNGBH'.split('').filter((p) => s.includes(p)).join('');
+
+/** Min/max boxes for each calculated unit value; stored as "min~max" under the value's field. */
+function CalculatedRanges({ filters, patch }: { filters: Filters; patch: (p: Filters) => void }) {
+  const active = UNIT_DERIVED.some((d) => filters[d.field]);
+  return (
+    <Section
+      label="Calculated values"
+      hint="Values the game calculates; ≈ in the table marks formulas not yet confirmed in game"
+      active={active}
+      onReset={() => patch(Object.fromEntries(UNIT_DERIVED.map((d) => [d.field, ''])))}
+    >
+      <div className="grid grid-cols-[1fr_4rem_4rem] items-center gap-x-1.5 gap-y-1 text-xs">
+        <span />
+        <span className="text-[11px] text-muted">min</span>
+        <span className="text-[11px] text-muted">max</span>
+        {UNIT_DERIVED.map((d) => {
+          const [min = '', max = ''] = String(filters[d.field] ?? '').split('~');
+          const set = (lo: string, hi: string) => patch({ [d.field]: formatRange(lo, hi) });
+          const box = (v: string, onChange: (v: string) => void, label: string) => (
+            <input
+              className="input px-1.5 py-0.5 tabular-nums"
+              inputMode="decimal"
+              aria-label={`${d.label} ${label}`}
+              value={v}
+              onChange={(e) => onChange(e.target.value.replace(/[^\d.-]/g, ''))}
+            />
+          );
+          return (
+            <Fragment key={d.id}>
+              <span className="truncate" title={`${d.label}: ${d.formula}`}>
+                {d.label}
+              </span>
+              {box(min, (v) => set(v, max), 'minimum')}
+              {box(max, (v) => set(min, v), 'maximum')}
+            </Fragment>
+          );
+        })}
+      </div>
+    </Section>
+  );
+}
 
 function NumberField({ def, value, onChange }: { def: Extract<FilterDef, { type: 'number' }>; value: string; onChange: (v: string) => void }) {
   return (

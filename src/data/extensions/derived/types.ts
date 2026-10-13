@@ -35,10 +35,11 @@ export interface UnitInputs {
   enc: number;
   /** Spellcasting encumbrance; null when the unit has no magic paths. */
   castingEnc: number | null;
-  /** Effective map move as shown on the unit sheet (includes the commander bonus and armour penalty). */
+  /** Map move as shown on the unit sheet for this role (commanders +2, armour penalty included). */
   mapmove: number;
-  immobile: boolean;
   flying: boolean;
+  /** Past its maximum age: the game lowers its stats and map move in ways legacy does not fully model. */
+  old: boolean;
   mounted: boolean;
   animal: boolean;
   undisciplined: boolean;
@@ -55,7 +56,7 @@ export interface UnitInputs {
   size: number;
   appetite: number;
   neednoteat: boolean;
-  /** Includes the Nature magic bonus (+10 per level). */
+  /** Supply bonus; includes +10 per Nature level for commanders only, as in game. */
   supplybonus: number;
   mount: { size: number; appetite: number; animal: boolean; neednoteat: boolean } | null;
 }

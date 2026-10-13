@@ -59,6 +59,17 @@ export const UNIT_DERIVED: DerivedValue[] = [
     compute: F.supply,
   },
   {
+    id: 'cmdpoints',
+    field: 'calc_cmdpoints',
+    label: 'Commander points',
+    shortLabel: 'Cmd pts',
+    confidence: 'CONFIRMED',
+    formula: '2 if it has a magic path (Holy 1 alone does not count), Holy 2+ or leadership 150+, otherwise 1; ×2 if slow to recruit. Recruitable commanders only',
+    source: 'measured on 71 commanders in game (6.37)',
+    decimals: 0,
+    compute: F.commanderPoints,
+  },
+  {
     id: 'castingenc',
     field: 'calc_castingenc',
     label: 'Casting encumbrance',

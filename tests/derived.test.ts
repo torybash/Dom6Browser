@@ -11,7 +11,8 @@ const base: UnitInputs = {
   commander: false, str: 10, prec: 10, enc: 3, castingEnc: null, mapmove: 16, flying: false, old: false,
   mounted: false, animal: false, undisciplined: false, mindless: false, patrolbonus: 0, siegebonus: 0, castledef: 0,
   goldcost: 10, addupkeep: 0, sacred: false, slave: false, summoned: false, size: 3, appetite: 0, neednoteat: false,
-  supplybonus: 0, mount: null,
+  supplybonus: 0, mount: null, recruitableCommander: false, magicLevels: 0, sureRandomPath: false, holyLevel: 0, leader: 40,
+  slowRecruit: false,
 };
 const u = (over: Partial<UnitInputs>): UnitInputs => ({ ...base, ...over });
 
@@ -213,12 +214,27 @@ describe('in-game values (tests/fixtures/ingame-values.json)', () => {
       const o = DMI.modctx.unitlookup[e.unit];
       expect(o.name).toBe(e.name);
       // the game shows one decimal
-      const v = DMI.Derived.get(o, e.value, e.role ? { role: e.role } : undefined).value;
+      const v = DMI.Derived.get(o, e.value, { ...(e.role ? { role: e.role } : {}), ...e.context }).value;
       expect(Number(v.toFixed(1))).toBeCloseTo(e.expected, 5);
     });
   }
   it('mostly matches', () => {
     const known = fixture.entries.filter((e: any) => e.known).length;
     expect(known / fixture.entries.length).toBeLessThan(0.1);
+  });
+});
+
+describe('commander points', () => {
+  const cmd = (over: Partial<UnitInputs>) =>
+    F.commanderPoints(u({ commander: true, recruitableCommander: true, magicLevels: 0, sureRandomPath: false, holyLevel: 0, leader: 40, slowRecruit: false, ...over }));
+  it('is 1 for plain commanders, 2 for mages, doubled when slow to recruit', () => {
+    expect(cmd({}).value).toBe(1);
+    expect(cmd({ holyLevel: 1 }).value).toBe(1);
+    expect(cmd({ magicLevels: 1 }).value).toBe(2);
+    expect(cmd({ sureRandomPath: true }).value).toBe(2);
+    expect(cmd({ magicLevels: 2, slowRecruit: true }).value).toBe(4);
+    expect(cmd({ holyLevel: 2 })).toMatchObject({ value: 2, confidence: 'LIKELY' });
+    expect(cmd({ commander: false }).value).toBeNull();
+    expect(cmd({ recruitableCommander: false }).value).toBeNull();
   });
 });

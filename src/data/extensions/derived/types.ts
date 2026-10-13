@@ -21,6 +21,8 @@ export interface DerivedResult {
  */
 export interface DerivedContext {
   role?: 'commander' | 'troop';
+  /** Treat the unit as recruitable (e.g. a mod adds it to a recruitment list). */
+  recruitable?: boolean;
   scales?: Record<string, number>;
   province?: { pd?: number; unrest?: number };
   items?: string[];
@@ -59,6 +61,16 @@ export interface UnitInputs {
   /** Supply bonus; includes +10 per Nature level for commanders only, as in game. */
   supplybonus: number;
   mount: { size: number; appetite: number; animal: boolean; neednoteat: boolean } | null;
+  /** In some nation's commander recruitment list. */
+  recruitableCommander: boolean;
+  /** Sum of magic path levels other than Holy. */
+  magicLevels: number;
+  /** Has a random magic path with a 100% chance. */
+  sureRandomPath: boolean;
+  holyLevel: number;
+  /** Leadership without magic bonuses. */
+  leader: number;
+  slowRecruit: boolean;
 }
 
 export interface DerivedValue {

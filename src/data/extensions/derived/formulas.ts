@@ -66,6 +66,19 @@ export function supply(i: UnitInputs): DerivedResult {
   return m ? { value, note: `the mount eats ${m} more (armies count both)` } : { value };
 }
 
+/**
+ * Commander points on the recruitment screen (fitted on 71 commanders measured in game). Only for
+ * commanders in a nation's recruitment list.
+ */
+export function commanderPoints(i: UnitInputs): DerivedResult {
+  if (!i.commander || !i.recruitableCommander) return none;
+  const mage = i.magicLevels > 0 || i.sureRandomPath;
+  const thin = !mage && (i.holyLevel >= 2 || i.leader >= 150);
+  const value = (mage || thin ? 2 : 1) * (i.slowRecruit ? 2 : 1);
+  // the Holy and leadership thresholds rest on 3-4 measured commanders each
+  return thin ? { value, confidence: 'LIKELY', note: 'decided by Holy 2+ or leadership 150+, seen on few units' } : { value };
+}
+
 /** Encumbrance when casting spells: base encumbrance plus twice the armour's (MAN p.76). */
 export function castingEnc(i: UnitInputs): DerivedResult {
   return { value: i.castingEnc };

@@ -12,14 +12,37 @@ const flag = (v: any): boolean => !!v && v !== '0' && v !== 0;
 /** Raw values that legacy PostMod overwrites, captured before it runs. */
 export interface RawUnitFields {
   supplybonus: Map<number, string>;
+  leader: Map<number, string>;
+  /** ids in any nation's commander recruitment lists; filled after PostMod */
+  recCommanders?: Set<number>;
 }
 
 /** Call after mods are applied and before PostMod. */
 export function snapshotRawUnitFields(DMI: DMI): RawUnitFields {
   const supplybonus = new Map<number, string>();
-  for (const o of DMI.modctx.unitdata) supplybonus.set(parseInt(o.id), String(o.supplybonus ?? ''));
-  return { supplybonus };
+  const leader = new Map<number, string>();
+  for (const o of DMI.modctx.unitdata) {
+    supplybonus.set(parseInt(o.id), String(o.supplybonus ?? ''));
+    leader.set(parseInt(o.id), String(o.leader ?? ''));
+  }
+  return { supplybonus, leader };
 }
+
+const COMMANDER_LISTS = [
+  'commanders', 'capcommanders', 'futurecapcommanders', 'foreigncommanders', 'forestcom', 'mountaincom', 'swampcom',
+  'wastecom', 'cavecom', 'plainscom', 'coastcom', 'landcom', 'uwcom',
+];
+
+/** Call after MNation PostMod has built the nation recruitment lists. */
+export function recruitableCommanders(DMI: DMI): Set<number> {
+  const ids = new Set<number>();
+  for (const n of DMI.modctx.nationdata) {
+    for (const k of COMMANDER_LISTS) for (const id of n[k] || []) if (id) ids.add(parseInt(String(id).replace('#', '')));
+  }
+  return ids;
+}
+
+const NON_HOLY_PATHS = ['F', 'A', 'W', 'E', 'S', 'D', 'N', 'G', 'B'];
 
 /**
  * Unit sheet values come from prepareForRender (natural gear, old age, starting afflictions). It mutates
@@ -82,5 +105,11 @@ export function readUnitInputs(DMI: DMI, raw: RawUnitFields, o: any, ctx: Derive
     // prepareForRender adds +10 per Nature level; in game that only applies to commanders
     supplybonus: commander ? num(p.supplybonus) : num(raw.supplybonus.get(parseInt(o.id)) ?? o.supplybonus),
     mount: m ? { size: num(m.size), appetite: num(m.appetite), animal: flag(m.animal), neednoteat: flag(m.neednoteat) } : null,
+    recruitableCommander: ctx.recruitable ?? !!raw.recCommanders?.has(parseInt(o.id)),
+    magicLevels: NON_HOLY_PATHS.reduce((s, k) => s + num(o[k]), 0),
+    sureRandomPath: (o.randompaths || []).some((r: any) => num(r.chance) >= 100),
+    holyLevel: num(o.H),
+    leader: num(raw.leader.get(parseInt(o.id)) ?? o.leader),
+    slowRecruit: flag(o.slow_to_recruit),
   };
 }

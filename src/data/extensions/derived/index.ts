@@ -2,7 +2,7 @@
 // as a lazy, non-enumerable property (e.g. o.calc_patrol), so sorting and property filters can use it
 // while legacy code, which only walks enumerable keys, and the golden parity tests never see it.
 import type { DMI } from '../../load';
-import { readUnitInputs, snapshotRawUnitFields, type RawUnitFields } from './inputs';
+import { readUnitInputs, recruitableCommanders, snapshotRawUnitFields, type RawUnitFields } from './inputs';
 import { UNIT_DERIVED, formatDerived, resolveConfidence } from './registry';
 import type { DerivedContext, DerivedResult, DerivedValue, UnitInputs } from './types';
 
@@ -22,6 +22,7 @@ export interface DerivedApi {
 }
 
 export function installDerived(DMI: DMI, raw: RawUnitFields) {
+  raw.recCommanders = recruitableCommanders(DMI);
   const byId = new Map(UNIT_DERIVED.map((d) => [d.id, d]));
   const cache = new WeakMap<object, Map<string, ResolvedResult>>();
   const neutralInputs = new WeakMap<object, UnitInputs>();

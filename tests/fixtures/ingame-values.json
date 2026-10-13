@@ -1,0 +1,10 @@
+{
+  "gameVersion": "6.37",
+  "note": "Values read in game (unit info popups). Screenshots are kept outside the repo.",
+  "entries": [
+    { "unit": 61, "name": "Spearman", "value": "patrol", "expected": 1.3, "source": "Precision popup: Current Patrol Strength" },
+    { "unit": 61, "name": "Spearman", "value": "supply", "expected": 1.0, "source": "Size popup: Supply Usage" },
+    { "unit": 61, "name": "Spearman", "value": "siege", "expected": 1.0, "source": "Strength popup: Siege Strength" },
+    { "unit": 61, "name": "Spearman", "value": "siegedef", "expected": 0.5, "source": "Strength popup: Siege Defence" }
+  ]
+}

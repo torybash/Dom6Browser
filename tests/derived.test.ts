@@ -195,3 +195,16 @@ describe('calculated range filters', () => {
     expect(inCalcRanges(unit(2660), {})).toBe(true);
   });
 });
+
+describe('in-game values (tests/fixtures/ingame-values.json)', () => {
+  const fixture = JSON.parse(readFileSync(join(__dirname, 'fixtures', 'ingame-values.json'), 'utf8'));
+  for (const e of fixture.entries) {
+    it(`${e.name} (${e.unit}) ${e.value} = ${e.expected}`, async () => {
+      const DMI = await vanilla();
+      const o = DMI.modctx.unitlookup[e.unit];
+      expect(o.name).toBe(e.name);
+      // the game shows one decimal
+      expect(DMI.Derived.get(o, e.value, e.role ? { role: e.role } : undefined).value).toBeCloseTo(e.expected, 1);
+    });
+  }
+});

@@ -41,6 +41,8 @@ interface ViewState {
   back: () => void;
   forward: () => void;
   togglePin: (ref: string) => void;
+  /** pin if not pinned yet */
+  pin: (ref: string) => void;
   unpin: (ref: string) => void;
   clearPins: () => void;
   setCompareOpen: (open: boolean) => void;
@@ -125,6 +127,10 @@ export const useView = create<ViewState>((set, get) => ({
   togglePin: (ref) => {
     const s = get();
     set({ pins: s.pins.includes(ref) ? s.pins.filter((p) => p !== ref) : [...s.pins, ref] });
+  },
+  pin: (ref) => {
+    const s = get();
+    if (!s.pins.includes(ref)) set({ pins: [...s.pins, ref] });
   },
   unpin: (ref) => set({ pins: get().pins.filter((p) => p !== ref) }),
   clearPins: () => set({ pins: [], compareOpen: false }),

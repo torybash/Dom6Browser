@@ -612,6 +612,67 @@ button {
   background: rgb(var(--accent) / 0.1) !important;
 }
 
+/* cards view */
+.float-card {
+  @apply overflow-hidden rounded-lg border border-line bg-panel;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.08),
+    0 12px 32px -8px rgb(0 0 0 / 0.28);
+}
+.dark .float-card {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 14px 36px -8px rgb(0 0 0 / 0.6);
+}
+.float-card-title {
+  background: linear-gradient(180deg, rgb(var(--raised)), rgb(var(--panel)));
+}
+.float-card-title:active {
+  cursor: grabbing;
+}
+.float-card-loose {
+  outline: 1.5px dashed rgb(var(--accent) / 0.7);
+  outline-offset: -1.5px;
+}
+.float-card .legacy {
+  font-size: 12.5px;
+}
+.float-card-resize {
+  background: linear-gradient(135deg, transparent 50%, rgb(var(--muted) / 0.45) 50%, transparent 62%, rgb(var(--muted) / 0.45) 62%, transparent 74%);
+}
+@keyframes card-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(var(--accent) / 0.65);
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-6px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-3px);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgb(var(--accent) / 0);
+    transform: translateY(0);
+  }
+}
+.float-card.card-pulse {
+  animation: card-pulse 420ms ease-out;
+}
+@keyframes card-flash {
+  from {
+    box-shadow: 0 0 0 3px rgb(var(--accent) / 0.8);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .float-card.card-pulse {
+    animation: card-flash 600ms linear;
+  }
+}
+
 /* hover preview card */
 .preview-card .legacy {
   font-size: 12px;

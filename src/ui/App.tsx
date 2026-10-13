@@ -9,6 +9,7 @@ import { useResults } from '../state/results';
 import { useSettings } from '../state/settings';
 import { initUrlSync, useView } from '../state/view';
 import { activeChips, ActiveFilters } from './ActiveFilters';
+import { CardBoard } from './CardBoard';
 import { CompareView, PinTray } from './Compare';
 import { DetailPanel } from './DetailPanel';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -157,7 +158,8 @@ const EMPTY = {};
 function DesktopWorkspace({ wide }: { wide: boolean }) {
   const pageId = useView((s) => s.page);
   const page = PAGE_BY_ID[pageId];
-  const hasDetail = useView((s) => !!s.detailRef);
+  const cards = useSettings((s) => s.viewMode === 'cards');
+  const hasDetail = useView((s) => !!s.detailRef) && !cards;
   const [sidebarOpen, setSidebarOpen] = useStoredBool('dom6browser:sidebarOpen', true);
   const [sidebarW, setSidebarW] = useStoredNumber('dom6browser:sidebarW', SIDEBAR_DEFAULT);
   const detailDefault = wide ? 620 : 440;
@@ -172,7 +174,7 @@ function DesktopWorkspace({ wide }: { wide: boolean }) {
   return (
     <div className="flex h-full flex-col">
       <TopBar onToggleSidebar={() => setSidebarOpen((o) => !o)} />
-      <div className="flex min-h-0 flex-1">
+      <div className="relative flex min-h-0 flex-1">
         {sidebarOpen && (
           <>
             <aside className="flex min-h-0 shrink-0 flex-col border-r border-line bg-panel" style={{ width: sidebarW }}>
@@ -213,6 +215,11 @@ function DesktopWorkspace({ wide }: { wide: boolean }) {
               </ErrorBoundary>
             </div>
           </>
+        )}
+        {cards && (
+          <ErrorBoundary label="the cards">
+            <CardBoard />
+          </ErrorBoundary>
         )}
       </div>
       <PinTray />
@@ -442,7 +449,7 @@ function MobileWorkspace() {
           </div>
         )}
       </div>
-      <PinTray />
+      <PinTray mobile />
       <nav className="flex h-14 shrink-0 items-stretch border-t border-line bg-panel pb-[env(safe-area-inset-bottom)]" aria-label="Pages">
         {PAGES.filter((p) => ['unit', 'spell', 'item', 'site'].includes(p.id)).map((p) => (
           <button
@@ -541,6 +548,9 @@ function useGlobalShortcuts() {
       } else if (e.key === 'Escape') {
         // upstream: close the top popup; with none open, clear filters and focus the search box
         if (usePreview.getState().target) return usePreview.getState().show(null);
+        // cards view: Esc closes the loose card first (pinned cards stay)
+        const cardsView = useSettings.getState().viewMode === 'cards' && !window.matchMedia('(max-width: 767px)').matches;
+        if (cardsView && v.detailRef && !v.pins.includes(v.detailRef)) return useView.setState({ detailRef: null });
         v.resetFilters();
         document.getElementById('page-search')?.focus();
       }

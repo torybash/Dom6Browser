@@ -27,6 +27,10 @@ npm run dev       # http://localhost:5173
   the sprite sits on the right, and there is a row of path/ability icons. Weapons and armor share a parchment strip.
 - **Hover previews** for every link. **Shift+click** a link or row to pin it; **Compare** shows pinned
   entries side by side and highlights the values that differ.
+- **Cards view** (toggle in the top bar): dom6inspector-style floating cards instead of the docked panel.
+  Links open new cards beside the one you clicked, pinned entries are cards, and cards snap to each other
+  while dragged (Alt to place freely). The pin tray can tidy them into columns, collapse them, or
+  highlight the values that differ between cards of the same kind.
 - **Global search (Ctrl+K or /)** across every entity type.
 - **The URL holds the whole view:** page, filters, sort, selection and pins. Any view can be bookmarked
   or shared, and the last view is restored on the next visit.

@@ -30,7 +30,8 @@ export const usePreview = create<PreviewState>((set) => ({
 
 // any navigation or scrolling invalidates the anchor the preview points at
 useView.subscribe((s, prev) => {
-  if (s.detailRef !== prev.detailRef || s.page !== prev.page || s.compareOpen !== prev.compareOpen) usePreview.getState().show(null);
+  // (a new card can also open right under the pointer)
+  if (s.detailRef !== prev.detailRef || s.page !== prev.page || s.compareOpen !== prev.compareOpen || s.pins !== prev.pins) usePreview.getState().show(null);
 });
 if (typeof window !== 'undefined') {
   window.addEventListener('scroll', () => usePreview.getState().show(null), true);

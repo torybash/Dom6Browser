@@ -5,10 +5,10 @@
 // Only layout changes: all upstream content (links, tooltips, advanced-mode classes) is kept, and
 // abilities without an icon stay as regular text rows.
 import {
-  Anchor, Angry, Axe, Biohazard, Bird, Bone, BookOpen, Brain, Bug, CircleDot, CloudLightning, Coins, Compass,
-  Dna, Drama, Droplet, Droplets, Eye, EyeOff, Feather, Fish, Flame, Footprints, Ghost, Hammer, Hand,
-  HeartPulse, Hexagon, Hourglass, Infinity as InfinityIcon, Leaf, Lock, Megaphone, Moon, Mountain,
-  ScanEye, ShieldHalf, Skull, Snowflake, Sparkles, Sun, Sword, Target,
+  Anchor, Angry, Axe, Bird, Bone, BookOpen, Brain, Bug, CircleDot, CloudLightning, Coins,
+  Drama, Droplet, Droplets, Eye, EyeOff, Feather, Fish, Ghost, Hammer, Hand,
+  HeartPulse, Hexagon, Hourglass, Infinity as InfinityIcon, Lock, Megaphone, Mountain,
+  ScanEye, Skull, Snowflake, Sparkles, Sun, Sword, Target,
   Users, Waves, Wind, Wrench,
 } from 'lucide-static';
 
@@ -39,37 +39,37 @@ const ABILITY_ICONS: Record<string, ChipIcon> = {
   shockres: 'game',
   poisonres: 'game',
   acidres: [Droplets, '#a9d343'],
-  diseaseres: [Bug, '#9fbf6a'],
+  diseaseres: 'game',
   darkvision: 'game',
   stealthy: 'game',
   supplybonus: 'game',
-  fear: [Ghost, '#c7c7d6'],
+  fear: 'game',
   awe: 'game',
   animalawe: [Sun, '#c9e08a'],
   berserk: 'game',
-  regeneration: [HeartPulse, '#e65d6c'],
+  regeneration: 'game',
   heat: 'game',
   cold: 'game',
   fireshield: 'game',
   iceprot: [Snowflake, '#cdeeff'],
-  poisoncloud: [Biohazard, '#93d04c'],
-  poisonarmor: [Biohazard, '#5fae3c'],
-  invulnerable: [ShieldHalf, '#f2f2f2'],
+  poisoncloud: 'game',
+  poisonarmor: 'game',
+  invulnerable: 'game',
   siegebonus: 'game',
   castledef: 'game',
-  patrolbonus: [Compass, '#cba66b'],
+  patrolbonus: 'game',
   pillagebonus: [Coins, '#e58a3d'],
   mastersmith: 'game',
   inspirational: [Megaphone, '#f2d483'],
   standard: 'game',
-  magicpower: [Sparkles, '#c86ad8'],
-  firepower: [Flame, '#f07a2a'],
+  magicpower: 'game',
+  firepower: 'game',
   coldpower: [Snowflake, '#82d4f2'],
   stormpower: [CloudLightning, '#f2d443'],
-  darkpower: [Moon, '#9a86ea'],
+  darkpower: 'game',
   chaospower: [InfinityIcon, '#e5513f'],
   waterbreathing: [Waves, '#4f97df'],
-  autohealer: 'game',
+  autohealer: [HeartPulse, '#66c486'],
   autodishealer: [Bug, '#66c486'],
   ambidextrous: 'game',
   heretic: [BookOpen, '#c96565'],
@@ -82,19 +82,22 @@ const ABILITY_ICONS: Record<string, ChipIcon> = {
   skirmisher: [Wind, '#c7d6e0'],
   seduce: 'game',
   patience: [Hourglass, '#ddd5c7'],
-  blind: [ScanEye, '#a5aeb9'],
+  blind: 'game',
   eyes: [Eye, '#ddd5c7'],
 };
+
+/** Resistances with an in-game "susceptible to" icon for negative values, public/gameicons/sus-<key>.png. */
+const SUSCEPTIBLE = new Set(['fireres', 'coldres', 'shockres', 'poisonres', 'acidres']);
 
 /** Boolean flags shown as icons (label in the tooltip). */
 const FLAG_ICONS: Record<string, ChipIcon> = {
   holy: 'game',
   female: [Venus, '#e88fb8'],
-  neednoteat: [Leaf, '#9fbf6a'],
+  neednoteat: 'game',
   forestsurvival: 'game',
-  spiritsight: [Eye, '#b3baff'],
+  spiritsight: 'game',
   amphibian: 'game',
-  pooramphibian: [Waves, '#7f9fbf'],
+  pooramphibian: 'game',
   aquatic: 'game',
   swimming: [Fish, '#7fc9e8'],
   flying: 'game',
@@ -103,14 +106,14 @@ const FLAG_ICONS: Record<string, ChipIcon> = {
   wastesurvival: 'game',
   swampsurvival: 'game',
   snowmove: [Snowflake, '#e6f6ff'],
-  magicbeing: [Sparkles, '#c86ad8'],
+  magicbeing: 'game',
   undead: [Skull, '#b67fdd'],
   demon: 'game',
   inanimate: [Wrench, '#a5aeb9'],
   stonebeing: [Mountain, '#8a8f99'],
   animal: [Bone, '#dccb9f'],
   mind: [Brain, '#8a8f99'],
-  coldblood: [Dna, '#6fc2a8'],
+  coldblood: 'game',
   ethereal: 'game',
   spiritform: [Ghost, '#9aa8d6'],
   pierceres: [Target, '#cfd4db'],
@@ -118,15 +121,15 @@ const FLAG_ICONS: Record<string, ChipIcon> = {
   slashres: [Axe, '#cfd4db'],
   heal: [HeartPulse, '#66c486'],
   noheal: [HeartPulse, '#7a7f88'],
-  trample: [Footprints, '#cba66b'],
-  stormimmune: [CloudLightning, '#c7d6e0'],
+  trample: 'game',
+  stormimmune: 'game',
   immobile: [Anchor, '#a5aeb9'],
   truesight: [ScanEye, '#f2d483'],
   immortal: [InfinityIcon, '#f2d483'],
   glamour: [Drama, '#c79ae0'],
   illusion: [Drama, '#c79ae0'],
   spy: [EyeOff, '#a5aeb9'],
-  unseen: [EyeOff, '#c7c7d6'],
+  unseen: 'game',
   assassin: [Sword, '#c83434'],
   teleport: [Sparkles, '#82d4f2'],
   slave: [Lock, '#8a8f99'],
@@ -238,7 +241,9 @@ export function enhanceUnitCard(main: HTMLElement) {
     const td = tr.querySelector(':scope > td');
     if (!def || !th || !td || td.querySelector('a, table')) return;
     const label = (th.textContent ?? key).replace(/\[.*?\]/, '').replace(/:\s*$/, '').trim();
-    const chip = el('span', 'uchip', chipIcon(key, def) + `<span class="uchip-label">${label}</span><span class="stat-value">${td.innerHTML}</span>`);
+    // like the game, a negative resistance shows the crossed-out "susceptible to" icon
+    const susceptible = SUSCEPTIBLE.has(key) && parseFloat(td.textContent ?? '') < 0;
+    const chip = el('span', 'uchip', (susceptible ? gameIcon('sus-' + key) : chipIcon(key, def)) + `<span class="uchip-label">${label}</span><span class="stat-value">${td.innerHTML}</span>`);
     chip.dataset.key = key;
     chip.title = `${label}: ${td.textContent?.trim()}` + (tr.title ? `\n${tr.title}` : '');
     const keySpan = th.querySelector('.internal-inline');

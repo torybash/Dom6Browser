@@ -62,16 +62,26 @@ UNIT_ICONS = {
     'stat-fatigue': ('res', 393), 'stat-maxage': ('res', 394), 'stat-xp': ('res', 395),
     'slot-hand': ('misc2', 0), 'slot-offhand': ('misc2', 1), 'slot-bow': ('misc2', 2), 'slot-head': ('misc2', 3),
     'slot-body': ('misc2', 4), 'slot-feet': ('misc2', 5), 'slot-misc': ('misc2', 6),
-    # abilities and flags (ability row keys / flag names in the upstream html)
+    # abilities and flags (ability row keys / flag names in the upstream html), checked against in-game
+    # hover tooltips; supplybonus, siegebonus, mastersmith, swampsurvival, aquatic and demon are visual guesses
     'abil-fireres': ('res', 1), 'abil-coldres': ('res', 2), 'abil-poisonres': ('res', 3), 'abil-shockres': ('res', 4),
-    'abil-heat': ('res', 9), 'abil-cold': ('res', 10), 'abil-fireshield': ('res', 59), 'abil-darkvision': ('res', 96),
-    'abil-supplybonus': ('res', 87), 'abil-stealthy': ('res', 21), 'abil-awe': ('res', 24), 'abil-standard': ('res', 41),
-    'abil-berserk': ('res', 63), 'abil-bodyguard': ('res', 64), 'abil-ambidextrous': ('res', 183),
-    'abil-siegebonus': ('res', 81), 'abil-castledef': ('res', 88), 'abil-mastersmith': ('res', 89),
-    'abil-autohealer': ('res', 83), 'abil-seduce': ('res', 95),
+    'abil-diseaseres': ('res', 237), 'abil-heat': ('res', 11), 'abil-cold': ('res', 10), 'abil-fireshield': ('res', 59),
+    'abil-poisoncloud': ('res', 101), 'abil-poisonarmor': ('res', 116), 'abil-invulnerable': ('res', 164),
+    'abil-darkvision': ('res', 96), 'abil-blind': ('res', 97), 'abil-supplybonus': ('res', 87), 'abil-stealthy': ('res', 30),
+    'abil-fear': ('res', 6), 'abil-awe': ('res', 40), 'abil-standard': ('res', 41), 'abil-berserk': ('res', 62),
+    'abil-regeneration': ('res', 463), 'abil-bodyguard': ('res', 184), 'abil-ambidextrous': ('res', 219),
+    'abil-patrolbonus': ('res', 90), 'abil-siegebonus': ('res', 81), 'abil-castledef': ('res', 88),
+    'abil-mastersmith': ('res', 89), 'abil-seduce': ('res', 95), 'abil-magicpower': ('res', 196),
+    'abil-firepower': ('res', 113), 'abil-darkpower': ('res', 115),
     'abil-holy': ('res', 17), 'abil-forestsurvival': ('res', 73), 'abil-mountainsurvival': ('res', 72),
     'abil-wastesurvival': ('res', 71), 'abil-swampsurvival': ('res', 74), 'abil-flying': ('res', 28),
-    'abil-aquatic': ('res', 14), 'abil-amphibian': ('res', 16), 'abil-demon': ('res', 57), 'abil-ethereal': ('res', 53),
+    'abil-aquatic': ('res', 14), 'abil-amphibian': ('res', 15), 'abil-pooramphibian': ('res', 16),
+    'abil-demon': ('res', 57), 'abil-ethereal': ('res', 21), 'abil-unseen': ('res', 337), 'abil-spiritsight': ('res', 300),
+    'abil-magicbeing': ('res', 36), 'abil-trample': ('res', 25), 'abil-coldblood': ('res', 19),
+    'abil-stormimmune': ('res', 217), 'abil-neednoteat': ('res', 43),
+    # "Susceptible to ..." (negative resistance); fire, cold and acid checked in game
+    'sus-fireres': ('res', 75), 'sus-coldres': ('res', 76), 'sus-poisonres': ('res', 109),
+    'sus-shockres': ('res', 110), 'sus-acidres': ('res', 370),
 }
 
 

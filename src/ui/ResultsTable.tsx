@@ -118,7 +118,7 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
     () => tableColumns(page, results, advanced, thumbnails, prefs, shownCalc),
     [page, results, advanced, thumbnails, prefs, shownCalc],
   );
-  const template = cols.map((c) => (c.kind === 'data' && (c.id === 'name' || c.id === 'description') ? `minmax(${c.width}px, 3fr)` : `${c.width}px`)).join(' ');
+  const template = cols.map((c) => (c.kind === 'data' && (c.id === 'name' || c.id === 'description') && prefs.widths[c.id] === undefined ? `minmax(${c.width}px, 3fr)` : `${c.width}px`)).join(' ');
   const totalMin = cols.reduce((a, c) => a + c.width, 0);
 
   const rows = results.rows;
@@ -185,7 +185,8 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
     e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX;
-    const startW = c.width;
+    // flexible columns render wider than c.width, so measure what is actually on screen
+    const startW = (e.currentTarget as HTMLElement).parentElement?.getBoundingClientRect().width ?? c.width;
     const move = (ev: PointerEvent) => {
       const w = Math.max(c.minWidth, Math.round(startW + ev.clientX - startX));
       setPrefs((p) => ({ ...p, widths: { ...p.widths, [c.id]: w } }));

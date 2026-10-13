@@ -18,6 +18,7 @@ import { install as installMerc } from './legacy/MMerc';
 import { install as installEvent } from './legacy/MEvent';
 import { parseTextToTable, createLookup } from './tsv';
 import { installNationExtensions } from './extensions/nations';
+import { installDerived, snapshotRawUnitFields } from './extensions/derived';
 
 export type DMI = any;
 
@@ -159,6 +160,7 @@ export async function loadData(opts: LoadOptions): Promise<DMI> {
 
   progress('Finalising data', 0.5);
   await tick();
+  const rawUnits = snapshotRawUnitFields(DMI);
   //after applying mod (order is important!)
   DMI.MWpn.prepareData_PostMod();
   DMI.MArmor.prepareData_PostMod();
@@ -171,6 +173,7 @@ export async function loadData(opts: LoadOptions): Promise<DMI> {
   DMI.MEvent.prepareData_PostMod();
 
   installNationExtensions(DMI);
+  installDerived(DMI, rawUnits);
 
   progress('Ready', 1);
   return DMI;

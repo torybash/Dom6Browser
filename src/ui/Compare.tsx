@@ -183,7 +183,14 @@ export function markDiffs(cols: HTMLElement[]) {
   });
   values.forEach((vals, key) => {
     const distinct = new Set(vals.map((v) => v ?? '—'));
-    if (distinct.size > 1) elements.get(key)!.forEach((el) => el.classList.add('cmp-diff'));
+    if (distinct.size > 1) {
+      elements.get(key)!.forEach((el) => {
+        el.classList.add('cmp-diff');
+        // the Calculated section is collapsed by default: open it so the highlighted rows are visible
+        const sec = el.closest('details.calc-section');
+        if (sec) sec.setAttribute('open', '');
+      });
+    }
   });
 }
 

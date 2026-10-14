@@ -3,6 +3,7 @@ import type { DMI } from '../data/load';
 import { fetchText } from '../state/data';
 import { enhanceUnitCard } from './unitCard';
 import { withCalculated } from './calculated';
+import { attachStatTips } from './derivedTips';
 
 export interface RenderedPane {
   html: string;
@@ -55,6 +56,7 @@ export function enhance(root: HTMLElement) {
   root.querySelectorAll<HTMLElement>('.calc-section').forEach((sec) => {
     sec.closest('.overlay-contents')?.querySelector('.ucard')?.after(sec);
   });
+  attachStatTips(root);
   root.querySelectorAll<HTMLImageElement>('img').forEach(fixImage);
   root.querySelectorAll<HTMLTableElement>('table.overlay-table').forEach((t) => {
     const first = t.rows[0];

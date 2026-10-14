@@ -5,6 +5,7 @@ import type { Confidence, DerivedResult, DerivedValue } from './types';
 export const UNIT_DERIVED: DerivedValue[] = [
   {
     id: 'patrol',
+    stat: 'mapmove',
     field: 'calc_patrol',
     label: 'Patrol strength',
     shortLabel: 'Patrol',
@@ -16,6 +17,7 @@ export const UNIT_DERIVED: DerivedValue[] = [
   },
   {
     id: 'siege',
+    stat: 'str',
     field: 'calc_siege',
     label: 'Siege strength',
     shortLabel: 'Siege',
@@ -27,6 +29,7 @@ export const UNIT_DERIVED: DerivedValue[] = [
   },
   {
     id: 'siegedef',
+    stat: 'str',
     field: 'calc_siegedef',
     label: 'Siege defence',
     shortLabel: 'Siege def',
@@ -38,6 +41,7 @@ export const UNIT_DERIVED: DerivedValue[] = [
   },
   {
     id: 'upkeep',
+    stat: 'goldcost',
     field: 'calc_upkeep',
     label: 'Upkeep (gold/year)',
     shortLabel: 'Upkeep',
@@ -49,6 +53,7 @@ export const UNIT_DERIVED: DerivedValue[] = [
   },
   {
     id: 'supply',
+    stat: 'size',
     field: 'calc_supply',
     label: 'Supply usage',
     shortLabel: 'Supply',
@@ -60,6 +65,7 @@ export const UNIT_DERIVED: DerivedValue[] = [
   },
   {
     id: 'cmdpoints',
+    stat: 'leader',
     field: 'calc_cmdpoints',
     label: 'Commander points',
     shortLabel: 'Cmd pts',
@@ -71,6 +77,7 @@ export const UNIT_DERIVED: DerivedValue[] = [
   },
   {
     id: 'castingenc',
+    stat: 'enc',
     field: 'calc_castingenc',
     label: 'Casting encumbrance',
     shortLabel: 'Cast enc',

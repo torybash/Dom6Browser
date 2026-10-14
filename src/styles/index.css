@@ -473,7 +473,7 @@ button {
   box-shadow: inset 0 0 0 1px rgb(var(--line)), inset 0 1px 3px rgb(0 0 0 / 0.25);
 }
 .legacy .uicons {
-  @apply mt-2 flex flex-wrap items-center gap-1.5 text-[12.5px];
+  @apply mt-2 flex flex-wrap items-center gap-1 text-[12.5px];
 }
 .legacy .upaths {
   @apply mr-1 inline-flex items-center gap-0.5 font-semibold tabular-nums;
@@ -484,19 +484,13 @@ button {
   margin-left: 0.15em;
 }
 .legacy .uchip {
-  @apply inline-flex items-center gap-1 rounded-full border border-line bg-raised py-0.5 pl-1.5 pr-2;
+  @apply inline-flex items-center gap-0.5 rounded-full border border-line bg-raised px-1.5 py-0.5;
 }
 .legacy .uchip[title] {
   cursor: help;
 }
 .legacy .uchip .uicon {
   font-size: 14px;
-}
-.legacy .uchip-label {
-  @apply text-fg/85;
-}
-.legacy .uchip-label::first-letter {
-  text-transform: capitalize;
 }
 .legacy .uchip .stat-value {
   @apply font-semibold tabular-nums text-fg;

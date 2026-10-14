@@ -63,7 +63,7 @@ UNIT_ICONS = {
     'slot-hand': ('misc2', 0), 'slot-offhand': ('misc2', 1), 'slot-bow': ('misc2', 2), 'slot-head': ('misc2', 3),
     'slot-body': ('misc2', 4), 'slot-feet': ('misc2', 5), 'slot-misc': ('misc2', 6),
     # abilities and flags (ability row keys / flag names in the upstream html), checked against in-game
-    # hover tooltips; supplybonus, siegebonus, mastersmith, swampsurvival, aquatic and demon are visual guesses
+    # hover tooltips or unit windows whose other icons are known; mastersmith is a visual guess
     'abil-fireres': ('res', 1), 'abil-coldres': ('res', 2), 'abil-poisonres': ('res', 3), 'abil-shockres': ('res', 4),
     'abil-diseaseres': ('res', 237), 'abil-heat': ('res', 11), 'abil-cold': ('res', 10), 'abil-fireshield': ('res', 59),
     'abil-poisoncloud': ('res', 101), 'abil-poisonarmor': ('res', 116), 'abil-invulnerable': ('res', 164),
@@ -79,9 +79,19 @@ UNIT_ICONS = {
     'abil-demon': ('res', 57), 'abil-ethereal': ('res', 21), 'abil-unseen': ('res', 337), 'abil-spiritsight': ('res', 300),
     'abil-magicbeing': ('res', 36), 'abil-trample': ('res', 25), 'abil-coldblood': ('res', 19),
     'abil-stormimmune': ('res', 217), 'abil-neednoteat': ('res', 43),
-    # "Susceptible to ..." (negative resistance); fire, cold and acid checked in game
-    'sus-fireres': ('res', 75), 'sus-coldres': ('res', 76), 'sus-poisonres': ('res', 109),
-    'sus-shockres': ('res', 110), 'sus-acidres': ('res', 370),
+    'abil-iceprot': ('res', 145), 'abil-pillagebonus': ('res', 82), 'abil-chaospower': ('res', 190),
+    'abil-voidsanity': ('res', 159), 'abil-taskmaster': ('res', 163), 'abil-formationfighter': ('res', 152),
+    'abil-swimming': ('res', 278), 'abil-undead': ('res', 5), 'abil-inanimate': ('res', 38), 'abil-animal': ('res', 86),
+    'abil-mind': ('res', 27), 'abil-pierceres': ('res', 133), 'abil-slashres': ('res', 65), 'abil-heal': ('res', 83),
+    'abil-noheal': ('res', 61), 'abil-truesight': ('res', 351), 'abil-glamour': ('res', 51), 'abil-spy': ('res', 129),
+    'abil-assassin': ('res', 128), 'abil-slave': ('res', 179), 'abil-undisciplined': ('res', 153),
+    'abil-snowmove': ('res', 287),
+    # commander-only: the game shows these in the commander window, not the recruitment one
+    'abil-inspirational': ('res', 154), 'abil-douse': ('res', 192),
+    # crossed-out icons for negative values ("Susceptible to Fire", "Patrol Bonus (-1)", ...)
+    'neg-fireres': ('res', 75), 'neg-coldres': ('res', 76), 'neg-poisonres': ('res', 109),
+    'neg-shockres': ('res', 110), 'neg-acidres': ('res', 370), 'neg-patrolbonus': ('res', 209),
+    'neg-inspirational': ('res', 468),
 }
 
 

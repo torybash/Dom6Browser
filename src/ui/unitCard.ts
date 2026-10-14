@@ -5,11 +5,9 @@
 // Only layout changes: all upstream content (links, tooltips, advanced-mode classes) is kept, and
 // abilities without an icon stay as regular text rows.
 import {
-  Anchor, Angry, Axe, Bird, Bone, BookOpen, Brain, Bug, CircleDot, CloudLightning, Coins,
-  Drama, Droplet, Droplets, Eye, EyeOff, Feather, Fish, Ghost, Hammer, Hand,
-  HeartPulse, Hexagon, Hourglass, Infinity as InfinityIcon, Lock, Megaphone, Mountain,
-  ScanEye, Skull, Snowflake, Sparkles, Sun, Sword, Target,
-  Users, Waves, Wind, Wrench,
+  Anchor, Bird, BookOpen, Bug, CircleDot, CloudLightning, Drama, Droplets, Eye, Feather, Ghost,
+  Hammer, HeartPulse, Hexagon, Hourglass, Infinity as InfinityIcon, Mountain, Snowflake, Sparkles,
+  Sun, Waves, Wind,
 } from 'lucide-static';
 
 type IconDef = [svg: string, color: string];
@@ -51,34 +49,34 @@ const ABILITY_ICONS: Record<string, ChipIcon> = {
   heat: 'game',
   cold: 'game',
   fireshield: 'game',
-  iceprot: [Snowflake, '#cdeeff'],
+  iceprot: 'game',
   poisoncloud: 'game',
   poisonarmor: 'game',
   invulnerable: 'game',
   siegebonus: 'game',
   castledef: 'game',
   patrolbonus: 'game',
-  pillagebonus: [Coins, '#e58a3d'],
+  pillagebonus: 'game',
   mastersmith: 'game',
-  inspirational: [Megaphone, '#f2d483'],
+  inspirational: 'game',
   standard: 'game',
   magicpower: 'game',
   firepower: 'game',
   coldpower: [Snowflake, '#82d4f2'],
   stormpower: [CloudLightning, '#f2d443'],
   darkpower: 'game',
-  chaospower: [InfinityIcon, '#e5513f'],
+  chaospower: 'game',
   waterbreathing: [Waves, '#4f97df'],
   autohealer: [HeartPulse, '#66c486'],
   autodishealer: [Bug, '#66c486'],
   ambidextrous: 'game',
   heretic: [BookOpen, '#c96565'],
-  douse: [Droplet, '#b3262a'],
-  voidsanity: [Brain, '#b3baff'],
-  taskmaster: [Hand, '#cba66b'],
+  douse: 'game',
+  voidsanity: 'game',
+  taskmaster: 'game',
   beastmaster: [Bird, '#c5b08a'],
   bodyguard: 'game',
-  formationfighter: [Users, '#a5aeb9'],
+  formationfighter: 'game',
   skirmisher: [Wind, '#c7d6e0'],
   seduce: 'game',
   patience: [Hourglass, '#ddd5c7'],
@@ -86,8 +84,8 @@ const ABILITY_ICONS: Record<string, ChipIcon> = {
   eyes: [Eye, '#ddd5c7'],
 };
 
-/** Resistances with an in-game "susceptible to" icon for negative values, public/gameicons/sus-<key>.png. */
-const SUSCEPTIBLE = new Set(['fireres', 'coldres', 'shockres', 'poisonres', 'acidres']);
+/** Abilities with a crossed-out in-game icon for negative values ("Susceptible to Fire"), public/gameicons/neg-<key>.png. */
+const NEGATIVE_ICON = new Set(['fireres', 'coldres', 'shockres', 'poisonres', 'acidres', 'patrolbonus', 'inspirational']);
 
 /** Boolean flags shown as icons (label in the tooltip). */
 const FLAG_ICONS: Record<string, ChipIcon> = {
@@ -99,41 +97,41 @@ const FLAG_ICONS: Record<string, ChipIcon> = {
   amphibian: 'game',
   pooramphibian: 'game',
   aquatic: 'game',
-  swimming: [Fish, '#7fc9e8'],
+  swimming: 'game',
   flying: 'game',
   float: [Feather, '#b3d4f2'],
   mountainsurvival: 'game',
   wastesurvival: 'game',
   swampsurvival: 'game',
-  snowmove: [Snowflake, '#e6f6ff'],
+  snowmove: 'game',
   magicbeing: 'game',
-  undead: [Skull, '#b67fdd'],
+  undead: 'game',
   demon: 'game',
-  inanimate: [Wrench, '#a5aeb9'],
+  inanimate: 'game',
   stonebeing: [Mountain, '#8a8f99'],
-  animal: [Bone, '#dccb9f'],
-  mind: [Brain, '#8a8f99'],
+  animal: 'game',
+  mind: 'game',
   coldblood: 'game',
   ethereal: 'game',
   spiritform: [Ghost, '#9aa8d6'],
-  pierceres: [Target, '#cfd4db'],
+  pierceres: 'game',
   bluntres: [Hammer, '#cfd4db'],
-  slashres: [Axe, '#cfd4db'],
-  heal: [HeartPulse, '#66c486'],
-  noheal: [HeartPulse, '#7a7f88'],
+  slashres: 'game',
+  heal: 'game',
+  noheal: 'game',
   trample: 'game',
   stormimmune: 'game',
   immobile: [Anchor, '#a5aeb9'],
-  truesight: [ScanEye, '#f2d483'],
+  truesight: 'game',
   immortal: [InfinityIcon, '#f2d483'],
-  glamour: [Drama, '#c79ae0'],
+  glamour: 'game',
   illusion: [Drama, '#c79ae0'],
-  spy: [EyeOff, '#a5aeb9'],
+  spy: 'game',
   unseen: 'game',
-  assassin: [Sword, '#c83434'],
+  assassin: 'game',
   teleport: [Sparkles, '#82d4f2'],
-  slave: [Lock, '#8a8f99'],
-  undisciplined: [Angry, '#c9a46a'],
+  slave: 'game',
+  undisciplined: 'game',
 };
 
 /** Item slot words from the "item slots" row -> in-game icon (public/gameicons/slot-<name>.png), tooltip. */
@@ -241,11 +239,12 @@ export function enhanceUnitCard(main: HTMLElement) {
     const td = tr.querySelector(':scope > td');
     if (!def || !th || !td || td.querySelector('a, table')) return;
     const label = (th.textContent ?? key).replace(/\[.*?\]/, '').replace(/:\s*$/, '').trim();
-    // like the game, a negative resistance shows the crossed-out "susceptible to" icon
-    const susceptible = SUSCEPTIBLE.has(key) && parseFloat(td.textContent ?? '') < 0;
-    const chip = el('span', 'uchip', (susceptible ? gameIcon('sus-' + key) : chipIcon(key, def)) + `<span class="uchip-label">${label}</span><span class="stat-value">${td.innerHTML}</span>`);
+    // like the game, a negative value (e.g. "susceptible to fire") shows a crossed-out icon
+    const negative = NEGATIVE_ICON.has(key) && parseFloat(td.textContent ?? '') < 0;
+    const chip = el('span', 'uchip', (negative ? gameIcon('neg-' + key) : chipIcon(key, def)) + `<span class="stat-value">${td.innerHTML}</span>`);
     chip.dataset.key = key;
     chip.title = `${label}: ${td.textContent?.trim()}` + (tr.title ? `\n${tr.title}` : '');
+    chip.setAttribute('aria-label', chip.title);
     const keySpan = th.querySelector('.internal-inline');
     if (keySpan) chip.appendChild(keySpan.cloneNode(true));
     iconsRow.appendChild(chip);
@@ -259,8 +258,10 @@ export function enhanceUnitCard(main: HTMLElement) {
     if (f.parentElement) flagParents.add(f.parentElement);
     const label = (f.firstChild?.textContent ?? key).replace(/-/g, ' ').trim();
     const name = label.charAt(0).toUpperCase() + label.slice(1);
-    const chip = el('span', 'uchip uflag', chipIcon(key, def) + `<span class="uchip-label">${name}</span>`);
+    const chip = el('span', 'uchip uflag', chipIcon(key, def));
     chip.dataset.key = key;
+    chip.title = name;
+    chip.setAttribute('aria-label', name);
     const keySpan = f.querySelector('.internal-inline');
     if (keySpan) chip.appendChild(keySpan.cloneNode(true));
     iconsRow.appendChild(chip);

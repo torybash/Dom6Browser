@@ -68,6 +68,7 @@ The golden suite checks that, for vanilla data and for a test mod, the port prod
 data and detail html as upstream for all ~12,000 entities.
 
 `tests/fixtures/ingame-values.json` holds values read in the game itself (Dominions 6.37), and the
-calculated values are tested against them. Entries marked `known` are mismatches with a recorded cause;
+calculated values are tested against them. The game shows no per-unit upkeep, so upkeep was measured
+from the nation's total upkeep in the top bar, in test games that own a known set of units. Entries marked `known` are mismatches with a recorded cause;
 they run as expected failures, so a formula change that fixes one shows up. Intentional differences, such as markup for
 the mod-command toggle, are normalised in `tests/golden/normalize.mjs`.

@@ -19,6 +19,7 @@ import { install as installEvent } from './legacy/MEvent';
 import { parseTextToTable, createLookup } from './tsv';
 import { installNationExtensions } from './extensions/nations';
 import { installDerived, snapshotRawUnitFields } from './extensions/derived';
+import { installCarries, snapshotStartItemClasses } from './extensions/carries';
 
 export type DMI = any;
 
@@ -137,6 +138,7 @@ export async function loadData(opts: LoadOptions): Promise<DMI> {
     if (k1) modctx[lookupName ?? key + '_lookup'] = createLookup(modctx[key], k1, k2);
   });
   modctx.school_lookup = DMI.modconstants[15];
+  const startItemClasses = snapshotStartItemClasses(DMI); // legacy PreMod replaces the class with an item id
 
   progress('Preparing data', 0.1);
   await tick();
@@ -173,6 +175,7 @@ export async function loadData(opts: LoadOptions): Promise<DMI> {
   DMI.MEvent.prepareData_PostMod();
 
   installNationExtensions(DMI);
+  installCarries(DMI, startItemClasses);
   installDerived(DMI, rawUnits);
 
   progress('Ready', 1);

@@ -106,6 +106,35 @@ function _open_ignored(tname) {
 	}
 }
 
+//poptypes (province population types): per id an ordered recruit list and an ordered province
+//defence (PD) list. The engine takes the FIRST pd pair matching a key and vanilla data repeats keys,
+//so order and duplicates are kept. valid ids are 0..249 (bounds check in Dominions6.exe).
+var POPTYPE_MAX_ID = 249;
+var POPTYPE_MAX_PD = 8;
+function poptypeUnit(a) {
+	if (a.n1) return parseInt(a.n1);
+	if (!a.s) throw "argument missing (unit id or name expected)";
+	var u = modctx.unitlookup[$.trim(a.s.toLowerCase())];
+	if (!u) throw 'unit not found';
+	return parseInt(u.id);
+}
+function _poptype_rec(list) {
+	return function(c,a,t) { modctx[t][list].push(poptypeUnit(a)); }
+}
+function _poptype_def(isUnit) {
+	return function(c,a,t,fnw) {
+		var o = modctx[t];
+		var v = isUnit ? poptypeUnit(a) : parseInt(argnum(a));
+		//as in the engine: a key that is already present gets its first match replaced in place,
+		//otherwise the pair is appended; the engine silently drops it when all 8 pairs are taken
+		for (var i=0; i<o.pd.length; i++) {
+			if (o.pd[i][0] == c) { o.pd[i][1] = v; return; }
+		}
+		if (o.pd.length >= POPTYPE_MAX_PD) return fnw('province defence list is full (max '+POPTYPE_MAX_PD+'), ignored');
+		o.pd.push([c, v]);
+	}
+}
+
 
 //truncates name till it is found in object. returns found value
 function lookupTruncation(longname, object, minlen) {
@@ -296,7 +325,24 @@ var modctx = DMI.modctx = {
 		selectbless: _open_ignored('bless'),
 		selectsound: _open_ignored('sound'),
 		newtemplate: _open_ignored('template'),
-		selectpoptype: _open_ignored('poptype'),
+		selectpoptype: function(c,a,t,fnw){
+			modctx._checkContextClosed(fnw);
+			if (!a.n1) throw 'missing argument (id expected)';
+			var id = parseInt(a.n1);
+			if (id < 0 || id > POPTYPE_MAX_ID) throw 'poptype id out of range (0-'+POPTYPE_MAX_ID+')';
+
+			var o = modctx.poptypelookup[id];
+			if (!o) {
+				o = { id: id, recunits: [], reccoms: [], pd: [] };
+				modctx.poptypedata.push(o);
+				modctx.poptypelookup[id] = o;
+			}
+			//which mod files touched this entry
+			o.modded = true;
+			o.modfiles = o.modfiles || [];
+			if (o.modfiles.indexOf(modctx.currentmod) == -1) o.modfiles.push(modctx.currentmod);
+			modctx.poptype = o;
+		},
 
 		//nation modding
 		indepflag: _ignore,
@@ -3272,17 +3318,17 @@ var modctx = DMI.modctx = {
 	//poptype selected
 	poptypecommands: {
 		end: function(c,a,t){ modctx[t] = null; },
-		addreccom: _ignore,
-		addrecunit: _ignore,
-		cleardef: _ignore,
-		clearrec: _ignore,
-		defcom1: _ignore,
-		defmult1: _ignore,
-		defmult1b: _ignore,
-		defmult1c: _ignore,
-		defunit1: _ignore,
-		defunit1b: _ignore,
-		defunit1c: _ignore
+		addreccom: _poptype_rec('reccoms'),
+		addrecunit: _poptype_rec('recunits'),
+		cleardef: function(c,a,t){ modctx[t].pd = []; },
+		clearrec: function(c,a,t){ modctx[t].recunits = []; modctx[t].reccoms = []; },
+		defcom1: _poptype_def(true),
+		defmult1: _poptype_def(false),
+		defmult1b: _poptype_def(false),
+		defmult1c: _poptype_def(false),
+		defunit1: _poptype_def(true),
+		defunit1b: _poptype_def(true),
+		defunit1c: _poptype_def(true)
 	},
 
 	//member data
@@ -3332,7 +3378,12 @@ var modctx = DMI.modctx = {
 	bless: null,
 	sound: null,
 	template: null,
+
+	//poptypes start empty; a generated vanilla .dm is meant to be loaded through this same parser
+	poptypedata: [],
+	poptypelookup: {},
 	poptype: null,
+	currentmod: '', //name of the mod file being parsed
 
 
     // setWpnDamageType: function(key) {
@@ -3385,6 +3436,7 @@ var modcom_re_strcont  = /([^"]*)("|)/;
 var modcom_re = /^\s*#(\w+)\s*("([^"]+)"|)(-?\d+\.?\d*|)\s*(-?\d+\.?\d*|)\s*(-?\d+\.?\d*|)\s*/;
 
 modctx.parseMod = function(str, modnum, modname) {
+	modctx.currentmod = modname;
 	var lines = str.split('\n');
 	for (var i=0; i<lines.length; i++) {
 		var cstr = lines[i], linenum = i+1;

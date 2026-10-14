@@ -129,7 +129,7 @@ describe('Calculated section', () => {
     const DMI = await vanilla();
     const o = DMI.modctx.unitlookup[61];
     const html = withCalculated(DMI, o, o.renderOverlay(o));
-    const at = html.indexOf('<div class="calc-section">');
+    const at = html.indexOf('<details class="calc-section">');
     expect(at).toBeGreaterThan(0);
     expect(at).toBeLessThan(html.indexOf('<div class="overlay-footer">'));
     expect(html).toContain('data-key="calc_patrol"');

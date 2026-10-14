@@ -90,6 +90,8 @@ export interface DerivedValue {
   label: string;
   /** Table column header. */
   shortLabel: string;
+  /** Legacy unit-card stat row key this value is shown under in tooltips (e.g. 'str'). */
+  stat?: string;
   confidence: Confidence;
   /** Human-readable formula for the tooltip. */
   formula: string;

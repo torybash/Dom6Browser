@@ -406,12 +406,23 @@ button {
 .legacy .ustat .stat-value {
   @apply shrink-0 text-right font-semibold tabular-nums text-fg;
 }
-.legacy .ustat[title] {
+.legacy .ustat[title],
+.legacy .ustat[data-tip] {
   cursor: help;
 }
-.legacy .ustat[title] .stat-value {
-  text-decoration: underline dotted rgb(var(--accent) / 0.8);
+.legacy .ustat[title] .stat-value,
+.legacy .ustat[data-tip] .stat-value {
+  text-decoration: underline dotted rgb(var(--fg) / 0.35);
   text-underline-offset: 3px;
+}
+.legacy .ustat.has-derived .stat-value {
+  text-decoration: underline dotted rgb(var(--accent));
+  text-decoration-thickness: 2px;
+}
+.legacy .ustat[data-tip]:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 1px;
+  border-radius: 3px;
 }
 .legacy .ustat.hidden-row {
   display: none;
@@ -706,12 +717,36 @@ button {
 
 /* Calculated values (src/ui/calculated.ts): set apart from raw game data by a dashed frame. */
 .legacy .calc-section {
-  @apply mb-3 rounded-lg px-2.5 py-2;
+  @apply mb-3 rounded-lg px-2.5 py-1.5;
   border: 1px dashed rgb(var(--accent) / 0.55);
   background: rgb(var(--accent) / 0.04);
 }
+.legacy .calc-section[open] {
+  @apply pb-2;
+}
 .legacy .calc-head {
-  @apply mb-1 flex flex-wrap items-baseline gap-x-2 text-[13px];
+  @apply flex cursor-pointer flex-wrap items-baseline gap-x-2 text-[13px];
+  list-style: none;
+}
+.legacy .calc-section[open] > .calc-head {
+  @apply mb-1;
+}
+.legacy .calc-head::-webkit-details-marker {
+  display: none;
+}
+.legacy .calc-head::before {
+  content: '';
+  align-self: center;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-right: 0.15rem;
+  border-right: 2px solid rgb(var(--accent));
+  border-bottom: 2px solid rgb(var(--accent));
+  transform: rotate(-45deg);
+  transition: transform 0.12s ease;
+}
+.legacy .calc-section[open] > .calc-head::before {
+  transform: rotate(45deg);
 }
 .legacy .calc-head .uicon {
   align-self: center;
@@ -756,4 +791,86 @@ button {
 .opt-keys .legacy .ustat[data-key='rpcost'],
 .opt-moreinfo .legacy .ustat[data-key='rpcost'] {
   display: flex;
+}
+
+/* Dominions-style stat tooltip (src/ui/statTip.ts). Lives on <body>, outside .legacy. */
+.stat-tip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  /* above Radix popovers/dialogs and HoverPreview (z-50) */
+  z-index: 10000;
+  /* fixed boxes shrink-to-fit against the viewport edge, so give it its own width */
+  width: max-content;
+  max-width: min(340px, calc(100vw - 16px));
+  padding: 0.5rem 0.65rem;
+  pointer-events: none;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #e6dfcf;
+  background: rgba(16, 13, 9, 0.96);
+  border: 1px solid #8a6d3b;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(226, 190, 110, 0.12), inset 0 0 14px rgba(138, 109, 59, 0.18),
+    0 6px 18px rgba(0, 0, 0, 0.55);
+}
+.stat-tip .tip-head {
+  margin-bottom: 0.3rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(138, 109, 59, 0.55);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #e2be6e;
+}
+/* upstream labels are lower case; capitalized like .ustat-label */
+.stat-tip .tip-head::first-letter {
+  text-transform: capitalize;
+}
+.stat-tip .tip-text {
+  color: #b9b09c;
+}
+.stat-tip .tip-derived {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 0.9rem;
+  margin: 0.4rem 0 0;
+  padding-top: 0.35rem;
+  border-top: 1px dashed rgba(138, 109, 59, 0.45);
+}
+.stat-tip .tip-derived:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.stat-tip .tip-label {
+  grid-column: 1;
+  margin-top: 0.25rem;
+  color: #d9d0bb;
+}
+.stat-tip .tip-value {
+  grid-column: 2;
+  margin: 0.25rem 0 0;
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #f2ead7;
+}
+.stat-tip .tip-value.tip-likely {
+  font-weight: 500;
+  font-style: italic;
+  color: #cdb77f;
+}
+.stat-tip .tip-formula,
+.stat-tip .tip-source {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 11px;
+  color: #9d9482;
+}
+.stat-tip .tip-source {
+  font-size: 10px;
+  font-style: italic;
+  color: #857d6c;
 }

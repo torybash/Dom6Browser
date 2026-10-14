@@ -1,7 +1,7 @@
 // The only place that knows how legacy unit objects store their fields. Legacy mixes numbers and
 // strings ("0" is truthy), and computes several sheet values lazily in MUnit.prepareForRender.
 import type { DMI } from '../../load';
-import type { DerivedContext, UnitInputs } from './types';
+import type { DerivedContext, UnitInputs, UpkeepPart } from './types';
 
 const num = (v: any): number => {
   const n = parseFloat(v);
@@ -69,6 +69,32 @@ function isCommander(o: any, ctx: DerivedContext): boolean {
   return /cmdr/.test(o.sorttype || '');
 }
 
+/**
+ * Legacy MUnit.goldCost prices rider and mount together and rounds the sum. For upkeep the game rounds
+ * each part on its own (commanders and anything above 30 gold down to a multiple of 5), and halves
+ * each part by its own sacred/slave flags.
+ */
+function upkeepParts(DMI: DMI, o: any, mount: any, commander: boolean): UpkeepPart[] | null {
+  // legacy clears the gold cost of pretenders
+  if (o.typechar === 'Pretender') return null;
+  const MU = DMI.MUnit;
+  let rider = MU.monsterGoldCost(o, commander, 'worst');
+  if (commander) rider = Math.trunc((rider + 3 * MU.monsterGoldCost(o, commander, 'best')) / 4);
+  // extra riders (#nofriders) are priced like legacy goldCost does; not measured in game
+  const riders = num(o.nofriders);
+  if (riders > 1) {
+    const co = num(o.coridermnr) > 0 ? DMI.modctx.unitlookup[o.coridermnr] : o;
+    if (co) rider += MU.monsterGoldCost(co, false, 'worst') * (riders - 1);
+  }
+  const round = (g: number, cmd: boolean) => (cmd || g > 30 ? MU.round(g) : g);
+  const parts: UpkeepPart[] = [{ gold: round(rider, commander), sacred: flag(o.holy), slave: flag(o.slave) }];
+  if (mount) {
+    const g = MU.monsterGoldCost(mount, false, 'worst') + num(o.mountgoldcost);
+    parts.push({ gold: round(g, false), sacred: flag(mount.holy), slave: flag(mount.slave) });
+  }
+  return parts.filter((p) => p.gold > 0);
+}
+
 export function readUnitInputs(DMI: DMI, raw: RawUnitFields, o: any, ctx: DerivedContext = {}): UnitInputs {
   const p = prepared(DMI, o);
   const mountId = num(o.mountmnr);
@@ -94,10 +120,9 @@ export function readUnitInputs(DMI: DMI, raw: RawUnitFields, o: any, ctx: Derive
     patrolbonus: num(o.patrolbonus),
     siegebonus: num(o.siegebonus),
     castledef: num(o.castledef),
-    goldcost: o.goldcost == null || o.goldcost === '' ? null : num(o.goldcost),
+    upkeepParts: upkeepParts(DMI, o, m, commander),
     addupkeep: num(o.addupkeep),
-    sacred: flag(o.holy),
-    slave: flag(o.slave),
+    extraRiders: num(o.nofriders) > 1,
     summoned: !!o.createdby,
     size: num(o.size),
     appetite: num(o.appetite),

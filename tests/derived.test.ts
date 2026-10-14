@@ -10,7 +10,7 @@ import { vanilla, withMods } from './helpers';
 const base: UnitInputs = {
   commander: false, str: 10, prec: 10, enc: 3, castingEnc: null, mapmove: 16, flying: false, old: false,
   mounted: false, animal: false, undisciplined: false, mindless: false, patrolbonus: 0, siegebonus: 0, castledef: 0,
-  goldcost: 10, addupkeep: 0, sacred: false, slave: false, summoned: false, size: 3, appetite: 0, neednoteat: false,
+  upkeepParts: [{ gold: 10, sacred: false, slave: false }], addupkeep: 0, extraRiders: false, summoned: false, size: 3, appetite: 0, neednoteat: false,
   supplybonus: 0, mount: null, recruitableCommander: false, magicLevels: 0, sureRandomPath: false, holyLevel: 0, leader: 40,
   slowRecruit: false,
 };
@@ -37,11 +37,18 @@ describe('calculated value formulas', () => {
   });
 
   it('upkeep per year', () => {
+    const part = (gold: number, sacred = false, slave = false) => ({ gold, sacred, slave });
+    const up = (...parts: ReturnType<typeof part>[]) => F.upkeep(u({ upkeepParts: parts })).value;
     const cases: [number, number][] = [[30, 24], [45, 36], [35, 28], [40, 32], [32, 26], [0, 0]];
-    for (const [gold, year] of cases) expect(F.upkeep(u({ goldcost: gold })).value).toBe(year);
-    expect(F.upkeep(u({ goldcost: 30, sacred: true })).value).toBe(12);
-    expect(F.upkeep(u({ goldcost: 30, sacred: true, slave: true })).value).toBe(12);
-    expect(F.upkeep(u({ goldcost: null })).value).toBeNull();
+    for (const [gold, year] of cases) expect(up(part(gold))).toBe(year);
+    // halving rounds down, once for sacred and once more for slaves (Rain Warrior 23 → 11, Slave Priest 13 → 3)
+    expect(F.upkeepGold(u({ upkeepParts: [part(23, true)] }))).toBe(11);
+    expect(F.upkeepGold(u({ upkeepParts: [part(13, true, true)] }))).toBe(3);
+    // rider and mount are charged separately (Mouflon Cataphract: slave rider 15 → 7, mount 25)
+    expect(F.upkeepGold(u({ upkeepParts: [part(15, false, true), part(25)] }))).toBe(32);
+    expect(up()).toBe(0);
+    expect(F.upkeep(u({ upkeepParts: null })).value).toBeNull();
+    expect(F.upkeep(u({ extraRiders: true })).confidence).toBe('LIKELY');
   });
 
   it('supply usage by size, animals, gluttony, mounts and supply bonus', () => {
@@ -60,10 +67,8 @@ describe('calculated value formulas', () => {
   it('formats LIKELY values with ≈ and drops trailing zeros', () => {
     const patrol = UNIT_DERIVED.find((d) => d.id === 'patrol')!;
     const enc = UNIT_DERIVED.find((d) => d.id === 'castingenc')!;
-    const upkeep = UNIT_DERIVED.find((d) => d.id === 'upkeep')!;
     expect(formatDerived(patrol, { value: 1.3 })).toBe('1.3');
     expect(formatDerived(patrol, { value: 1.3, confidence: 'LIKELY' })).toBe('≈1.3');
-    expect(formatDerived(upkeep, { value: 24 })).toBe('≈24');
     expect(formatDerived(enc, { value: 5 })).toBe('5');
     expect(formatDerived(enc, { value: 5, confidence: 'LIKELY' })).toBe('≈5');
     expect(formatDerived(enc, { value: null })).toBe('');
@@ -129,7 +134,9 @@ describe('Calculated section', () => {
     expect(at).toBeLessThan(html.indexOf('<div class="overlay-footer">'));
     expect(html).toContain('data-key="calc_patrol"');
     expect(html).toContain('>1.3<');
-    expect(html).toContain('≈'); // upkeep is still unconfirmed
+    expect(html).not.toContain('≈'); // all of the Spearman's values are confirmed
+    const knight = DMI.modctx.unitlookup[22];
+    expect(withCalculated(DMI, knight, knight.renderOverlay(knight))).toContain('≈'); // mounted patrol
     expect(html).not.toMatch(/title="[^"]*</);
     const spell = DMI.modctx.spelllookup[1];
     expect(withCalculated(DMI, spell, 'x')).toBe('x');

@@ -38,13 +38,31 @@ export function siegeDefence(i: UnitInputs): DerivedResult {
   return { value };
 }
 
-/** Upkeep in gold per year as shown on the unit sheet (MAN p.24 rule, LOGGY display rounding). */
+/**
+ * Gold the monthly upkeep is based on (pays a fifteenth of it per month): each part halved, rounding
+ * down, once if sacred and once more if a slave. Measured in game from the nation's total upkeep.
+ */
+export function upkeepGold(i: UnitInputs): number | null {
+  if (!i.upkeepParts) return null;
+  let total = 0;
+  i.upkeepParts.forEach((p, n) => {
+    // extra upkeep (#addupkeep) is taken to belong to the unit itself, not its mount
+    let g = p.gold + (n === 0 ? i.addupkeep : 0);
+    if (p.sacred) g = Math.floor(g / 2);
+    if (p.slave) g = Math.floor(g / 2);
+    total += g;
+  });
+  return Math.max(0, total);
+}
+
+/** Upkeep in gold per year, rounded to the nearest gold (MAN p.24 rule; measured in game, 6.37). */
 export function upkeep(i: UnitInputs): DerivedResult {
-  if (i.goldcost == null) return none;
-  let gold = i.goldcost + i.addupkeep;
-  if (i.sacred || i.slave) gold = Math.floor(gold / 2);
-  const value = Math.max(0, Math.floor((gold * 12 + 7) / 15));
-  return i.summoned && value > 0 ? { value, note: 'most summoned units cost no upkeep' } : { value };
+  const gold = upkeepGold(i);
+  if (gold == null) return none;
+  const value = Math.floor((gold * 12 + 7) / 15);
+  if (i.addupkeep) return { value, confidence: 'LIKELY', note: 'extra upkeep from #addupkeep not measured in game' };
+  if (i.extraRiders) return { value, confidence: 'LIKELY', note: 'extra riders not measured in game' };
+  return { value };
 }
 
 /** Supply eaten by one body (WIKI6 Gluttony rule; the manual's "size minus 2" disagrees above size 3). */

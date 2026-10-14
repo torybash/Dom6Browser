@@ -49,11 +49,15 @@ export interface UnitInputs {
   patrolbonus: number;
   siegebonus: number;
   castledef: number;
-  /** Gold cost for this role; null when the unit has none (pretenders). */
-  goldcost: number | null;
+  /**
+   * What the game charges upkeep on: the rider and its mount separately, each with its own rounded gold
+   * for this role and its own sacred/slave flags. Empty when the unit costs nothing; null for pretenders,
+   * as a pretender god seemed to cost none in game (as ordinary commanders the game charges them like any other commander).
+   */
+  upkeepParts: UpkeepPart[] | null;
   addupkeep: number;
-  sacred: boolean;
-  slave: boolean;
+  /** Has extra riders (#nofriders); their upkeep has not been measured in game. */
+  extraRiders: boolean;
   summoned: boolean;
   size: number;
   appetite: number;
@@ -71,6 +75,12 @@ export interface UnitInputs {
   /** Leadership without magic bonuses. */
   leader: number;
   slowRecruit: boolean;
+}
+
+export interface UpkeepPart {
+  gold: number;
+  sacred: boolean;
+  slave: boolean;
 }
 
 export interface DerivedValue {

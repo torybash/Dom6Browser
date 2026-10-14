@@ -241,9 +241,10 @@ export function enhanceUnitCard(main: HTMLElement) {
     const label = (th.textContent ?? key).replace(/\[.*?\]/, '').replace(/:\s*$/, '').trim();
     // like the game, a negative value (e.g. "susceptible to fire") shows a crossed-out icon
     const negative = NEGATIVE_ICON.has(key) && parseFloat(td.textContent ?? '') < 0;
-    const chip = el('span', 'uchip', (negative ? gameIcon('neg-' + key) : chipIcon(key, def)) + `<span class="uchip-label">${label}</span><span class="stat-value">${td.innerHTML}</span>`);
+    const chip = el('span', 'uchip', (negative ? gameIcon('neg-' + key) : chipIcon(key, def)) + `<span class="stat-value">${td.innerHTML}</span>`);
     chip.dataset.key = key;
     chip.title = `${label}: ${td.textContent?.trim()}` + (tr.title ? `\n${tr.title}` : '');
+    chip.setAttribute('aria-label', chip.title);
     const keySpan = th.querySelector('.internal-inline');
     if (keySpan) chip.appendChild(keySpan.cloneNode(true));
     iconsRow.appendChild(chip);
@@ -257,8 +258,10 @@ export function enhanceUnitCard(main: HTMLElement) {
     if (f.parentElement) flagParents.add(f.parentElement);
     const label = (f.firstChild?.textContent ?? key).replace(/-/g, ' ').trim();
     const name = label.charAt(0).toUpperCase() + label.slice(1);
-    const chip = el('span', 'uchip uflag', chipIcon(key, def) + `<span class="uchip-label">${name}</span>`);
+    const chip = el('span', 'uchip uflag', chipIcon(key, def));
     chip.dataset.key = key;
+    chip.title = name;
+    chip.setAttribute('aria-label', name);
     const keySpan = f.querySelector('.internal-inline');
     if (keySpan) chip.appendChild(keySpan.cloneNode(true));
     iconsRow.appendChild(chip);

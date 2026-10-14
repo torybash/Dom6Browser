@@ -20,6 +20,8 @@ import { parseTextToTable, createLookup } from './tsv';
 import { installNationExtensions } from './extensions/nations';
 import { installDerived, snapshotRawUnitFields } from './extensions/derived';
 import { installCarries, snapshotStartItemClasses } from './extensions/carries';
+import { installIndependents, loadVanillaPoptypes } from './extensions/independents';
+import { installIndependentsPage } from './extensions/independentsPage';
 
 export type DMI = any;
 
@@ -153,6 +155,8 @@ export async function loadData(opts: LoadOptions): Promise<DMI> {
   DMI.MMerc.prepareData_PreMod();
   DMI.MEvent.prepareData_PreMod();
 
+  loadVanillaPoptypes(DMI); // vanilla population types go through the mod parser first, so mods edit them
+
   const mods = opts.mods ?? [];
   if (mods.length) {
     progress('Applying mods', 0.3);
@@ -177,6 +181,8 @@ export async function loadData(opts: LoadOptions): Promise<DMI> {
   installNationExtensions(DMI);
   installCarries(DMI, startItemClasses);
   installDerived(DMI, rawUnits);
+  installIndependents(DMI);
+  installIndependentsPage(DMI);
 
   progress('Ready', 1);
   return DMI;

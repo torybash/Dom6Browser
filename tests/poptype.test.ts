@@ -5,10 +5,11 @@ const load = (text: string, name = 'poptype-test.dm') => withMods([{ name, text 
 const msgs = (DMI: any) => DMI.modMessages.map((x: any) => `${x.level}@${x.line}: ${x.msg}`);
 
 describe('poptypes', () => {
-  it('vanilla load has an empty poptype collection and no errors', async () => {
+  it('vanilla load has only the generated vanilla poptypes, unmodded, and no errors', async () => {
     const DMI = await vanilla();
-    expect(DMI.modctx.poptypedata).toEqual([]);
-    expect(DMI.modctx.poptypelookup).toEqual({});
+    expect(DMI.modctx.poptypedata.length).toBe(82);
+    expect(DMI.modctx.poptypedata.every((p: any) => !p.modded && !p.modfiles)).toBe(true);
+    expect(DMI.modMessages).toEqual([]);
     expect(DMI.errors).toEqual([]);
   });
 
@@ -23,7 +24,7 @@ describe('poptypes', () => {
 `);
     expect(msgs(DMI)).toEqual([]);
     const p = DMI.modctx.poptypelookup[12];
-    expect(DMI.modctx.poptypedata).toEqual([p]);
+    expect(DMI.modctx.poptypedata.filter((x: any) => x.modded)).toEqual([p]);
     expect(p.id).toBe(12);
     expect(p.recunits).toEqual([89, 89]); // order and duplicates are kept
     expect(p.reccoms).toEqual([parseInt(DMI.modctx.unitlookup['warlock'].id), 92]);
@@ -37,7 +38,7 @@ describe('poptypes', () => {
       { name: 'a.dm', text: '#selectpoptype 3\n#addrecunit 1\n#end\n' },
       { name: 'b.dm', text: '#selectpoptype 3\n#addrecunit 2\n#end\n#selectpoptype 4\n#end\n' },
     ]);
-    expect(DMI.modctx.poptypedata.length).toBe(2);
+    expect(DMI.modctx.poptypedata.filter((x: any) => x.modded).length).toBe(2);
     expect(DMI.modctx.poptypelookup[3].recunits).toEqual([1, 2]);
     expect(DMI.modctx.poptypelookup[3].modfiles).toEqual(['a.dm', 'b.dm']);
     expect(DMI.modctx.poptypelookup[4].modfiles).toEqual(['b.dm']);
@@ -100,7 +101,7 @@ describe('poptypes', () => {
     expect(m).toContain('error@1: poptype id out of range (0-249)');
     expect(m).toContain('error@4: poptype id out of range (0-249)');
     expect(m).toContain('error@6: unit not found');
-    expect(DMI.modctx.poptypedata.map((p: any) => p.id)).toEqual([249, 0]);
+    expect(DMI.modctx.poptypedata.filter((p: any) => p.modded).map((p: any) => p.id)).toEqual([249, 0]);
   });
 
   it('only poptype commands are accepted inside a poptype block', async () => {

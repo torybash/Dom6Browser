@@ -487,6 +487,7 @@ DMI.resolveRef = function(ref) {
 		case 'merc': 	o = DMI.modctx.merclookup[args[1]]; break;
 		case 'event': 	o = DMI.modctx.eventlookup[args[1]]; break;
 		case 'affliction': o = DMI.MAffliction.lookup[args[1]]; break;
+		case 'poptype': o = DMI.IndependentsPage && DMI.IndependentsPage.lookup[args[1]]; break;
 
 		case 'rndmagic':
 			o = DMI.modctx.unitlookup[args[1]];

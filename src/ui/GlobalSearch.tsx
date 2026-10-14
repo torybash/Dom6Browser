@@ -35,6 +35,8 @@ function subtitle(page: PageDef, o: any): string {
       return [o.path, o.level !== undefined ? `level ${o.level}` : ''].filter(Boolean).join(' · ');
     case 'nation':
       return o.epithet ?? '';
+    case 'independents':
+      return o.info.recruits.slice(0, 4).map((u: any) => u.name).join(', ');
     case 'wpn':
       return o.wpnclass ?? '';
     case 'armor':

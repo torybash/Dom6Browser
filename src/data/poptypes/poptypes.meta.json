@@ -1,0 +1,2140 @@
+{
+ "provenance": {
+  "generator": "scripts/extract-poptypes.py",
+  "exe": {
+   "file": "Dominions6.exe",
+   "size": 76009984,
+   "sha256": "d77cd364fe447e85e564cdd9460fcb5591f7e0b2089d6e58e9d2f2d907ee294c"
+  },
+  "tables": {
+   "pd": "0x309DCF0",
+   "recruit": "0x3093850"
+  },
+  "names": {
+   "title": "Dominions 6 Modding Manual (Poptypes table, manual p.62)",
+   "url": "https://www.illwinter.com/dom6/dom6modman.pdf",
+   "version": "Illwinter Game Design ver 6.36"
+  },
+  "terrain": {
+   "note": "Dominions6.exe, per-terrain province poptype generator functions (called from the map generator's province dispatcher at RVA 0x1869C0). Decoded by abstract interpretation of the x64 disassembly (rnd(N) calls as uniform integer draws, branches split on the value ranges, poptype writes collected). Lists only: any id reachable with non-zero probability is listed, including very rare ones (probability < 1%). Terrain keys follow the terrain bits the dispatcher tests (0x804 deepsea, 0x4 sea, 0x1000 cave, 0x100 farm, 0x80 forest, 0x10 mountain, 0x20 swamp, 0x40 waste, else plains).",
+   "special": "Land (non-cave, non-sea) provinces have a small per-era chance of the 'special' path instead of the terrain function (EA 5%, MA 4%, LA 3%, and only when an engine setting checked by the function at RVA 0x2C92B0 holds). It can write these amphibious or aquatic poptypes. Its other outcomes use a site/unit table lookup (functions 0x2B72B0 and 0x2B73B0) that was not decoded and is not listed.",
+   "decodedFromExeSha256": "d77cd364fe447e85e564cdd9460fcb5591f7e0b2089d6e58e9d2f2d907ee294c"
+  },
+  "verification": "In-game checks (Dominions 6 test games read through log.txt). Extraction came from the exe; this lists what was also confirmed in game. PD troop count = floor(PD x mult / 10), no minimum; the poptype PD commander joins from PD 20, with (PD-19) of each of the owner nation's PD units. Key 230 never appeared (poptype 103, PD 20-60)."
+ },
+ "terrains": [
+  "deepsea",
+  "sea",
+  "cave",
+  "farm",
+  "forest",
+  "mountain",
+  "swamp",
+  "waste",
+  "plains"
+ ],
+ "eras": [
+  "EA",
+  "MA",
+  "LA"
+ ],
+ "poptypes": {
+  "25": {
+   "name": "Barbarians",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "mountain",
+     "waste",
+     "plains"
+    ],
+    "MA": [
+     "forest",
+     "mountain",
+     "waste",
+     "plains"
+    ],
+    "LA": [
+     "forest",
+     "mountain",
+     "waste",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "26": {
+   "name": "Horse Tribe",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "waste",
+     "plains"
+    ],
+    "MA": [
+     "waste",
+     "plains"
+    ],
+    "LA": [
+     "waste",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "27": {
+   "name": "Militia, Archers, Hvy Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "MA": [
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "forest"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "28": {
+   "name": "Militia, Archers, Hvy Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "MA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "forest"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "29": {
+   "name": "Militia, Archers, Hvy Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "mountain"
+    ],
+    "MA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "30": {
+   "name": "Militia, Longbow, Knight",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm"
+    ],
+    "MA": [
+     "farm"
+    ],
+    "LA": [
+     "farm"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "31": {
+   "name": "Tritons",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "deepsea",
+     "sea"
+    ],
+    "MA": [
+     "deepsea",
+     "sea"
+    ],
+    "LA": [
+     "deepsea",
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "32": {
+   "name": "Lt Inf, Hvy Inf, X-Bow",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "farm",
+     "forest",
+     "mountain",
+     "swamp",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "33": {
+   "name": "Lt Inf, Hvy Inf, X-Bow",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "34": {
+   "name": "Raptors",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [
+     "mountain"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "35": {
+   "name": "Slingers",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave",
+     "forest",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ],
+    "MA": [
+     "forest",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ],
+    "LA": [
+     "forest",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "36": {
+   "name": "Lizards",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave",
+     "forest",
+     "swamp"
+    ],
+    "MA": [
+     "forest",
+     "swamp"
+    ],
+    "LA": [
+     "forest",
+     "swamp"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "37": {
+   "name": "Woodsmen",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "swamp"
+    ],
+    "MA": [
+     "forest",
+     "swamp"
+    ],
+    "LA": [
+     "forest",
+     "swamp"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "38": {
+   "name": "Hoburg",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "forest"
+    ],
+    "MA": [
+     "farm",
+     "forest"
+    ],
+    "LA": [
+     "farm",
+     "forest"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [
+    [
+     "defunit1b",
+     271
+    ]
+   ],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)",
+    "shadowedPd": "first match confirmed in game"
+   }
+  },
+  "39": {
+   "name": "Militia, Archers, Lt Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ],
+    "MA": [
+     "farm",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ],
+    "LA": [
+     "farm",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [
+    [
+     "defunit1b",
+     29
+    ]
+   ],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "40": {
+   "name": "Amazon, Crystal",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "plains"
+    ],
+    "MA": [
+     "plains"
+    ],
+    "LA": [
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "41": {
+   "name": "Amazon, Garnet",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "waste"
+    ],
+    "MA": [
+     "waste"
+    ],
+    "LA": [
+     "waste"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "42": {
+   "name": "Amazon, Jade",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "swamp"
+    ],
+    "MA": [
+     "forest",
+     "swamp"
+    ],
+    "LA": [
+     "forest",
+     "swamp"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "43": {
+   "name": "Amazon, Onyx",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "mountain"
+    ],
+    "MA": [
+     "mountain"
+    ],
+    "LA": [
+     "mountain"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "44": {
+   "name": "Troglodytes",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": [
+     "cave"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "45": {
+   "name": "Tritons, Shark Knights",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [
+     "deepsea",
+     "sea"
+    ],
+    "LA": [
+     "deepsea",
+     "sea"
+    ]
+   },
+   "specialEras": [
+    "EA",
+    "MA",
+    "LA"
+   ],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "46": {
+   "name": "Amber Clan Tritons",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "deepsea",
+     "sea"
+    ],
+    "MA": [
+     "deepsea",
+     "sea"
+    ],
+    "LA": [
+     "deepsea",
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "47": {
+   "name": "X-Bow, Hvy Cavalry",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": [
+     "farm",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "48": {
+   "name": "Militia, Lt Inf, Hvy Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "mountain",
+     "plains"
+    ],
+    "MA": [
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "mountain"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "49": {
+   "name": "Militia, Lt Inf, Hvy Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "mountain",
+     "plains"
+    ],
+    "MA": [
+     "farm",
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "mountain",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "50": {
+   "name": "Militia, Lt Inf, Hvy Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "mountain"
+    ],
+    "MA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "51": {
+   "name": "Militia, Lt Cav, Hvy Cav",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "mountain",
+     "plains"
+    ],
+    "MA": [
+     "mountain",
+     "plains"
+    ],
+    "LA": [
+     "mountain",
+     "waste",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "52": {
+   "name": "Militia, Lt Cav, Hvy Cav",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "plains"
+    ],
+    "MA": [
+     "farm",
+     "plains"
+    ],
+    "LA": [
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "53": {
+   "name": "Militia, Lt Cav, Hvy Cav",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [
+     "farm",
+     "plains"
+    ],
+    "LA": [
+     "farm",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "54": {
+   "name": "Hvy Inf, Hvy Cavalry",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "plains"
+    ],
+    "MA": [
+     "plains"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "55": {
+   "name": "Hvy Inf, Hvy Cavalry",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [
+     "farm",
+     "plains"
+    ],
+    "LA": [
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "56": {
+   "name": "Hvy Inf, Hvy Cavalry",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [
+     "farm",
+     "plains"
+    ],
+    "LA": [
+     "farm",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "57": {
+   "name": "Shamblers",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "deepsea"
+    ],
+    "MA": [
+     "deepsea",
+     "sea"
+    ],
+    "LA": [
+     "deepsea",
+     "sea"
+    ]
+   },
+   "specialEras": [
+    "EA",
+    "MA",
+    "LA"
+   ],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "58": {
+   "name": "Lt Inf, Hvy Inf, X-Bow",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": [
+     "farm",
+     "forest",
+     "mountain",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [
+    [
+     "defunit1b",
+     49
+    ]
+   ],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)",
+    "shadowedPd": "first match confirmed in game"
+   }
+  },
+  "59": {
+   "name": "Militia, Lt Inf, Archers",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "forest",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ],
+    "MA": [
+     "forest",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ],
+    "LA": [
+     "forest",
+     "swamp",
+     "waste"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "60": {
+   "name": "Militia, Lt Inf, Archers",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "forest",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ],
+    "MA": [
+     "farm",
+     "forest",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ],
+    "LA": [
+     "forest",
+     "mountain",
+     "swamp",
+     "waste",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "61": {
+   "name": "Vaettir, Trolls",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "mountain"
+    ],
+    "MA": [
+     "mountain"
+    ],
+    "LA": [
+     "mountain"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "62": {
+   "name": "Tribals, Deer",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "plains"
+    ],
+    "MA": [
+     "forest",
+     "plains"
+    ],
+    "LA": [
+     "forest",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "63": {
+   "name": "Tritons",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "deepsea",
+     "sea"
+    ],
+    "MA": [
+     "deepsea",
+     "sea"
+    ],
+    "LA": [
+     "deepsea",
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "64": {
+   "name": "Tritons",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "deepsea"
+    ],
+    "MA": [
+     "deepsea",
+     "sea"
+    ],
+    "LA": [
+     "deepsea",
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "65": {
+   "name": "Ichtyids",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [
+     "sea"
+    ],
+    "LA": [
+     "sea"
+    ]
+   },
+   "specialEras": [
+    "EA",
+    "MA",
+    "LA"
+   ],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "66": {
+   "name": "Vaettir",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "67": {
+   "name": "Vaettir, Dwarven Smith",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "68": {
+   "name": "Slingers, Hvy Inf, Elephants",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "plains"
+    ],
+    "MA": [
+     "farm",
+     "plains"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "69": {
+   "name": "Asmeg",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "70": {
+   "name": "Vaettir, Svartalf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "71": {
+   "name": "Trolls",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "mountain"
+    ],
+    "MA": [
+     "mountain"
+    ],
+    "LA": [
+     "mountain"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "72": {
+   "name": "Mermen",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [
+     "sea"
+    ],
+    "LA": [
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "73": {
+   "name": "Tritons, Triton Knights",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [
+     "deepsea",
+     "sea"
+    ],
+    "LA": [
+     "deepsea",
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "74": {
+   "name": "Lt Inf, Lt Cav, Cataphracts",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm"
+    ],
+    "MA": [
+     "farm",
+     "plains"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "75": {
+   "name": "Hoburg, LA",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [
+     "farm"
+    ],
+    "LA": [
+     "farm"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [
+    [
+     "defunit1b",
+     1196
+    ]
+   ],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "76": {
+   "name": "Hoburg, EA",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm"
+    ],
+    "MA": [
+     "farm"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "77": {
+   "name": "Atavi Apes",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest"
+    ],
+    "MA": [
+     "forest"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "78": {
+   "name": "Tribals, Wolf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "mountain",
+     "waste",
+     "plains"
+    ],
+    "MA": [
+     "forest",
+     "mountain",
+     "waste",
+     "plains"
+    ],
+    "LA": [
+     "forest",
+     "mountain",
+     "waste",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "79": {
+   "name": "Tribals, Bear",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "mountain"
+    ],
+    "MA": [
+     "forest",
+     "mountain"
+    ],
+    "LA": [
+     "forest",
+     "mountain"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "80": {
+   "name": "Tribals, Lion",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "plains"
+    ],
+    "MA": [
+     "forest",
+     "plains"
+    ],
+    "LA": [
+     "forest",
+     "plains"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "81": {
+   "name": "Pale Ones",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": [
+     "cave"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "82": {
+   "name": "Tribals, Jaguar",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "swamp"
+    ],
+    "MA": [
+     "forest",
+     "swamp"
+    ],
+    "LA": [
+     "forest",
+     "swamp"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "83": {
+   "name": "Tribals, Toad",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "84": {
+   "name": "Cavemen",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave",
+     "mountain",
+     "waste"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": [
+     "cave"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "85": {
+   "name": "Kappa",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [
+    "EA"
+   ],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "86": {
+   "name": "Bakemono",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": [
+     "cave"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [
+    [
+     "defunit1",
+     1393
+    ]
+   ],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)",
+    "shadowedPd": "first match confirmed in game"
+   }
+  },
+  "87": {
+   "name": "Bakemono",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "mountain"
+    ],
+    "MA": [
+     "mountain"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "88": {
+   "name": "Ko-Oni",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave",
+     "mountain"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": [
+     "cave"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": 1609,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)",
+    "altPdCommander": "confirmed in game"
+   }
+  },
+  "89": {
+   "name": "Fir Bolg",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm"
+    ],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "90": {
+   "name": "Turtle Tribe Tritons",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "deepsea",
+     "sea"
+    ],
+    "MA": [
+     "sea"
+    ],
+    "LA": [
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "91": {
+   "name": "Shark Tribe Tritons",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [
+     "sea"
+    ],
+    "LA": [
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "92": {
+   "name": "Shark Tribe, Shark Riders",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "93": {
+   "name": "Zotz",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": [
+     "cave"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "94": {
+   "name": "Lava-born",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": [
+     "cave"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "95": {
+   "name": "Ichtyids with Shaman",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [
+     "sea"
+    ],
+    "LA": [
+     "sea"
+    ]
+   },
+   "specialEras": [
+    "EA",
+    "MA",
+    "LA"
+   ],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "96": {
+   "name": "Bone Tribe",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "forest",
+     "mountain",
+     "waste"
+    ],
+    "MA": [
+     "forest",
+     "mountain",
+     "waste"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "97": {
+   "name": "Merrow",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [
+     "sea"
+    ],
+    "LA": [
+     "sea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "98": {
+   "name": "Kulullu",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "sea"
+    ],
+    "MA": [
+     "sea"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "99": {
+   "name": "Bronze Hoplites",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "plains"
+    ],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "100": {
+   "name": "Bronze Hvy Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "forest",
+     "plains"
+    ],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "101": {
+   "name": "Bronze Hvy Cav, Hvy Inf",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "plains"
+    ],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "102": {
+   "name": "Bronze Hvy Spear",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "farm",
+     "forest",
+     "plains"
+    ],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "103": {
+   "name": "Cynocephalians",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave",
+     "mountain",
+     "waste"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": 3279,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "104": {
+   "name": "Bekrydes",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "cave"
+    ],
+    "MA": [
+     "cave"
+    ],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  },
+  "105": {
+   "name": "Wet Ones",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [
+     "deepsea"
+    ],
+    "MA": [
+     "deepsea"
+    ],
+    "LA": [
+     "deepsea"
+    ]
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": 1638,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "confirmed in game (units, multipliers, commander)"
+   }
+  },
+  "106": {
+   "name": "Nexus",
+   "nameSource": "manual v6.36",
+   "terrain": {
+    "EA": [],
+    "MA": [],
+    "LA": []
+   },
+   "specialEras": [],
+   "shadowedPd": [],
+   "altPdCommander": null,
+   "unusedPdData": null,
+   "otherKeys": [],
+   "verification": {
+    "recruits": "extracted from exe",
+    "pd": "extracted from exe"
+   }
+  }
+ }
+}

@@ -1,9 +1,10 @@
 // Page registry: every browsable entity type, its upstream grid module and its filter controls.
 // Filter keys and option values mirror upstream index.html so the ported searchFilter()s work as-is.
 import type { LucideIcon } from 'lucide-react';
-import { Crown, Flag, Gem, MapPin, ScrollText, Shield, Sparkles, Swords, Users, Coins } from 'lucide-react';
+import { Crown, Flag, Gem, MapPin, ScrollText, Shield, Sparkles, Swords, Tent, Users, Coins } from 'lucide-react';
+import { ERA_FILTER_OPTIONS, TERRAIN_FILTER_OPTIONS } from './data/extensions/independentsPage';
 
-export type PageId = 'unit' | 'spell' | 'item' | 'site' | 'merc' | 'event' | 'nation' | 'wpn' | 'armor';
+export type PageId = 'unit' | 'spell' | 'item' | 'site' | 'merc' | 'event' | 'nation' | 'wpn' | 'armor' | 'independents';
 
 export interface SelectOption {
   value: string;
@@ -268,6 +269,52 @@ export const PAGES: PageDef[] = [
       },
     ],
     thumb: (o) => o.url,
+  },
+  {
+    id: 'independents',
+    label: 'Independents',
+    singular: 'Population type',
+    icon: Tent,
+    module: 'IndependentsPage',
+    refKind: 'poptype',
+    group: 'main',
+    filters: [
+      { type: 'paths', key: 'mpaths', paths: ALL_PATHS, icon: 'Path', label: 'Mage paths', inclusiveKey: 'inclusive' },
+      {
+        type: 'select',
+        key: 'caster',
+        label: 'Commanders',
+        options: [
+          { value: '', label: 'Any' },
+          { value: 'mage', label: 'Has a mage' },
+          { value: 'priest', label: 'Has a priest' },
+          { value: 'none', label: 'No mage or priest' },
+        ],
+      },
+      {
+        type: 'select',
+        key: 'source',
+        label: 'Source',
+        options: [
+          { value: '', label: 'Vanilla and mods' },
+          { value: 'base', label: 'Unmodified vanilla' },
+          { value: 'edited', label: 'Vanilla, edited by a mod' },
+          { value: 'added', label: 'Added by a mod' },
+        ],
+      },
+      {
+        type: 'select',
+        key: 'terrain',
+        label: 'Terrain',
+        options: [
+          { value: '', label: 'All terrains' },
+          ...TERRAIN_FILTER_OPTIONS,
+          { value: '-', label: '', divider: true },
+          { value: 'none', label: 'Not placed by the map generator' },
+        ],
+      },
+      { type: 'select', key: 'era', label: 'Era', options: [{ value: '', label: 'All eras' }, ...ERA_FILTER_OPTIONS] },
+    ],
   },
   { id: 'merc', label: 'Mercenaries', singular: 'Mercenary', icon: Coins, module: 'MMerc', refKind: 'merc', group: 'main', filters: [] },
   { id: 'event', label: 'Events', singular: 'Event', icon: ScrollText, module: 'MEvent', refKind: 'event', group: 'main', filters: [] },

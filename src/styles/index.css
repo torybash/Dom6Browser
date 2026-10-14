@@ -610,6 +610,49 @@ button {
   @apply mt-1 flex flex-wrap gap-x-3 gap-y-1;
 }
 
+/* independents (population types) */
+.legacy .poptype-section p,
+.legacy .independents-section p {
+  margin: 0 0 0.25rem;
+}
+.legacy .pt-badges {
+  @apply mb-1 flex flex-wrap gap-1;
+}
+.legacy .pt-badge {
+  @apply inline-block rounded-full border border-line bg-raised px-1.5 text-[10.5px] leading-4 text-muted;
+}
+.legacy .pt-badge.pt-warn {
+  border-color: rgb(var(--accent) / 0.5);
+  color: rgb(var(--accent));
+}
+.legacy .pt-badge.pt-good {
+  border-color: rgb(var(--good) / 0.5);
+  color: rgb(var(--good));
+}
+.legacy .pt-modbadge {
+  @apply mb-1 inline-block rounded px-2 py-0.5 text-xs;
+}
+.legacy .pt-note {
+  @apply mt-1 text-[12px] text-muted;
+}
+.legacy .pt-unused {
+  @apply text-[12px] text-muted;
+}
+.legacy .pt-commander {
+  @apply flex flex-wrap items-center gap-x-2;
+}
+.legacy .pt-path {
+  @apply inline-flex items-center gap-px;
+}
+.legacy .pt-random,
+.grid-cell .pt-random {
+  opacity: 0.55;
+}
+.legacy table.pt-pd-table th.num,
+.legacy table.pt-pd-table td.num {
+  @apply text-right tabular-nums;
+}
+
 /* compare view: highlight differing values */
 .legacy .cmp-diff td,
 .legacy [data-key].cmp-diff {

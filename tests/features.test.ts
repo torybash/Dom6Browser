@@ -100,3 +100,55 @@ describe('mods', () => {
     expect(DMI.modctx.unitlookup[5000]).toBeUndefined();
   });
 });
+
+describe('thrones', () => {
+  it('the site Kind filter finds only thrones (rarity 11-13)', async () => {
+    const DMI = await vanilla();
+    const grid = DMI.MSite.grid;
+    const args = grid.getSearchArgs({ sitetype: 'Thrones' });
+    const rows = grid.data().filter((o: any) => grid.searchFilter(o, args));
+    expect(rows.length).toBeGreaterThan(40);
+    expect(rows.every((o: any) => o.rarity >= 11)).toBe(true);
+    expect(rows.some((o: any) => o.rarity === 13)).toBe(true);
+  });
+
+  it('shows wild defenders as "yes" and keeps guardian commanders as unit refs', async () => {
+    const { withThroneInfo } = await import('../src/data/extensions/thrones');
+    const DMI = await vanilla();
+    const fire = DMI.modctx.sitelookup[1379]; // Throne of Fire: wild defenders + a commander
+    const html = withThroneInfo(fire, fire.renderOverlay(fire));
+    expect(html).toMatch(/<tr class="wilddefenders [^>]*title="[^"]*not in the data files[^>]*>[\s\S]*?<td>yes<\/td>/);
+    expect(html).toContain('data-ref="unit 99"');
+    const crystal = DMI.modctx.sitelookup[1362]; // no wild defenders: untouched
+    expect(withThroneInfo(crystal, crystal.renderOverlay(crystal))).toBe(crystal.renderOverlay(crystal));
+  });
+});
+
+describe('carried items', () => {
+  it('units with a start item class pair with the items of that class, shown by the legacy row only', async () => {
+    const { withCarries } = await import('../src/data/extensions/carries');
+    const DMI = await vanilla();
+    const ryujin = DMI.modctx.unitlookup[2104];
+    expect(DMI.Carries.itemsFor(ryujin).map((i: any) => i.id)).toEqual([508]);
+    expect(withCarries(DMI, ryujin, ryujin.renderOverlay(ryujin))).not.toContain('carries-section');
+    expect(DMI.Carries.itemsFor(DMI.modctx.unitlookup[89])).toEqual([]);
+  });
+
+  it('units with randomitems show the random magic item value', async () => {
+    const { withCarries } = await import('../src/data/extensions/carries');
+    const DMI = await vanilla();
+    const u = DMI.modctx.unitlookup[651];
+    expect(withCarries(DMI, u, u.renderOverlay(u))).toContain('Random magic items (value 300)');
+  });
+
+  it('items with a start item class list the units that can carry them (inferred)', async () => {
+    const { withCarries } = await import('../src/data/extensions/carries');
+    const DMI = await vanilla();
+    const pearl = DMI.modctx.itemlookup[508];
+    const ids = DMI.Carries.unitsFor(pearl).map((u: any) => u.id);
+    expect(ids).toEqual(expect.arrayContaining([2104, 2105, 2316, 3249, 3250]));
+    const html = withCarries(DMI, pearl, pearl.renderOverlay(pearl));
+    expect(html).toMatch(/Can be carried by[\s\S]*data-ref="unit 2104"/);
+    expect(DMI.Carries.unitsFor(DMI.modctx.itemlookup[1])).toEqual([]);
+  });
+});

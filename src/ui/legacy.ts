@@ -3,6 +3,8 @@ import type { DMI } from '../data/load';
 import { fetchText } from '../state/data';
 import { enhanceUnitCard } from './unitCard';
 import { withCalculated } from './calculated';
+import { withCarries } from '../data/extensions/carries';
+import { withThroneInfo } from '../data/extensions/thrones';
 import { attachStatTips } from './derivedTips';
 
 export interface RenderedPane {
@@ -27,7 +29,10 @@ export function renderRef(DMI: DMI, ref: string, showModCmds: boolean): Rendered
   DMI.takeContentJobs();
   let html: string;
   try {
-    html = r.kind === 'rndmagic' ? wrapRandomMagic(DMI.MUnit.renderRandomMagic(r.o), r.o) : withCalculated(DMI, r.o, r.o.renderOverlay(r.o));
+    html =
+      r.kind === 'rndmagic'
+        ? wrapRandomMagic(DMI.MUnit.renderRandomMagic(r.o), r.o)
+        : withThroneInfo(r.o, withCarries(DMI, r.o, withCalculated(DMI, r.o, r.o.renderOverlay(r.o))));
   } catch (e: any) {
     console.error(e);
     html = `<div class="overlay-main"><p class="text-bad">Failed to render ${ref}: ${escapeHtml(String(e?.message ?? e))}</p></div>`;

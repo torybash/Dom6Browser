@@ -167,10 +167,25 @@ export function CompareView() {
   );
 }
 
-/** Marks rows/tiles whose values differ between the given columns (rendered entries) with .cmp-diff. */
+/** Stats where a lower number is the better one (green). */
+const LOWER_IS_BETTER = new Set(['goldcost', 'gcost', 'rcost', 'rpcost', 'enc', 'calc_upkeep', 'calc_castingenc']);
+/** Numeric stats that are not better or worse, only different (plain highlight). */
+const UNRANKED = new Set(['id', 'size', 'maxage']);
+const RANK_CLASSES = ['cmp-best', 'cmp-mid', 'cmp-worst'];
+
+/** Leading number of a displayed value ("12 (+2)" → 12), or null when it has none. */
+function numberOf(val: string | null) {
+  const m = val ? /^[+-]?\d+(\.\d+)?/.exec(val) : null;
+  return m ? parseFloat(m[0]) : null;
+}
+
+/**
+ * Marks rows/tiles whose values differ between the given columns (rendered entries) with .cmp-diff.
+ * Numeric differences are also ranked: .cmp-best (green), .cmp-mid (yellow), .cmp-worst (red).
+ */
 export function markDiffs(cols: HTMLElement[]) {
   const values = new Map<string, (string | null)[]>();
-  const elements = new Map<string, HTMLElement[]>();
+  const elements = new Map<string, [HTMLElement, number][]>();
   cols.forEach((col, ci) => {
     col.querySelectorAll<HTMLElement>('[data-key], tr[class]').forEach((el) => {
       const key = el.dataset.key ?? (el.getAttribute('class') ?? '').trim().split(/\s+/)[0];
@@ -178,22 +193,31 @@ export function markDiffs(cols: HTMLElement[]) {
       const val = (el.querySelector('.stat-value, td')?.textContent ?? '').trim();
       if (!values.has(key)) values.set(key, Array(cols.length).fill(null));
       values.get(key)![ci] = val;
-      elements.set(key, [...(elements.get(key) ?? []), el]);
+      elements.set(key, [...(elements.get(key) ?? []), [el, ci]]);
     });
   });
   values.forEach((vals, key) => {
     const distinct = new Set(vals.map((v) => v ?? '—'));
-    if (distinct.size > 1) {
-      elements.get(key)!.forEach((el) => {
-        el.classList.add('cmp-diff');
-        // the Calculated section is collapsed by default: open it so the highlighted rows are visible
-        const sec = el.closest('details.calc-section');
-        if (sec) sec.setAttribute('open', '');
-      });
-    }
+    if (distinct.size <= 1) return;
+    // rank only when every column shows a number for this stat
+    const nums = vals.map(numberOf);
+    const ranked = !UNRANKED.has(key) && nums.every((n) => n !== null);
+    const lo = Math.min(...(nums as number[]));
+    const hi = Math.max(...(nums as number[]));
+    const flip = LOWER_IS_BETTER.has(key);
+    elements.get(key)!.forEach(([el, ci]) => {
+      el.classList.add('cmp-diff');
+      if (ranked && lo !== hi) {
+        const n = nums[ci]!;
+        el.classList.add(n === (flip ? lo : hi) ? 'cmp-best' : n === (flip ? hi : lo) ? 'cmp-worst' : 'cmp-mid');
+      }
+      // the Calculated section is collapsed by default: open it so the highlighted rows are visible
+      const sec = el.closest('details.calc-section');
+      if (sec) sec.setAttribute('open', '');
+    });
   });
 }
 
 export function clearDiffs(root: ParentNode) {
-  root.querySelectorAll('.cmp-diff').forEach((el) => el.classList.remove('cmp-diff'));
+  root.querySelectorAll('.cmp-diff').forEach((el) => el.classList.remove('cmp-diff', ...RANK_CLASSES));
 }

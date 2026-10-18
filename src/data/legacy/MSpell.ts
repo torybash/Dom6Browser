@@ -367,6 +367,7 @@ MSpell.prepareData_PostMod = function() {
 					//add to list of summoned units (to be attached to nations later)
 					o.summonsunits = o.summonsunits || [];
 					o.summonsunits.push(u);
+					addSummon(o, u, effects, o, false);
 
 					//attach spell to unit
 					u.summonedby = u.summonedby || [];
@@ -430,6 +431,7 @@ MSpell.prepareData_PostMod = function() {
 						//add to list of summoned units (to be attached to nations later)
 						o.summonsunits = o.summonsunits || [];
 						o.summonsunits.push(u);
+						addSummon(o, u, _effects, _o, true);
 
 						//attach spell to unit
 						u.summonedby = u.summonedby || [];
@@ -454,6 +456,7 @@ MSpell.prepareData_PostMod = function() {
 					//add to list of summoned units (to be attached to nations later)
 					o.summonsunits = o.summonsunits || [];
 					o.summonsunits.push(u);
+					addSummon(o, u, _effects, _o, true);
 
 					//attach spell to unit
 					u.summonedby = u.summonedby || [];
@@ -462,6 +465,7 @@ MSpell.prepareData_PostMod = function() {
 					if (parseInt(o.id) == 859) {
 						var ironBoar = modctx.unitlookup[1808];
 						o.summonsunits.push(ironBoar);
+						addSummon(o, ironBoar, _effects, _o, true);
 						ironBoar.summonedby = ironBoar.summonedby || [];
 						ironBoar.summonedby.push( o );
 						var marv = modctx.nationlookup[12];
@@ -510,6 +514,7 @@ MSpell.prepareData_PostMod = function() {
                         //add to list of summoned units (to be attached to nations later)
                         o.summonsunits = o.summonsunits || [];
                         o.summonsunits.push(u);
+                        addSummon(o, u, _effects, _o, false);
 
                         //attach spell to unit
                         u.summonedby = u.summonedby || [];
@@ -546,6 +551,68 @@ MSpell.prepareData_PostMod = function() {
 // DEFINE GRID
 //////////////////////////////////////////////////////////////////////////
 
+// Per-spell structured summon list: o.summons = [{ unit, role, why, count }].
+// role is decided by the spell link that summons the unit:
+//  'temp' - combat spell (ritual != 1) or effect 38/50/119 (remote attackers); why = 'battle' | 'remote'
+//  effects 81/100 - per unit: 'cmdr' if leader > 10 or it has magic paths, else 'unit'
+//  otherwise effect 1/37 -> 'unit', everything else -> 'cmdr'
+// Deduped by unit id with priority cmdr > unit > temp.
+var ROLE_RANK = { cmdr: 3, unit: 2, temp: 1 };
+function summonRole(u, effects) {
+	var en = String(effects && effects.effect_number);
+	if (en == "38" || en == "50" || en == "119") return ['temp', 'remote'];
+	if (!effects || String(effects.ritual) != "1") return ['temp', 'battle'];
+	if (en == "81" || en == "100") {
+		// raw 'leader' is a class value (10 = lowest, troops commonly 50), not a presence flag, so
+		// only these mixed groups are classified this way: leader above 10, or any magic path.
+		var lead = parseInt(u.leader) > 10 || !!u.mpath;
+		return [lead ? 'cmdr' : 'unit', ''];
+	}
+	return [(en == "1" || en == "37") ? 'unit' : 'cmdr', ''];
+}
+function addSummon(o, u, effects, link, useCount) {
+	if (!u) return;
+	var r = summonRole(u, effects);
+	var count = '';
+	var raw = link && link.effects_count;
+	if (useCount && raw && raw != "0" && raw != "1") {
+		count = String(MSpell.spellBonus(raw, link.pathlevel1));
+	}
+	o.summons = o.summons || [];
+	for (var i = 0; i < o.summons.length; i++) {
+		var e = o.summons[i];
+		if (e.unit.id == u.id) {
+			if (ROLE_RANK[r[0]] > ROLE_RANK[e.role]) { e.role = r[0]; e.why = r[1]; }
+			return;
+		}
+	}
+	o.summons.push({ unit: u, role: r[0], why: r[1], count: count });
+}
+
+var SUMMON_CAP = 4;
+function summonsFormatter(row, cell, value, columnDef, dataContext) {
+	var list = dataContext.summons;
+	if (!list || !list.length) return '';
+	var h = '<span class="summon-strip">';
+	var count = '';
+	for (var i = 0; i < list.length; i++) {
+		var s = list[i];
+		if (!count && s.count) count = s.count;
+		if (i >= SUMMON_CAP) continue;
+		MUnit.prepareForRender(s.unit);
+		var url = s.unit.sprite && s.unit.sprite.url1;
+		var name = String(s.unit.name || s.unit.id).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+		var title = name + (s.role == 'cmdr' ? ' (commander)' : s.role == 'temp' ? (s.why == 'remote' ? ' (attacks remotely)' : ' (battle only)') : '');
+		var inner = '<span class="summon-icon' + (s.role == 'cmdr' ? ' summon-cmdr' : s.role == 'temp' ? ' summon-temp' : '') + '" title="' + title + '">' +
+			(url ? '<img src="' + url + '" alt="" loading="lazy"/>' : '') +
+			(s.role == 'cmdr' ? '<span class="summon-crown">&#9819;</span>' : s.role == 'temp' ? '<span class="summon-crown summon-sword">&#9876;</span>' : '') + '</span>';
+		h += Utils.ref('unit ' + s.unit.id, inner);
+	}
+	if (list.length > SUMMON_CAP) h += '<span class="summon-more">+' + (list.length - SUMMON_CAP) + '</span>';
+	if (count) h += '<span class="summon-count">&times;' + count + '</span>';
+	return h + '</span>';
+}
+
 function spellNameFormatter(row, cell, value, columnDef, dataContext) {
 	if (dataContext.nations)
 		return '<div class="national-spell">'+value+'</div>';
@@ -576,7 +643,8 @@ MSpell.grid = {
 		{ id: "research",      width: 60, name: "School", field: "sortschool", sortable: true, formatter: function(_,__,v,___,o){ return o.research; } },
 		{ id: "mpath",    width: 40, name: "Path req", field: "mpath", sortable: true, formatter: DMI.GridFormat.Paths, sortCmp: 'text' },
 		{ id: "gemcost",    width: 30, name: "Cost", field: "gemcostsort", sortable: true, formatter: spellCostFormatter },
-		{ id: "fatiguecost",     width: 30, name: "Fat", field: "fatiguecostsort", sortable: true, formatter: fatigueFormatter }
+		{ id: "fatiguecost",     width: 30, name: "Fat", field: "fatiguecostsort", sortable: true, formatter: fatigueFormatter },
+		{ id: "summons",   width: 130, name: "Summons", field: "summons", sortable: false, formatter: summonsFormatter }
 	],
 	initialSort: 'research',
 	defaultSortCmp: function(r1,r2) {
@@ -603,6 +671,7 @@ MSpell.grid = {
 			special_mask: parseInt(f.special_mask),
 
 			aquatic: f.aquatic || '',
+			summons: f.summons || '',
 
 			mlevels: Utils.merge({F:9,A:9,W:9,E:9,S:9,D:9,N:9,G:9,B:9,H:9}, f.mlevels || {}),
 			mpaths: f.mpaths || ''
@@ -692,6 +761,16 @@ MSpell.grid = {
 				return false;
 			if (args.aquatic == 'land' && !DMI.MSpell.worksOnDryLand(o))
 				return false;
+		}
+
+		//summons
+		if (args.summons) {
+			var sm = o.summons || [];
+			if (args.summons == 'none' && sm.length) return false;
+			if (args.summons == 'any' && !sm.length) return false;
+			if (args.summons == 'cmdr' && !sm.some(function(x){ return x.role == 'cmdr'; })) return false;
+			if (args.summons == 'unit' && !sm.some(function(x){ return x.role == 'unit'; })) return false;
+			if (args.summons == 'temp' && !sm.some(function(x){ return x.role == 'temp'; })) return false;
 		}
 
 		//search string
@@ -822,7 +901,7 @@ var ignorekeys = {
 	range:1,
 	aoe:1,
 
-	summonsunits:1,	nations:1, notnations:1, eracodes:1, nationname:1,
+	summonsunits:1, summons:1,	nations:1, notnations:1, eracodes:1, nationname:1,
 
 	//common fields
 	name:1,description:1,

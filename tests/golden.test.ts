@@ -12,6 +12,8 @@ const fixture = (name: string) => join(__dirname, 'golden', 'fixtures', name);
 const IGNORED_FIELDS: Record<string, string[]> = {
   // added by src/data/extensions/nations.ts for the new Nations page
   nation: ['searchable', 'erasort'],
+  // per-spell structured summon list used by the Spells page Summons column
+  spell: ['summons'],
 };
 
 paritySuite('vanilla', 'vanilla.json', () => vanilla());

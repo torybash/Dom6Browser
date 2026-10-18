@@ -68,6 +68,8 @@ function spellBonus(v, baselvl) {
 }
 
 //format functions for spell fields
+MSpell.spellBonus = spellBonus;
+
 // using spellBonus + other field specific stuff
 MSpell.format = {
 

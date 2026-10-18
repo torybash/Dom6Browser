@@ -171,6 +171,67 @@ button {
   color: inherit;
   text-decoration: none;
 }
+.grid-cell .summon-strip {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 28px;
+  vertical-align: middle;
+}
+.grid-cell .summon-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 28px;
+  min-width: 20px;
+  border-radius: 4px;
+}
+.grid-cell .summon-icon img {
+  height: 28px;
+  width: auto;
+  max-width: 40px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.grid-cell .summon-icon.summon-cmdr {
+  box-shadow: inset 0 0 0 1px rgb(201 154 46 / 0.75);
+}
+.grid-cell .summon-crown {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: #c99a2e;
+  color: #3a2a05;
+  font-size: 9px;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgb(var(--panel));
+}
+.grid-cell .summon-icon.summon-temp img {
+  opacity: 0.55;
+  filter: grayscale(0.5);
+}
+.grid-cell .summon-crown.summon-sword {
+  background: #7f8a99;
+  color: #fff;
+  font-size: 8px;
+}
+.grid-cell .summon-more,
+.grid-cell .summon-count {
+  align-self: center;
+  font-size: 11px;
+  color: rgb(var(--muted));
+}
+.grid-cell .summon-count {
+  font-weight: 600;
+  color: rgb(var(--fg));
+}
 .sprite-thumb {
   image-rendering: pixelated;
   object-fit: contain;

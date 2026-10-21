@@ -239,6 +239,7 @@ MItem.grid = {
 		{ id: "name",     width: 145, name: "Item Name", field: "name", sortable: true, formatter: itemNameFormatter, sortCmp: 'text' },
 		{ id: "type",     width: 60, name: "Type", field: "type", sortable: true, sortCmp: 'text' },
 		{ id: "constlevel",      width: 70, name: "Research", field: "constlevel", sortable: true, formatter: itemConFormatter },
+		{ id: "gemcost",  width: 50, name: "Gems", title: "Gems to forge", field: "gemcost", sortable: true, sortCmp: 'num', formatter: DMI.GridFormat.Gems },
 		{ id: "mpath",    width: 70, name: "Path req", field: "mpath", sortable: true, formatter: DMI.GridFormat.Paths, sortCmp: 'text' },
 		{ id: "boosterssort", width: 165, name: "Boosters", field: "boosterssort", sortable: true, formatter: DMI.GridFormat.Booster }
 	],

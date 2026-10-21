@@ -2,8 +2,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type Theme = 'system' | 'light' | 'dark';
-/** panel: docked detail panel; cards: dom6inspector-style floating cards (desktop only) */
-export type ViewMode = 'panel' | 'cards';
 
 export interface Settings {
   /** upstream "advanced": ids, hidden rows, property filters */
@@ -21,7 +19,6 @@ export interface Settings {
   textScale: number;
   thumbnails: boolean;
   hoverPreviews: boolean;
-  viewMode: ViewMode;
   set: (patch: Partial<Omit<Settings, 'set'>>) => void;
 }
 
@@ -38,7 +35,6 @@ export const useSettings = create<Settings>()(
       textScale: 1,
       thumbnails: true,
       hoverPreviews: true,
-      viewMode: 'panel',
       set: (patch) => set(patch),
     }),
     { name: 'dom6browser:settings', version: 1 },

@@ -17,7 +17,7 @@ import { FilterPanel } from './FilterPanel';
 import { GlobalSearch, useGlobalSearch } from './GlobalSearch';
 import { HoverPreview, usePreview } from './HoverPreview';
 import { ModsDialog } from './ModsDialog';
-import { ResultsTable, shownCalcColumns, tableApi, useColumnPrefs } from './ResultsTable';
+import { isColHidden, ResultsTable, shownCalcColumns, tableApi, toggleCol, useColumnPrefs } from './ResultsTable';
 import { LoadingScreen, TopBar } from './TopBar';
 
 function useMediaQuery(q: string) {
@@ -67,16 +67,6 @@ function useStoredBool(key: string, initial: boolean) {
     }
   }, [key, v]);
   return [v, setV] as const;
-}
-
-function useWindowWidth() {
-  const [w, setW] = useState(() => window.innerWidth);
-  useEffect(() => {
-    const on = () => setW(window.innerWidth);
-    window.addEventListener('resize', on);
-    return () => window.removeEventListener('resize', on);
-  }, []);
-  return w;
 }
 
 /** Applies theme / text size / advanced-visibility classes on <html>. */
@@ -138,8 +128,7 @@ export function App() {
 
 function Workspace() {
   const mobile = useMediaQuery('(max-width: 767px)');
-  const wide = useMediaQuery('(min-width: 1180px)');
-  return mobile ? <MobileWorkspace /> : <DesktopWorkspace wide={wide} />;
+  return mobile ? <MobileWorkspace /> : <DesktopWorkspace />;
 }
 
 function usePageResults(page: PageDef) {
@@ -155,21 +144,11 @@ function usePageResults(page: PageDef) {
 }
 const EMPTY = {};
 
-function DesktopWorkspace({ wide }: { wide: boolean }) {
+function DesktopWorkspace() {
   const pageId = useView((s) => s.page);
   const page = PAGE_BY_ID[pageId];
-  const cards = useSettings((s) => s.viewMode === 'cards');
-  const hasDetail = useView((s) => !!s.detailRef) && !cards;
   const [sidebarOpen, setSidebarOpen] = useStoredBool('dom6browser:sidebarOpen', true);
   const [sidebarW, setSidebarW] = useStoredNumber('dom6browser:sidebarW', SIDEBAR_DEFAULT);
-  const detailDefault = wide ? 620 : 440;
-  // 0 = follow the default for the current window size until the user drags
-  const [storedDetailW, setStoredDetailW] = useStoredNumber('dom6browser:detailW', 0);
-  const winW = useWindowWidth();
-  // never let the detail panel squeeze the table below MIN_MAIN
-  const detailMax = Math.max(DETAIL_MIN, Math.min(DETAIL_MAX, winW - (sidebarOpen ? sidebarW : 0) - MIN_MAIN));
-  const detailW = clamp(storedDetailW || detailDefault, DETAIL_MIN, detailMax);
-  const setDetailW = (f: (w: number) => number) => setStoredDetailW(clamp(f(detailW), DETAIL_MIN, detailMax));
 
   return (
     <div className="flex h-full flex-col">
@@ -198,29 +177,9 @@ function DesktopWorkspace({ wide }: { wide: boolean }) {
             <ResultsPane page={page} />
           </ErrorBoundary>
         </main>
-        {hasDetail && (
-          <>
-            <Resizer
-              label="Resize detail panel"
-              value={detailW}
-              min={DETAIL_MIN}
-              max={detailMax}
-              invert
-              onResize={(d) => setDetailW((w) => w - d)}
-              onReset={() => setStoredDetailW(0)}
-            />
-            <div className="min-h-0 shrink-0 border-l border-line" style={{ width: detailW }}>
-              <ErrorBoundary label="the detail panel">
-                <DetailPanel />
-              </ErrorBoundary>
-            </div>
-          </>
-        )}
-        {cards && (
-          <ErrorBoundary label="the cards">
-            <CardBoard />
-          </ErrorBoundary>
-        )}
+        <ErrorBoundary label="the cards">
+          <CardBoard />
+        </ErrorBoundary>
       </div>
       <PinTray />
     </div>
@@ -231,9 +190,6 @@ const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 const SIDEBAR_MIN = 220;
 const SIDEBAR_MAX = 460;
 const SIDEBAR_DEFAULT = 290;
-const DETAIL_MIN = 320;
-const DETAIL_MAX = 900;
-const MIN_MAIN = 360;
 
 function Resizer({
   label,
@@ -404,11 +360,9 @@ function ColumnPicker({ page, results, prefs, setPrefs }: { page: PageDef; resul
               <input
                 type="checkbox"
                 className="accent-[rgb(var(--accent))]"
-                checked={!prefs.hidden.includes(c.id)}
+                checked={!isColHidden(prefs, c)}
                 disabled={c.id === 'name' || c.id === 'description'}
-                onChange={(e) =>
-                  setPrefs((p: any) => ({ ...p, hidden: e.target.checked ? p.hidden.filter((h: string) => h !== c.id) : [...p.hidden, c.id] }))
-                }
+                onChange={(e) => setPrefs((p: any) => toggleCol(p, c, e.target.checked))}
               />
               {c.name}
             </label>
@@ -439,7 +393,7 @@ function ColumnPicker({ page, results, prefs, setPrefs }: { page: PageDef; resul
           <button
             className="btn-ghost mt-1 w-full justify-start px-1 text-xs"
             onClick={() => {
-              setPrefs(() => ({ hidden: [], widths: {} }));
+              setPrefs(() => ({ hidden: [], shown: [], widths: {} }));
               setCalcCols([]);
             }}
           >
@@ -582,8 +536,8 @@ function useGlobalShortcuts() {
       } else if (e.key === 'Escape') {
         // upstream: close the top popup; with none open, clear filters and focus the search box
         if (usePreview.getState().target) return usePreview.getState().show(null);
-        // cards view: Esc closes the loose card first (pinned cards stay)
-        const cardsView = useSettings.getState().viewMode === 'cards' && !window.matchMedia('(max-width: 767px)').matches;
+        // desktop cards: Esc closes the loose card first (pinned cards stay)
+        const cardsView = !window.matchMedia('(max-width: 767px)').matches;
         if (cardsView && v.detailRef && !v.pins.includes(v.detailRef)) return useView.setState({ detailRef: null });
         v.resetFilters();
         document.getElementById('page-search')?.focus();

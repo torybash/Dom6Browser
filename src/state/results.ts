@@ -16,6 +16,8 @@ export interface GridColumn {
   nameHtml?: string;
   /** calculated value column (src/data/extensions/derived): hidden unless chosen */
   derived?: boolean;
+  /** hidden until the user turns it on in the column picker */
+  defaultHidden?: boolean;
   title?: string;
   formatter?: (row: number, cell: number, value: any, col: GridColumn, o: any) => string;
 }

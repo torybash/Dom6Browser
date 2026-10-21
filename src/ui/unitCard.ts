@@ -9,6 +9,8 @@ import {
   Hammer, HeartPulse, Hexagon, Hourglass, Infinity as InfinityIcon, Mountain, Snowflake, Sparkles,
   Sun, Waves, Wind,
 } from 'lucide-static';
+import { ABILITY_TIPS, FLAG_TIPS } from './abilityTips';
+import { escapeHtml } from './legacy';
 
 type IconDef = [svg: string, color: string];
 /** 'game': use the in-game icon public/gameicons/abil-<key>.png */
@@ -31,7 +33,7 @@ const STAT_COLUMN: Record<string, number> = {
 };
 
 /** Ability rows (key: value) shown as icon chips. */
-const ABILITY_ICONS: Record<string, ChipIcon> = {
+export const ABILITY_ICONS: Record<string, ChipIcon> = {
   fireres: 'game',
   coldres: 'game',
   shockres: 'game',
@@ -88,7 +90,7 @@ const ABILITY_ICONS: Record<string, ChipIcon> = {
 const NEGATIVE_ICON = new Set(['fireres', 'coldres', 'shockres', 'poisonres', 'acidres', 'patrolbonus', 'inspirational']);
 
 /** Boolean flags shown as icons (label in the tooltip). */
-const FLAG_ICONS: Record<string, ChipIcon> = {
+export const FLAG_ICONS: Record<string, ChipIcon> = {
   holy: 'game',
   female: [Venus, '#e88fb8'],
   neednoteat: 'game',
@@ -161,11 +163,26 @@ function el(tag: string, cls: string, html = '') {
   return e;
 }
 
+/** Gives a chip the styled tooltip of statTip.ts: bold header plus description paragraphs. */
+function chipTip(chip: HTMLElement, head: string, ...paras: (string | undefined)[]) {
+  const tpl = document.createElement('template');
+  tpl.className = 'stat-tip-src';
+  tpl.innerHTML =
+    `<div class="tip-head">${escapeHtml(head)}</div>` +
+    paras.filter(Boolean).map((p) => `<div class="tip-text">${escapeHtml(p!).replace(/\r?\n/g, '<br>')}</div>`).join('');
+  chip.dataset.tip = '1';
+  chip.tabIndex = 0;
+  chip.setAttribute('aria-label', [head, ...paras.filter(Boolean)].join('. '));
+  chip.appendChild(tpl);
+}
+
 export function enhanceUnitCard(main: HTMLElement) {
   const statTable = main.querySelector(':scope > table.overlay-table');
   if (!statTable || !statTable.querySelector('table') || main.dataset.card) return;
   main.dataset.card = '1';
   const card = el('div', 'ucard');
+  // the raw "basecost" row (the gcost field) is the encoded mod value; Gold already shows the real cost
+  main.querySelectorAll('tr.gcost').forEach((tr) => tr.remove());
 
   /* ---- top: stat columns + sprite ---- */
   const top = el('div', 'ucard-top');
@@ -243,10 +260,9 @@ export function enhanceUnitCard(main: HTMLElement) {
     const negative = NEGATIVE_ICON.has(key) && parseFloat(td.textContent ?? '') < 0;
     const chip = el('span', 'uchip', (negative ? gameIcon('neg-' + key) : chipIcon(key, def)) + `<span class="stat-value">${td.innerHTML}</span>`);
     chip.dataset.key = key;
-    chip.title = `${label}: ${td.textContent?.trim()}` + (tr.title ? `\n${tr.title}` : '');
-    chip.setAttribute('aria-label', chip.title);
     const keySpan = th.querySelector('.internal-inline');
     if (keySpan) chip.appendChild(keySpan.cloneNode(true));
+    chipTip(chip, `${label}: ${td.textContent?.trim()}`, ABILITY_TIPS[key], tr.title || undefined);
     iconsRow.appendChild(chip);
     tr.remove();
   });
@@ -260,10 +276,9 @@ export function enhanceUnitCard(main: HTMLElement) {
     const name = label.charAt(0).toUpperCase() + label.slice(1);
     const chip = el('span', 'uchip uflag', chipIcon(key, def));
     chip.dataset.key = key;
-    chip.title = name;
-    chip.setAttribute('aria-label', name);
     const keySpan = f.querySelector('.internal-inline');
     if (keySpan) chip.appendChild(keySpan.cloneNode(true));
+    chipTip(chip, name, FLAG_TIPS[key]);
     iconsRow.appendChild(chip);
     f.remove();
   });

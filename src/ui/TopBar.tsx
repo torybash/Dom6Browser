@@ -1,8 +1,8 @@
 import * as Dropdown from '@radix-ui/react-dropdown-menu';
-import { Check, GalleryHorizontalEnd, Monitor, Moon, Package, PanelLeft, PanelRight, Search, Settings, Sun } from 'lucide-react';
+import { Check, Monitor, Moon, Package, PanelLeft, Search, Settings, Sun } from 'lucide-react';
 import { useData } from '../state/data';
 import { useMods } from '../state/mods';
-import { useSettings, type Theme, type ViewMode } from '../state/settings';
+import { useSettings, type Theme } from '../state/settings';
 import { useGlobalSearch } from './GlobalSearch';
 import { useModsDialog } from './ModsDialog';
 
@@ -45,7 +45,6 @@ export function TopBar({ onToggleSidebar, compact }: { onToggleSidebar?: () => v
         )}
       </button>
 
-      {!compact && <ViewModeToggle />}
       <button
         className={'btn-ghost relative ' + (enabled ? 'text-fg' : '')}
         onClick={() => setModsOpen(true)}
@@ -60,32 +59,6 @@ export function TopBar({ onToggleSidebar, compact }: { onToggleSidebar?: () => v
       </button>
       <SettingsMenu />
     </header>
-  );
-}
-
-function ViewModeToggle() {
-  const mode = useSettings((s) => s.viewMode);
-  const set = useSettings((s) => s.set);
-  const modes: [ViewMode, string, string, typeof PanelRight][] = [
-    ['panel', 'Panel', 'Details in a docked panel', PanelRight],
-    ['cards', 'Cards', 'Details in floating cards, like dom6inspector', GalleryHorizontalEnd],
-  ];
-  return (
-    <div className="flex shrink-0 items-center rounded-md border border-line bg-raised p-0.5" role="radiogroup" aria-label="Detail view">
-      {modes.map(([m, label, title, Icon]) => (
-        <button
-          key={m}
-          role="radio"
-          aria-checked={mode === m}
-          className={'flex h-6 items-center gap-1.5 rounded px-2 text-xs transition-colors ' + (mode === m ? 'bg-panel text-fg shadow-sm' : 'text-muted hover:text-fg')}
-          onClick={() => set({ viewMode: m })}
-          title={title}
-        >
-          <Icon size={14} className={mode === m ? 'text-accent' : ''} />
-          <span className="hidden lg:inline">{label}</span>
-        </button>
-      ))}
-    </div>
   );
 }
 

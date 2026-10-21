@@ -1,4 +1,4 @@
-// Dominions-style tooltip for unit stat rows. Rows are `.ustat[data-tip]` with a child
+// Dominions-style tooltip for unit stat rows. Rows and chips are `.ustat[data-tip]` / `.uchip[data-tip]` with a child
 // `<template class="stat-tip-src">`; one shared `div.stat-tip` on <body> shows a clone of it.
 
 const MARGIN = 8;
@@ -9,7 +9,7 @@ let tip: HTMLDivElement | null = null;
 let current: HTMLElement | null = null;
 
 function rowOf(target: EventTarget | null): HTMLElement | null {
-  return target instanceof Element ? (target.closest('.ustat[data-tip]') as HTMLElement | null) : null;
+  return target instanceof Element ? (target.closest('.ustat[data-tip], .uchip[data-tip]') as HTMLElement | null) : null;
 }
 
 function hide(): void {

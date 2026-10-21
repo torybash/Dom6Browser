@@ -19,7 +19,7 @@ export function PinTray({ mobile }: { mobile?: boolean }) {
   const unpin = useView((s) => s.unpin);
   const clear = useView((s) => s.clearPins);
   const setCompareOpen = useView((s) => s.setCompareOpen);
-  const cards = useSettings((s) => s.viewMode === 'cards') && !mobile;
+  const cards = !mobile;
   if (!pins.length || !DMI) return null;
   return (
     <div className="flex h-11 shrink-0 items-center gap-2 border-t border-line bg-panel px-3">

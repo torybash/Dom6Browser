@@ -131,7 +131,16 @@ MWpn.grid = {
 	data: function(){ return modctx.wpndata; },
 	columns: [
 		{ id: "name",     width: 145, name: "Weapon Name", field: "name", sortable: true },
-		{ id: "wpnclass",     width: 60, name: "Type", field: "wpnclass", sortable: true }
+		{ id: "wpnclass",     width: 60, name: "Type", field: "wpnclass", sortable: true },
+		{ id: "dmg",     width: 30, name: "Dmg", title: "Damage", field: "dmg", sortable: true, sortCmp: 'num', cssClass: "numeric", formatter: function(_,__,v){ return v == 999 ? 'Special' : (v === undefined ? '' : String(v)); } },
+		{ id: "att",     width: 28, name: "Att", title: "Attack skill modifier", field: "att", sortable: true, sortCmp: 'num', cssClass: "numeric" },
+		{ id: "def",     width: 28, name: "Def", title: "Defence skill modifier", field: "def", sortable: true, sortCmp: 'num', cssClass: "numeric" },
+		{ id: "len",     width: 28, name: "Len", title: "Length", field: "len", sortable: true, sortCmp: 'num', cssClass: "numeric" },
+		{ id: "nratt",     width: 30, name: "Hits", title: "Number of attacks", field: "nratt", sortable: true, sortCmp: 'num', cssClass: "numeric", defaultHidden: true },
+		{ id: "range",     width: 34, name: "Range", field: "range", sortable: true, sortCmp: 'num', cssClass: "numeric", defaultHidden: true },
+		{ id: "ammo",     width: 34, name: "Ammo", field: "ammo", sortable: true, sortCmp: 'num', cssClass: "numeric", defaultHidden: true },
+		{ id: "prec",     width: 30, name: "Prec", title: "Precision (missile weapons)", field: "prec", sortable: true, sortCmp: 'num', cssClass: "numeric", defaultHidden: true },
+		{ id: "rcost",     width: 30, name: "Res", title: "Resource cost", field: "rcost", sortable: true, sortCmp: 'num', cssClass: "numeric", defaultHidden: true }
 	],
 	searchFilter: DMI.basicSearchFilter
 };

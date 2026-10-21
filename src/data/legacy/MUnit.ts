@@ -1388,6 +1388,15 @@ MUnit.prepareForRender = function(o) {
  function formatGold(_,__,v){ return v || ''; }
  function formatRes(_,__,v){ return v || ''; }
  function formatType(_,__,v,___,o){ return o.typechar; }
+ //stats are finalised lazily; showing one in the grid finalises the unit
+ function formatStat(_,__,v,col,o){ MUnit.prepareForRender(o); var x = o[col.field]; return (x === undefined || x === null) ? '' : String(x); }
+ function formatLeader(_,__,v,col,o){ MUnit.prepareForRender(o); var x = o[col.field]; return parseInt(x) ? String(x) : ''; }
+ function statCol(id, name, field, title, width, hidden){
+	return { id: id, width: width || 28, name: name, field: field, title: title, sortable: true, sortCmp: 'num', cssClass: 'numeric', formatter: formatStat, defaultHidden: hidden };
+ }
+ function leaderCol(id, name, field, title){
+	return { id: id, width: 34, name: name, field: field, title: title, sortable: true, sortCmp: 'num', cssClass: 'numeric', formatter: formatLeader, defaultHidden: true };
+ }
  function formatHoly(_,__,v,___,o){  return (v ?  Format.AbilityIcon('holy', 'sacred')  :  '') + (o.holycost ? 'x2':''); }
 
 MUnit.grid = {
@@ -1402,7 +1411,22 @@ MUnit.grid = {
 //		{ id: "diff",     width: 32, name: "diff", field: "diffsort", sortable: true, cssClass: "numeric", formatter: formatGold },
 		{ id: "rcostsort",     width: 30, name: "Res", field: "rcostsort", sortable: true, cssClass: "numeric", formatter: formatRes },
 		{ id: "sacredsort",     width: 30, name: "Sac", nameHtml: Format.AbilityIcon('holy', 'sacred'), field: "sacredsort", sortable: true, formatter: formatHoly },
-		{ id: "listed_mpath",     width: 120, name: "Magic", field: "listed_mpath", sortable: true, formatter: DMI.GridFormat.OrderedPaths }
+		statCol("hp", "HP", "hp", "Hit points"),
+		statCol("prot", "Prot", "prot", "Protection"),
+		statCol("mr", "MR", "mr", "Magic resistance"),
+		statCol("mor", "Mor", "mor", "Morale"),
+		statCol("att", "Att", "att", "Attack skill"),
+		statCol("def", "Def", "def", "Defence skill"),
+		statCol("str", "Str", "str", "Strength", 28, true),
+		statCol("prec", "Prec", "prec", "Precision", 30, true),
+		statCol("size", "Size", "size", "Size", 28, true),
+		statCol("enc", "Enc", "enc", "Encumbrance", 28, true),
+		statCol("mapmove", "Move", "mapmove", "Map movement", 30, true),
+		statCol("ap", "AP", "ap", "Combat movement (action points)", 28, true),
+		{ id: "listed_mpath",     width: 120, name: "Magic", field: "listed_mpath", sortable: true, formatter: DMI.GridFormat.OrderedPaths },
+		leaderCol("leader", "Lead", "leader", "Leadership"),
+		leaderCol("magicleader", "M.Lead", "magicleader", "Magic leadership"),
+		leaderCol("undeadleader", "U.Lead", "undeadleader", "Undead leadership")
 	],
 	sortIcon: null,
 	initialSort: 'sorttype',
@@ -1552,6 +1576,10 @@ MUnit.grid = {
 				isSortedOnBoosters = true;
 			}
 			else  {
+				if (args.sortCol.sortCmp == 'num') {
+					//grid stats are finalised lazily; sorting needs them all
+					for (var i=0; i<data.length; i++) MUnit.prepareForRender(data[i]);
+				}
 				MUnit.grid.sortIcon = null;
 				isSortedOnBoosters = false;
 			}

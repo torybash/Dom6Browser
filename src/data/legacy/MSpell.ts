@@ -644,6 +644,9 @@ MSpell.grid = {
 		{ id: "mpath",    width: 40, name: "Path req", field: "mpath", sortable: true, formatter: DMI.GridFormat.Paths, sortCmp: 'text' },
 		{ id: "gemcost",    width: 30, name: "Cost", field: "gemcostsort", sortable: true, formatter: spellCostFormatter },
 		{ id: "fatiguecost",     width: 30, name: "Fat", field: "fatiguecostsort", sortable: true, formatter: fatigueFormatter },
+		{ id: "rng_bat",   width: 34, name: "Range", title: "Battlefield range", field: "rng_bat", sortable: true, sortCmp: 'num', cssClass: "numeric" },
+		{ id: "aoe_s",   width: 40, name: "AoE", title: "Area of effect", field: "aoe_s", sortable: true, sortCmp: 'num', cssClass: "numeric" },
+		{ id: "casttime",   width: 34, name: "Cast", title: "Casting time (% of a turn)", field: "casttime", sortable: true, sortCmp: 'num', cssClass: "numeric", defaultHidden: true },
 		{ id: "summons",   width: 130, name: "Summons", field: "summons", sortable: false, formatter: summonsFormatter }
 	],
 	initialSort: 'research',

@@ -14,6 +14,8 @@ const IGNORED_FIELDS: Record<string, string[]> = {
   nation: ['searchable', 'erasort'],
   // per-spell structured summon list used by the Spells page Summons column
   spell: ['summons'],
+  // single protection number for the Armor page Prot column
+  armor: ['protval'],
 };
 
 paritySuite('vanilla', 'vanilla.json', () => vanilla());

@@ -62,3 +62,31 @@ describe('derived stat tooltips', () => {
     expect(a.querySelector('.calc-section')!.hasAttribute('open')).toBe(true);
   });
 });
+
+describe('ability chip tooltips', () => {
+  it('every ability and flag icon has a description', async () => {
+    const { ABILITY_ICONS, FLAG_ICONS } = await import('../src/ui/unitCard');
+    const { ABILITY_TIPS, FLAG_TIPS } = await import('../src/ui/abilityTips');
+    for (const k of Object.keys(ABILITY_ICONS)) expect(ABILITY_TIPS[k], k).toBeTruthy();
+    for (const k of Object.keys(FLAG_ICONS)) expect(FLAG_TIPS[k], k).toBeTruthy();
+  });
+
+  it('chips get a styled tooltip and cards drop the basecost row', async () => {
+    const DMI = await vanilla();
+    for (const u of DMI.modctx.unitdata.filter((o: any) => o.wastesurvival)) {
+      const root = await card('unit ' + u.id);
+      const chip = root.querySelector<HTMLElement>('.uchip[data-key=wastesurvival]');
+      if (!chip) continue;
+      expect(chip.dataset.tip).toBe('1');
+      expect(chip.hasAttribute('title')).toBe(false);
+      const t = tip(chip);
+      expect(t.querySelector('.tip-head')!.textContent).toBe('Wasteland survival');
+      expect(t.textContent).toContain('reduces the map move cost');
+      expect(chip.getAttribute('aria-label')).toContain('map move cost');
+      expect(root.querySelector('tr.gcost')).toBeNull();
+      expect(root.textContent).not.toMatch(/basecost/i);
+      return;
+    }
+    throw new Error('no unit with wastesurvival found');
+  });
+});

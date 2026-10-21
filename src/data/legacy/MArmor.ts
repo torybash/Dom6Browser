@@ -83,6 +83,9 @@ MArmor.prepareData_PostMod = function() {
 
 		o.type = {4:'shield', 5:'armor', 6:'helm', 8:'misc'}[o.type];
 
+		//single protection value for the grid
+		o.protval = parseInt(o.type == 'shield' ? o.protshield : o.type == 'helm' ? o.prothead : o.type == 'armor' ? o.protbody : (o.protbody || o.prothead || o.protshield)) || 0;
+
 		if (o.type=="shield") {
 			o.parry = parseInt(o.def) + parseInt(o.enc);
 			o.def = Utils.negative(o.enc);
@@ -125,7 +128,11 @@ MArmor.grid = {
 	data: function(){ return modctx.armordata; },
 	columns: [
 		{ id: "name",     width: 145, name: "Armor Name", field: "name", sortable: true },
-		{ id: "type",     width: 60, name: "Type", field: "type", sortable: true }
+		{ id: "type",     width: 60, name: "Type", field: "type", sortable: true },
+		{ id: "protval",     width: 30, name: "Prot", title: "Protection", field: "protval", sortable: true, sortCmp: 'num', cssClass: "numeric" },
+		{ id: "def",     width: 28, name: "Def", title: "Defence skill modifier", field: "def", sortable: true, sortCmp: 'num', cssClass: "numeric" },
+		{ id: "enc",     width: 28, name: "Enc", title: "Encumbrance", field: "enc", sortable: true, sortCmp: 'num', cssClass: "numeric" },
+		{ id: "parry",     width: 32, name: "Parry", title: "Shield parry", field: "parry", sortable: true, sortCmp: 'num', cssClass: "numeric", defaultHidden: true }
 	],
 	searchFilter: DMI.basicSearchFilter
 };
@@ -171,6 +178,7 @@ var ignorekeys = {
 	magic:1,
 	magicarmor:1,
 	torso:1,upper:1,lower:1,general:1,
+	protval:1,
 	searchable:1,renderOverlay:1, matchProperty:1
 };
 

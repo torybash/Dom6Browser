@@ -549,7 +549,8 @@ button {
 .legacy .uchip {
   @apply inline-flex items-center gap-0.5 rounded-full border border-line bg-raised px-1.5 py-0.5;
 }
-.legacy .uchip[title] {
+.legacy .uchip[title],
+.legacy .uchip[data-tip] {
   cursor: help;
 }
 .legacy .uchip .uicon {

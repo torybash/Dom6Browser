@@ -10,9 +10,24 @@ import { usePreview } from './HoverPreview';
 
 const ROW_H = 34;
 
-interface ColPrefs {
+export interface ColPrefs {
+  /** columns the user switched off */
   hidden: string[];
+  /** default-hidden columns the user switched on */
+  shown?: string[];
   widths: Record<string, number>;
+}
+
+/** Columns flagged defaultHidden stay hidden until the user turns them on; the rest until turned off. */
+export function isColHidden(prefs: ColPrefs, col: { id: string; defaultHidden?: boolean }): boolean {
+  return col.defaultHidden ? !prefs.shown?.includes(col.id) : prefs.hidden.includes(col.id);
+}
+
+/** Prefs after the user toggles a column. */
+export function toggleCol(prefs: ColPrefs, col: { id: string; defaultHidden?: boolean }, visible: boolean): ColPrefs {
+  const without = (l: string[] = []) => l.filter((h) => h !== col.id);
+  if (col.defaultHidden) return { ...prefs, shown: visible ? [...without(prefs.shown), col.id] : without(prefs.shown) };
+  return { ...prefs, hidden: visible ? without(prefs.hidden) : [...without(prefs.hidden), col.id] };
 }
 
 function loadPrefs(page: PageId): ColPrefs {
@@ -74,7 +89,7 @@ export function tableColumns(
   if (thumbnails && page.thumb) cols.push({ id: '__thumb', label: '', width: 40, minWidth: 40, kind: 'thumb' });
   if (advanced) cols.push({ id: '__id', label: 'id', width: 56, minWidth: 40, kind: 'id', numeric: true });
   for (const c of results.grid.columns) {
-    if (c.derived ? !shownCalc.includes(c.id) : prefs.hidden.includes(c.id)) continue;
+    if (c.derived ? !shownCalc.includes(c.id) : isColHidden(prefs, c)) continue;
     const isName = c.id === 'name' || c.id === 'description';
     cols.push({
       id: c.id,

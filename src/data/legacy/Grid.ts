@@ -149,9 +149,15 @@ DMI.customFilter = function(o, customjs) {
 DMI.makeSortCmp = function(column, asc, prevSortCmp) {
 	var field = column.field;
 	var defaultVal = column.sortCmp == 'text'?'':0;
+	var numeric = column.sortCmp == 'num';
 	var sign = asc ? 1 : -1;
 	return function (dataRow1, dataRow2) {
 		var value1 = (dataRow1[field] || defaultVal), value2 = (dataRow2[field] || defaultVal);
+		if (numeric) {
+			//numeric columns: values may be strings ("40", "5F") or carry suffixes
+			value1 = parseFloat(value1) || 0;
+			value2 = parseFloat(value2) || 0;
+		}
 
 		//if equal then sort in previous scope (recurring)
 		if (value1 == value2 && prevSortCmp)

@@ -1,6 +1,6 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ArrowDown, ArrowUp } from 'lucide-react';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { PageDef, PageId } from '../pages';
 import type { DMI } from '../data/load';
 import { refFor, type GridColumn, type Results } from '../state/results';
@@ -69,7 +69,34 @@ interface ViewColumn {
   minWidth: number;
   kind: 'thumb' | 'id' | 'data';
   numeric?: boolean;
+  /** text column at its automatic width: takes a share of any leftover room */
+  flex?: boolean;
 }
+
+/** Content width of a column, measured from sampled rows: p95 sets the default, max is what double-click fits to. */
+export interface ColFit {
+  p95: number;
+  max: number;
+}
+
+const MIN_COL_W = 36;
+const MAX_AUTO_W = 360;
+const MAX_FIT_W = 640;
+const MEASURE_ROWS = 150;
+
+/** Default and full-fit widths from measured cell widths; the header label is a floor for both. */
+export function fitFromSamples(cellWidths: number[], headerWidth: number): ColFit {
+  const s = [...cellWidths].sort((a, b) => a - b);
+  const max = Math.max(MIN_COL_W, headerWidth, s[s.length - 1] ?? 0);
+  let p95 = Math.max(MIN_COL_W, headerWidth, s[Math.floor((s.length - 1) * 0.95)] ?? 0);
+  // a near-miss outlier costs little room, so show it whole
+  if (max - p95 <= 24) p95 = max;
+  return { p95: Math.min(MAX_AUTO_W, Math.ceil(p95)), max: Math.min(MAX_FIT_W, Math.ceil(max)) };
+}
+
+/** Measured fits per loaded game data and page, so revisiting a page doesn't re-measure. */
+const fitCache = new WeakMap<object, Map<string, Record<string, ColFit>>>();
+const NO_FITS: Record<string, ColFit> = {};
 
 /** Calculated-value columns to show: the chosen ones, plus the sort column so a shared sort is visible. */
 export function shownCalcColumns(calcCols: string[] | undefined, sortCol: string | undefined): string[] {
@@ -84,6 +111,7 @@ export function tableColumns(
   thumbnails: boolean,
   prefs: ColPrefs,
   shownCalc: string[] = [],
+  fits: Record<string, ColFit> = {},
 ): ViewColumn[] {
   const cols: ViewColumn[] = [];
   if (thumbnails && page.thumb) cols.push({ id: '__thumb', label: '', width: 40, minWidth: 40, kind: 'thumb' });
@@ -91,16 +119,19 @@ export function tableColumns(
   for (const c of results.grid.columns) {
     if (c.derived ? !shownCalc.includes(c.id) : isColHidden(prefs, c)) continue;
     const isName = c.id === 'name' || c.id === 'description';
+    const custom = prefs.widths[c.id];
+    const numeric = c.cssClass === 'numeric';
     cols.push({
       id: c.id,
       label: c.name,
       html: c.nameHtml,
       col: c,
-      // upstream widths are relative; scale them up for the roomier layout
-      width: prefs.widths[c.id] ?? Math.round(c.width * (isName ? 2 : 1.35)),
-      minWidth: 36,
+      // until measured, scale the upstream (relative) widths up for the roomier layout
+      width: custom ?? fits[c.id]?.p95 ?? Math.round(c.width * (isName ? 2 : 1.35)),
+      minWidth: MIN_COL_W,
       kind: 'data',
-      numeric: c.cssClass === 'numeric',
+      numeric,
+      flex: custom === undefined && !numeric,
     });
   }
   return cols;
@@ -129,14 +160,27 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
 
   const calcCols = useView((s) => s.calcCols[page.id]);
   const shownCalc = useMemo(() => shownCalcColumns(calcCols, sort?.col), [calcCols, sort?.col]);
-  const cols = useMemo(
-    () => tableColumns(page, results, advanced, thumbnails, prefs, shownCalc),
-    [page, results, advanced, thumbnails, prefs, shownCalc],
+  const [, remeasured] = useReducer((n: number) => n + 1, 0);
+  const fits = fitCache.get(DMI)?.get(page.id) ?? NO_FITS;
+  const onMeasured = useCallback(
+    (measured: Record<string, ColFit>) => {
+      let byPage = fitCache.get(DMI);
+      if (!byPage) fitCache.set(DMI, (byPage = new Map()));
+      byPage.set(page.id, { ...byPage.get(page.id), ...measured });
+      remeasured();
+    },
+    [DMI, page.id],
   );
-  const template = cols.map((c) => (c.kind === 'data' && (c.id === 'name' || c.id === 'description') && prefs.widths[c.id] === undefined ? `minmax(${c.width}px, 3fr)` : `${c.width}px`)).join(' ');
+  const cols = useMemo(
+    () => tableColumns(page, results, advanced, thumbnails, prefs, shownCalc, fits),
+    [page, results, advanced, thumbnails, prefs, shownCalc, fits],
+  );
+  // text columns at their automatic width split any leftover room in proportion to their width
+  const template = cols.map((c) => (c.flex ? `minmax(${c.width}px, ${c.width}fr)` : `${c.width}px`)).join(' ');
   const totalMin = cols.reduce((a, c) => a + c.width, 0);
 
   const rows = results.rows;
+  const unmeasured = useMemo(() => cols.filter((c) => c.kind === 'data' && !fits[c.id]), [cols, fits]);
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
@@ -262,13 +306,24 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
                     onClick={(e) => e.stopPropagation()}
                     onDoubleClick={(e) => {
                       e.stopPropagation();
+                      // fit the longest value, sampled or on screen; double-clicking a fitted column returns it to automatic
+                      const i = cols.indexOf(c);
+                      const onScreen = [...(scrollRef.current?.querySelectorAll<HTMLElement>('.grid-row') ?? [])].map((r) => {
+                        const cell = r.children[i];
+                        if (!cell) return 0;
+                        const range = document.createRange();
+                        range.selectNodeContents(cell);
+                        return range.getBoundingClientRect().width + 20; // px-2.5 either side
+                      });
+                      const fit = fits[c.id] && Math.min(MAX_FIT_W, Math.ceil(Math.max(fits[c.id].max, ...onScreen)));
                       setPrefs((p) => {
                         const widths = { ...p.widths };
-                        delete widths[c.id];
+                        if (fit === undefined || widths[c.id] === fit) delete widths[c.id];
+                        else widths[c.id] = fit;
                         return { ...p, widths };
                       });
                     }}
-                    title="Drag to resize · double-click to reset"
+                    title="Drag to resize · double-click to fit everything (again for automatic)"
                   />
                 )}
               </div>
@@ -312,9 +367,59 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
           })}
         </div>
       </div>
+      {unmeasured.length > 0 && rows.length > 0 && (
+        <ColumnMeasurer key={page.id + ':' + unmeasured.map((c) => c.id).join()} cols={unmeasured} rows={rows} page={page} DMI={DMI} onMeasured={onMeasured} />
+      )}
       {rows.length === 0 && (
         <div className="absolute inset-x-0 top-24 text-center text-sm text-muted">No matches. Try clearing some filters.</div>
       )}
+    </div>
+  );
+}
+
+/** Room a header keeps for its sort arrow, so the label isn't cut off once the column is sorted. */
+const SORT_ICON_W = 16;
+
+/**
+ * Renders a sample of rows off-screen at their natural width, once, and reports how wide each column's
+ * content is. Real cells are used because most columns are formatter HTML (icons, gems), not plain text.
+ */
+function ColumnMeasurer({ cols, rows, page, DMI, onMeasured }: { cols: ViewColumn[]; rows: any[]; page: PageDef; DMI: DMI; onMeasured: (f: Record<string, ColFit>) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const n = Math.min(rows.length, MEASURE_ROWS);
+  const sample = Array.from({ length: n }, (_, i) => rows[Math.floor((i * rows.length) / n)]);
+  useLayoutEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const width = (el: Element) => el.getBoundingClientRect().width;
+    const out: Record<string, ColFit> = {};
+    cols.forEach((c, j) => {
+      const head = root.querySelector(`[data-mh="${j}"]`);
+      const cells = [...root.querySelectorAll(`[data-mc="${j}"]`)].map(width);
+      out[c.id] = fitFromSamples(cells, (head ? width(head) : 0) + SORT_ICON_W);
+    });
+    onMeasured(out);
+    // measure once per column set; the caller unmounts this when done
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div ref={ref} aria-hidden className="pointer-events-none invisible absolute left-0 top-0 h-0 overflow-hidden">
+      <div className="flex text-xs font-semibold">
+        {cols.map((c, j) => (
+          <div key={c.id} data-mh={j} className="w-max flex-none px-2.5">
+            {c.html ? <span className="legacy" dangerouslySetInnerHTML={{ __html: c.html }} /> : c.label}
+          </div>
+        ))}
+      </div>
+      {sample.map((o, i) => (
+        <div key={i} className="flex text-[13px]">
+          {cols.map((c, j) => (
+            <div key={c.id} data-mc={j} className="w-max flex-none">
+              <Cell c={c} o={o} index={i} page={page} DMI={DMI} />
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }

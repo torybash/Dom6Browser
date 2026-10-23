@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PAGE_BY_ID } from '../src/pages';
-import { isColHidden, tableColumns, toggleCol } from '../src/ui/ResultsTable';
+import { fitFromSamples, isColHidden, tableColumns, toggleCol } from '../src/ui/ResultsTable';
 import { vanilla } from './helpers';
 
 const cols = (DMI: any, mod: string) => DMI[mod].grid.columns as any[];
@@ -99,5 +99,16 @@ describe('default column visibility', () => {
     const DMI = await vanilla();
     for (const mod of ['MWpn', 'MArmor', 'MSpell']) expect(cols(DMI, mod).some((c) => c.defaultHidden)).toBe(true);
     expect(cols(DMI, 'MWpn').find((c) => c.id === 'dmg').defaultHidden).toBeFalsy();
+  });
+});
+
+describe('column auto-width', () => {
+  it('defaults to p95 of content, fits the max, and never goes under the header', () => {
+    const cells = [...Array(99).fill(100), 300];
+    expect(fitFromSamples(cells, 50)).toEqual({ p95: 100, max: 300 });
+    // a near-miss outlier is shown whole
+    expect(fitFromSamples([...Array(99).fill(100), 120], 50).p95).toBe(120);
+    expect(fitFromSamples([20, 20], 70)).toEqual({ p95: 70, max: 70 });
+    expect(fitFromSamples([], 10)).toEqual({ p95: 36, max: 36 });
   });
 });

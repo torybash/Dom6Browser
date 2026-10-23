@@ -22,6 +22,7 @@ import { installDerived, snapshotRawUnitFields } from './extensions/derived';
 import { installCarries, snapshotStartItemClasses } from './extensions/carries';
 import { installIndependents, loadVanillaPoptypes } from './extensions/independents';
 import { installIndependentsPage } from './extensions/independentsPage';
+import { installEvents } from './extensions/events';
 
 export type DMI = any;
 
@@ -183,6 +184,7 @@ export async function loadData(opts: LoadOptions): Promise<DMI> {
   installDerived(DMI, rawUnits);
   installIndependents(DMI);
   installIndependentsPage(DMI);
+  installEvents(DMI);
 
   progress('Ready', 1);
   return DMI;

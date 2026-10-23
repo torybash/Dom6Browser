@@ -3,6 +3,7 @@
 // Mechanical port: logic kept as close to upstream as possible; jQuery/DOM/SlickGrid removed.
 import { $ } from './jq';
 import { bitfields } from './bits';
+import { nationFlagHtml } from '../nationFlags';
 
 export function install(DMI: any) {
 // upstream relied on sloppy-mode implicit globals; declared here (shared, like globals) for strict mode
@@ -453,7 +454,13 @@ Utils.unitRef  = function(id, text) {
 Utils.spellRef = function(id, text) { return objectRef('spell', id, text); }
 Utils.wpnRef   = function(id, text) { return objectRef('wpn',   id, text); }
 Utils.armorRef = function(id, text) { return objectRef('armor', id, text); }
-Utils.nationRef = function(id, text) { return objectRef('nation', id, text); }
+// flag emblem inside the link (added in this app)
+Utils.nationRef = function(id, text) {
+	var o = (DMI.modctx.nationlookup || {})[id];
+	if (!o) return objectRef('nation', id, text);
+	return objectRef('nation', id, nationFlagHtml(o.id) + (typeof(text) == 'string' ? text : o.fullname || o.name));
+}
+Utils.nationFlag = nationFlagHtml;
 Utils.siteRef = function(id, text) { return objectRef('site', id, text); }
 Utils.eventRef = function(id, text) { return objectRef('event', id, text); }
 Utils.afflictionRef = function(name) { return Utils.ref('affliction '+name, name); }

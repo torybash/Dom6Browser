@@ -5,6 +5,7 @@ import {
   BookOpen, CalendarDays, Castle, Coins, Crown, Flag, Flame, Gem, Globe, Hourglass, Link, MapPin, Megaphone,
   Mountain, Scale, Skull, Sparkles, Swords, TrendingUp, User, Users, Wand,
 } from 'lucide-static';
+import { nationFlagHtml } from '../nationFlags';
 import {
   REWARD_LABELS, TRIGGER_LABELS, type EventInfo, type EventKind, type RewardCategory, type StorylineRole, type TriggerCategory,
 } from './events';
@@ -197,9 +198,9 @@ export function eventGrid(DMI: any, data: () => any[]) {
         const e = ev(o);
         if (!e?.forNations.length) return '';
         const names = e.forNations.map((id) => nationName(DMI, id));
-        const short = names.map((n, i) => n?.name ?? `#${e.forNations[i]}`).join(', ');
+        const short = names.map((n, i) => nationFlagHtml(e.forNations[i]) + esc(n?.name ?? `#${e.forNations[i]}`)).join(', ');
         const full = names.map((n, i) => n?.fullname ?? n?.name ?? `Nation ${e.forNations[i]}`).join('\n');
-        return `<span title="${esc(full)}">${esc(short)}</span>`;
+        return `<span title="${esc(full)}">${short}</span>`;
       },
     },
     {

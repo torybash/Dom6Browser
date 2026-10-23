@@ -20,6 +20,8 @@ export function normalizeHtml(h) {
     // unit sprite toggles
     .replace(/<img style="float:right; clear:right; vertical-align:top; margin-right:25px" title="([^"]*)" src="([^"]*)"[^>]*\/>/g, '<img title="$1" src="$2"/>')
     .replace(/<img class="unit-sprite[^"]*" title="([^"]*)" data-action="toggle-sprite" data-src1="[^"]*" data-src2="[^"]*" src="([^"]*)"\/>/g, '<img title="$1" src="$2"/>')
+    // nation flag emblems before nation names (added in the port)
+    .replace(/<img class="nflag" src="[^"]*" alt="">/g, '')
     .replace(/\s+/g, ' ')
     // mod command lists: jQuery show/hide links vs <details>
     .replace(/\s*<a class="show-mod-commands".*?<p class="mod-cmds"[^>]*>\s*(.*?)\s*<\/p>\s*/g, '[[modded:$1]]')

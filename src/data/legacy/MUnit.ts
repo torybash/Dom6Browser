@@ -1397,14 +1397,15 @@ MUnit.prepareForRender = function(o) {
  function leaderCol(id, name, field, title){
 	return { id: id, width: 34, name: name, field: field, title: title, sortable: true, sortCmp: 'num', cssClass: 'numeric', formatter: formatLeader, defaultHidden: true };
  }
- function formatHoly(_,__,v,___,o){  return (v ?  Format.AbilityIcon('holy', 'sacred')  :  '') + (o.holycost ? 'x2':''); }
+ function formatNation(_,__,v,___,o){ var ids = o.nations ? Object.keys(o.nations) : []; return (ids.length == 1 ? Utils.nationFlag(ids[0]) : '') + (v || ''); }
+function formatHoly(_,__,v,___,o){  return (v ?  Format.AbilityIcon('holy', 'sacred')  :  '') + (o.holycost ? 'x2':''); }
 
 MUnit.grid = {
 	page: 'unit',
 	data: function(){ return modctx.unitdata; },
 	columns: [
 		{ id: "name",     width: 100, name: "Unit Name", field: "name", sortable: true },
-		{ id: "nation",   width: 60, name: "Nation", field: "nationname", sortable: true },
+		{ id: "nation",   width: 80, name: "Nation", field: "nationname", sortable: true, formatter: formatNation },
 		{ id: "sorttype",     width: 80, name: "Type", field: "sorttype", sortable: true, formatter: formatType },
 		{ id: "goldcost",     width: 32, name: "Gold", field: "goldcost", sortable: true, cssClass: "numeric", formatter: formatGold },
 //		{ id: "gcom",     width: 32, name: "gcom", field: "gcom", sortable: true, cssClass: "numeric", formatter: formatGold },

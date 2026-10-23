@@ -2,6 +2,7 @@
 // Filter keys and option values mirror upstream index.html so the ported searchFilter()s work as-is.
 import type { LucideIcon } from 'lucide-react';
 import { Crown, Flag, Gem, MapPin, ScrollText, Shield, Sparkles, Swords, Tent, Users, Coins } from 'lucide-react';
+import { nationFlagUrl } from './data/nationFlags';
 import { ERA_FILTER_OPTIONS, TERRAIN_FILTER_OPTIONS } from './data/extensions/independentsPage';
 import { KIND_OPTIONS, REWARD_OPTIONS, ROLE_OPTIONS, TRIGGER_OPTIONS, storylineOptions, type ChipOption } from './data/extensions/eventsGrid';
 
@@ -376,6 +377,7 @@ export const PAGES: PageDef[] = [
     icon: Flag,
     module: 'Nations',
     refKind: 'nation',
+    thumb: (o) => nationFlagUrl(o.id) ?? undefined,
     group: 'main',
     filters: [
       {

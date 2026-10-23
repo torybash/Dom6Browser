@@ -8,6 +8,7 @@ import { useView, type Filters, type PropertyFilter } from '../state/view';
 import { tableApi } from './ResultsTable';
 import { UNIT_DERIVED, formatRange } from '../data/extensions/derived';
 import { EventEligibility } from './EventEligibility';
+import { NationFlag } from './nationFlag';
 
 interface Props {
   page: PageDef;
@@ -456,7 +457,10 @@ function NationPicker({ DMI, value, onChange }: { DMI: DMI; value: string; onCha
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <button className="input flex items-center justify-between text-left" aria-haspopup="listbox">
-          <span className={'truncate ' + (value ? '' : 'text-muted')}>{nationLabel(DMI, value)}</span>
+          <span className={'truncate ' + (value ? '' : 'text-muted')}>
+            <NationFlag id={value} />
+            {nationLabel(DMI, value)}
+          </span>
           <ChevronDown size={14} className="shrink-0 text-muted" />
         </button>
       </Popover.Trigger>
@@ -502,7 +506,10 @@ function NationPicker({ DMI, value, onChange }: { DMI: DMI; value: string; onCha
                     onClick={() => choose(it.value)}
                   >
                     <span className="w-3.5 shrink-0">{value === it.value && <Check size={14} className="text-accent" />}</span>
-                    <span className="truncate">{it.label}</span>
+                    <span className="truncate">
+                      <NationFlag id={it.value} />
+                      {it.label}
+                    </span>
                   </button>
                 </div>
               );

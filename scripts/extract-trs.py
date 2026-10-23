@@ -4,6 +4,7 @@
 Usage:
     python -I extract-trs.py OUT_DIR ARCHIVE.trs [ARCHIVE.trs ...] [--sheet]
     python -I extract-trs.py --unit-icons GAME_DATA_DIR OUT_DIR
+    python -I extract-trs.py --nation-flags GAME_DATA_DIR OUT_DIR
 
 The first form writes ``OUT_DIR/<archive>/<archive>_<index>.png`` for every
 image. With ``--sheet`` it also writes ``OUT_DIR/<archive>_sheet.png``, a labeled
@@ -12,6 +13,12 @@ contact sheet (index under each image, mid-gray background).
 The second form writes the named unit-card icons listed in UNIT_ICONS (this is
 how public/gameicons/ is produced), e.g.
     python -I scripts/extract-trs.py --unit-icons ".../Dominions6/data" public/gameicons
+
+The third form writes OUT_DIR/<nation id>.png, the nation emblems drawn on
+in-game flags, cropped to their content (public/gameicons/flags/). flag.trs
+holds banner parts at 0-504 and the emblem of nation N at 500 + N; unused
+nation slots use one of two placeholder images (as at nation_35 and nation_45),
+which are skipped.
 
 Requires Pillow. Game assets are copyrighted by Illwinter Game Design.
 
@@ -40,7 +47,12 @@ RGB888 (3 bytes). There is no partial alpha: every pixel is either opaque or
 transparent (runs not covered are transparent). Rows are not delimited; runs
 simply continue across row ends.
 
-This decodes misc.trs, misc2.trs, res.trs and blast.trs. item.trs, sites.trs,
+Version 3 (u16 at offset 6 is 3, e.g. flag.trs) keeps the 12-byte entries but
+the offset is a u32 at entry bytes 4-8 (followed by 4 zero bytes) and each
+block is raw, uncompressed big-endian RGB565, w*h*2 bytes, with pure black
+(0x0000) and pure magenta (0xF81F) as transparent color keys.
+
+This decodes misc.trs, misc2.trs, res.trs, blast.trs and flag.trs. item.trs, sites.trs,
 build.trs, tree.trs and mapstuff.trs use a different (undecoded) variant.
 Other useful ranges: res.trs 396-400 leadership banners with 0-4 stars,
 401-410 magic paths F A W E S D N G B H; most of res.trs is ability icons.
@@ -105,6 +117,8 @@ def read_val(b, p):
 
 
 def decode_block(b, w, h, flags):
+    if flags & 0x100:  # version 3 archive (pseudo flag set by read_archive)
+        return decode_raw565(b, w, h), len(b) >= w * h * 2
     bpp = 3 if flags & 4 else 2
     runs = struct.unpack('>I', b[:4])[0] if not flags & 4 else 1
     p = 4
@@ -135,16 +149,29 @@ def decode_block(b, w, h, flags):
     return img, p == len(b)
 
 
+def decode_raw565(b, w, h):
+    img = Image.new('RGBA', (w, h))
+    px = []
+    for (v,) in struct.iter_unpack('>H', b[:w * h * 2]):
+        if v in (0, 0xF81F):
+            px.append((0, 0, 0, 0))
+            continue
+        r, g, bl = (v >> 11) & 31, (v >> 5) & 63, v & 31
+        px.append(((r << 3) | (r >> 2), (g << 2) | (g >> 4), (bl << 3) | (bl >> 2), 255))
+    img.putdata(px)
+    return img
+
+
 def read_archive(path):
     d = open(path, 'rb').read()
     if d[:4] != b'TCSF':
         raise ValueError('not a TCSF archive: ' + path)
-    n = struct.unpack('>H', d[4:6])[0]
+    n, version = struct.unpack('>HH', d[4:8])
     ents = []
     for i in range(n):
         e = d[12 + i * 12:24 + i * 12]
-        ents.append((e[0] or 256, e[1] or 256, struct.unpack('>H', e[2:4])[0],
-                     struct.unpack('>Q', e[4:])[0]))
+        off = struct.unpack('>I', e[4:8])[0] if version == 3 else struct.unpack('>Q', e[4:])[0]
+        ents.append((e[0] or 256, e[1] or 256, struct.unpack('>H', e[2:4])[0] | (0x100 if version == 3 else 0), off))
     offs = [e[3] for e in ents] + [len(d)]
     for i, (w, h, fl, off) in enumerate(ents):
         yield i, w, h, fl, d[off:offs[i + 1]]
@@ -185,9 +212,36 @@ def extract_unit_icons(data_dir, out):
     print('%d icons written to %s' % (len(UNIT_ICONS), out))
 
 
+def extract_nation_flags(data_dir, out, size=40):
+    os.makedirs(out, exist_ok=True)
+    blocks = {i: (w, h, fl, blk) for i, w, h, fl, blk in read_archive(os.path.join(data_dir, 'flag.trs'))}
+    placeholders = {blocks[535][3], blocks[545][3]}
+    count = 0
+    for i, (w, h, fl, blk) in sorted(blocks.items()):
+        if i < 505 or blk in placeholders:
+            continue
+        im = decode_block(blk, w, h, fl)[0]
+        box = im.getbbox()
+        if not box:
+            continue
+        im = im.crop(box)
+        side = max(im.size)
+        sq = Image.new('RGBA', (side, side), (0, 0, 0, 0))
+        sq.paste(im, ((side - im.width) // 2, (side - im.height) // 2))
+        if side > size:
+            sq = sq.resize((size, size), Image.LANCZOS)
+        sq = sq.quantize(64, method=Image.FASTOCTREE)
+        sq.save(os.path.join(out, '%d.png' % (i - 500)), optimize=True)
+        count += 1
+    print('%d nation flags written to %s' % (count, out))
+
+
 def main(argv):
     if argv[:1] == ['--unit-icons'] and len(argv) == 3:
         extract_unit_icons(argv[1], argv[2])
+        return 0
+    if argv[:1] == ['--nation-flags'] and len(argv) == 3:
+        extract_nation_flags(argv[1], argv[2])
         return 0
     sheet = '--sheet' in argv
     args = [a for a in argv if a != '--sheet']

@@ -1,6 +1,7 @@
 // New in this app: a Nations page. Upstream had no nation list and its nation pane only showed the
 // name and capital gems; the recruitment data computed by MNation.prepareData_PostMod is shown here.
 import type { DMI } from '../load';
+import { nationFlagHtml } from '../nationFlags';
 
 const SECTIONS: [string, string][] = [
   ['pretenders', 'Pretenders'],
@@ -48,7 +49,7 @@ export function installNationExtensions(DMI: DMI) {
     body ? `<div class="nation-section"><h4>${title}</h4><div class="refs">${body}</div></div>` : '';
 
   const render = (o: any) => {
-    let h = upstreamRender(o);
+    let h = upstreamRender(o).replace('<div class="h2replace">', `<div class="h2replace">${nationFlagHtml(o.id)}`);
     let extra = '<div class="overlay-main nation-extra">';
     extra += `<p class="firstline">${o.epithet ? o.epithet + ' · ' : ''}${modctx_era(o)}</p>`;
     extra += section('Capital sites', refList(o.sites || [], (id) => Utils.siteRef(id)));

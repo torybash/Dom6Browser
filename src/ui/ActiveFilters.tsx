@@ -4,6 +4,7 @@ import type { DMI } from '../data/load';
 import { useSettings } from '../state/settings';
 import { useView, type Filters } from '../state/view';
 import { nationLabel } from './FilterPanel';
+import { NationFlag } from './nationFlag';
 import { UNIT_DERIVED, parseRange } from '../data/extensions/derived';
 
 interface Chip {
@@ -16,7 +17,8 @@ export function activeChips(page: PageDef, f: Filters, DMI: DMI, o: { advanced: 
   const chips: Chip[] = [];
   if (f.str) chips.push({ id: 'str', label: <>“{f.str}”</>, clear: { str: '' } });
   for (const d of page.filters) {
-    if (d.type === 'nation' && f[d.key]) chips.push({ id: d.key, label: nationLabel(DMI, f[d.key]), clear: { [d.key]: '' } });
+    if (d.type === 'nation' && f[d.key])
+      chips.push({ id: d.key, label: <><NationFlag id={f[d.key]} />{nationLabel(DMI, f[d.key])}</>, clear: { [d.key]: '' } });
     if (d.type === 'select' && f[d.key]) {
       const opt = d.options.find((x) => x.value === f[d.key]);
       chips.push({ id: d.key, label: `${d.label}: ${opt?.label ?? f[d.key]}`, clear: { [d.key]: '' } });

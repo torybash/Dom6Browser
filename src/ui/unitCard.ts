@@ -1,7 +1,7 @@
 // Restyles the upstream unit pane into a card modelled on the in-game unit window:
-//   three icon+label+value stat columns with the sprite on the right, a row of item slot boxes,
-//   a row of magic path and ability icons, weapons and armor side by side on a parchment strip,
-//   then any remaining abilities and the description.
+//   the sprite next to the name in the header (like item cards), three icon+label+value stat columns,
+//   a row of item slot boxes, a row of magic path and ability icons, weapons and armor side by side
+//   on a parchment strip, then any remaining abilities and the description (folded away).
 // Only layout changes: all upstream content (links, tooltips, advanced-mode classes) is kept, and
 // abilities without an icon stay as regular text rows.
 import {
@@ -196,6 +196,8 @@ export function enhanceUnitCard(main: HTMLElement) {
     const key = rowKey(tr);
     col = STAT_COLUMN[key] ?? col;
     const row = el('div', 'ustat' + (tr.classList.contains('hidden-row') ? ' hidden-row' : ''));
+    // long values ("22 (50)") take two cells of the dense grid used when stat names are hidden
+    if ((td.textContent ?? '').trim().length > 4) row.classList.add('ustat-wide');
     row.dataset.key = key;
     const title = tr.getAttribute('title');
     if (title) row.title = title.trim();
@@ -213,7 +215,9 @@ export function enhanceUnitCard(main: HTMLElement) {
   const sprites = Array.from(main.querySelectorAll<HTMLImageElement>(':scope > img.unit-sprite'));
   const spriteBox = el('div', 'usprite');
   sprites.forEach((img) => spriteBox.appendChild(img));
-  top.appendChild(spriteBox);
+  const header = main.parentElement?.querySelector(':scope > .overlay-header');
+  if (header) header.prepend(spriteBox);
+  else top.appendChild(spriteBox);
   card.appendChild(top);
   statTable.remove();
 
@@ -306,9 +310,23 @@ export function enhanceUnitCard(main: HTMLElement) {
   }
 
   main.prepend(card);
+  foldDescription(main.parentElement?.querySelector<HTMLElement>(':scope > .overlay-footer .overlay-descr'));
 
   // drop rows/tables emptied by the moves above
   main.querySelectorAll('table.overlay-table').forEach((t) => {
     if (!t.closest('.ucard') && !t.querySelector('tr td, tr th')) t.remove();
   });
+}
+
+/** Open state of the description foldout, kept while browsing from unit to unit. */
+let descrOpen = false;
+
+/** Wraps the flavor text in a collapsed foldout. The element keeps its class, so the async description load still finds it. */
+function foldDescription(descr: HTMLElement | null | undefined) {
+  if (!descr || descr.closest('details')) return;
+  const fold = el('details', 'descr-fold', '<summary>Description</summary>') as HTMLDetailsElement;
+  fold.open = descrOpen;
+  fold.addEventListener('toggle', () => (descrOpen = fold.open));
+  descr.replaceWith(fold);
+  fold.appendChild(descr);
 }

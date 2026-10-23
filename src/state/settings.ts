@@ -21,6 +21,8 @@ export interface Settings {
   hoverPreviews: boolean;
   /** formula and source lines under calculated values in stat tooltips */
   showFormulas: boolean;
+  /** stat names on unit cards; off shows only icon + value in a tighter grid */
+  unitStatLabels: boolean;
   set: (patch: Partial<Omit<Settings, 'set'>>) => void;
 }
 
@@ -38,6 +40,7 @@ export const useSettings = create<Settings>()(
       thumbnails: true,
       hoverPreviews: true,
       showFormulas: false,
+      unitStatLabels: true,
       set: (patch) => set(patch),
     }),
     { name: 'dom6browser:settings', version: 1 },

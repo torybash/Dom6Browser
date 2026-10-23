@@ -246,6 +246,7 @@ button {
      .opt-moreinfo  -> .modding-*  (modder info)
      .opt-keys      -> .internal-* (database keys)
      .opt-nodescr   -> hides descriptions
+     .opt-nostatlabels -> unit card stats as icon + value only
 ------------------------------------------------------------------------------------------- */
 .legacy {
   @apply text-[13px] leading-snug text-fg;
@@ -440,22 +441,22 @@ button {
   box-shadow: inset 0 0 0 1px #a88d5f, 0 1px 2px rgb(0 0 0 / 0.25);
 }
 .legacy .ucard {
-  @apply mb-3 rounded-lg p-2.5;
+  @apply mb-3 rounded-lg px-2.5 py-1.5;
   background: rgb(var(--stat-bg) / 0.55);
   border: 1px solid rgb(var(--line));
   box-shadow: inset 0 0 0 1px rgb(var(--panel) / 0.6);
 }
 .legacy .ucard-top {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 1.1rem;
-  align-items: center;
+  align-items: start;
 }
 .legacy .ucol {
   min-width: 0;
 }
 .legacy .ustat {
-  @apply flex h-[1.6rem] items-center gap-1.5 text-[13px];
+  @apply flex h-[1.4rem] items-center gap-1.5 text-[13px];
 }
 .legacy .ustat .uicon {
   font-size: 15px;
@@ -474,7 +475,7 @@ button {
   cursor: help;
 }
 .legacy .ustat[title] .stat-value,
-.legacy .ustat[data-tip] .stat-value {
+.legacy .ustat[data-tip]:not(.tip-label-only) .stat-value {
   text-decoration: underline dotted rgb(var(--fg) / 0.35);
   text-underline-offset: 3px;
 }
@@ -515,20 +516,23 @@ button {
   width: 100%;
   filter: none;
 }
+/* the sprite sits in the header next to the name, like the item image on item cards */
 .legacy .usprite {
-  @apply flex min-w-[4.5rem] flex-col items-center justify-center gap-2 self-stretch rounded-md px-2;
-  background: radial-gradient(ellipse at center 60%, rgb(var(--panel)) 0%, transparent 70%);
+  @apply float-right ml-3 flex items-end gap-1;
 }
 .legacy .usprite img.unit-sprite {
   float: none;
   margin: 0;
   cursor: pointer;
   image-rendering: pixelated;
-  max-width: 160px;
+  max-width: 128px;
+  max-height: 96px;
+  object-fit: contain;
+  object-position: bottom;
   background: none;
 }
 .legacy .uslots {
-  @apply mt-2 flex flex-wrap gap-1 border-t border-line/60 pt-2;
+  @apply mt-1.5 flex flex-wrap gap-1 border-t border-line/60 pt-1.5;
 }
 .legacy .uslot {
   @apply flex h-7 w-7 items-center justify-center rounded text-[15px] text-muted;
@@ -536,7 +540,7 @@ button {
   box-shadow: inset 0 0 0 1px rgb(var(--line)), inset 0 1px 3px rgb(0 0 0 / 0.25);
 }
 .legacy .uicons {
-  @apply mt-2 flex flex-wrap items-center gap-1 text-[12.5px];
+  @apply mt-1.5 flex flex-wrap items-center gap-1 text-[12.5px];
 }
 .legacy .upaths {
   @apply mr-1 inline-flex items-center gap-0.5 font-semibold tabular-nums;
@@ -563,7 +567,7 @@ button {
   font-weight: normal;
 }
 .legacy .uequip {
-  @apply mt-2.5 flex flex-wrap items-start gap-x-6 gap-y-1 rounded-md px-2.5 py-1.5;
+  @apply mt-2 flex flex-wrap items-start gap-x-6 gap-y-1 rounded-md px-2.5 py-1.5;
   color: #2b2218;
   background: linear-gradient(180deg, #ecdfc2 0%, #dccaa5 100%);
   box-shadow: inset 0 0 0 1px #b39a6c, 0 1px 2px rgb(0 0 0 / 0.25);
@@ -591,17 +595,48 @@ button {
   .legacy .ucard-top {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .legacy .usprite {
-    grid-column: 1 / -1;
-    order: -1;
-    flex-direction: row;
-    padding: 0.25rem 0 0.5rem;
-  }
 }
 @container (max-width: 330px) {
   .legacy .ucard-top {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* stat names hidden: icon + value in a dense grid (the name stays in the tooltip) */
+.opt-nostatlabels .legacy .ucard .ustat-label {
+  display: none;
+}
+.opt-nostatlabels .legacy .ucard-top {
+  grid-template-columns: repeat(auto-fill, minmax(4.25rem, 1fr));
+  column-gap: 0.5rem;
+}
+.opt-nostatlabels .legacy .ucol {
+  display: contents;
+}
+.opt-nostatlabels .legacy .ucard .ustat .stat-value {
+  @apply truncate text-left;
+  flex-shrink: 1;
+}
+.opt-nostatlabels .legacy .ucard .ustat-wide {
+  grid-column: span 2;
+}
+
+/* unit description folded away (ui/unitCard.ts) */
+.legacy details.descr-fold {
+  @apply mt-2;
+}
+.legacy details.descr-fold > summary {
+  @apply cursor-pointer select-none text-xs text-muted;
+}
+.legacy details.descr-fold > summary:hover {
+  @apply text-fg;
+}
+.legacy details.descr-fold > .overlay-descr {
+  @apply mt-1;
+}
+.opt-nodescr .legacy details.descr-fold,
+.legacy details.descr-fold:has(> .overlay-descr:empty) {
+  display: none;
 }
 
 /* flags as chips */

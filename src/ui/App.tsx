@@ -81,8 +81,9 @@ function useRootClasses() {
     c.toggle('opt-keys', s.showKeys);
     c.toggle('opt-nodescr', s.hideDescriptions);
     c.toggle('opt-formulas', s.showFormulas);
+    c.toggle('opt-nostatlabels', !s.unitStatLabels);
     document.documentElement.style.setProperty('--font-scale', String(s.textScale));
-  }, [s.theme, systemDark, s.advanced, s.moreInfo, s.showKeys, s.hideDescriptions, s.showFormulas, s.textScale]);
+  }, [s.theme, systemDark, s.advanced, s.moreInfo, s.showKeys, s.hideDescriptions, s.showFormulas, s.unitStatLabels, s.textScale]);
 }
 
 export function App() {

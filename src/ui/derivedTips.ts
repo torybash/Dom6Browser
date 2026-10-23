@@ -29,7 +29,8 @@ export function attachStatTips(root: HTMLElement) {
       const key = row.dataset.key;
       const derived = key ? calc.filter((c) => c.dataset.stat === key) : [];
       const title = row.getAttribute('title')?.trim() ?? '';
-      if (!title && !derived.length) return;
+      // without a description the tip just names the stat (needed when unit card stat names are hidden)
+      if (!title && !derived.length) row.classList.add('tip-label-only');
       let html = `<div class="tip-head">${escapeHtml(labelText(row))}</div>`;
       if (title) html += `<div class="tip-text">${escapeHtml(title).replace(/\r?\n/g, '<br>')}</div>`;
       if (derived.length) html += derivedHtml(derived);

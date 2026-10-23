@@ -110,6 +110,9 @@ function SettingsMenu() {
           <Dropdown.CheckboxItem className={item} checked={s.hideDescriptions} onCheckedChange={(v) => s.set({ hideDescriptions: v })} onSelect={(e) => e.preventDefault()}>
             {check(s.hideDescriptions)} Hide in-game descriptions
           </Dropdown.CheckboxItem>
+          <Dropdown.CheckboxItem className={item} checked={s.showFormulas} onCheckedChange={(v) => s.set({ showFormulas: v })} onSelect={(e) => e.preventDefault()}>
+            {check(s.showFormulas)} Explain calculated values in tooltips
+          </Dropdown.CheckboxItem>
 
           <Dropdown.Separator className="my-1.5 h-px bg-line" />
           <Dropdown.Label className="section-label px-2 pb-1">Advanced</Dropdown.Label>

@@ -19,6 +19,8 @@ export interface Settings {
   textScale: number;
   thumbnails: boolean;
   hoverPreviews: boolean;
+  /** formula and source lines under calculated values in stat tooltips */
+  showFormulas: boolean;
   set: (patch: Partial<Omit<Settings, 'set'>>) => void;
 }
 
@@ -35,6 +37,7 @@ export const useSettings = create<Settings>()(
       textScale: 1,
       thumbnails: true,
       hoverPreviews: true,
+      showFormulas: false,
       set: (patch) => set(patch),
     }),
     { name: 'dom6browser:settings', version: 1 },

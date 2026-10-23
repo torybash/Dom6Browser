@@ -80,8 +80,9 @@ function useRootClasses() {
     c.toggle('opt-moreinfo', s.moreInfo);
     c.toggle('opt-keys', s.showKeys);
     c.toggle('opt-nodescr', s.hideDescriptions);
+    c.toggle('opt-formulas', s.showFormulas);
     document.documentElement.style.setProperty('--font-scale', String(s.textScale));
-  }, [s.theme, systemDark, s.advanced, s.moreInfo, s.showKeys, s.hideDescriptions, s.textScale]);
+  }, [s.theme, systemDark, s.advanced, s.moreInfo, s.showKeys, s.hideDescriptions, s.showFormulas, s.textScale]);
 }
 
 export function App() {

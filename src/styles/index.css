@@ -991,3 +991,8 @@ button {
   font-style: italic;
   color: #857d6c;
 }
+/* formula/source lines are opt-in (settings: "Explain calculated values in tooltips") */
+:root:not(.opt-formulas) .stat-tip .tip-formula,
+:root:not(.opt-formulas) .stat-tip .tip-source {
+  display: none;
+}

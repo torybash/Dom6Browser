@@ -5,6 +5,7 @@ import { useSettings } from '../state/settings';
 import { useView, type Filters } from '../state/view';
 import { nationLabel } from './FilterPanel';
 import { NationFlag } from './nationFlag';
+import { PATH_ORDER, isCasterSet } from '../data/extensions/casterLevels';
 import { UNIT_DERIVED, parseRange } from '../data/extensions/derived';
 
 interface Chip {
@@ -45,22 +46,25 @@ export function activeChips(page: PageDef, f: Filters, DMI: DMI, o: { advanced: 
         clear: { [d.key]: '', ...(d.inclusiveKey ? { [d.inclusiveKey]: false } : {}) },
       });
     }
-    if (d.type === 'pathLevels' && f[d.key]) {
+    if (d.type === 'pathLevels' && isCasterSet(f[d.key])) {
       const lv = f[d.key] as Record<string, number>;
       chips.push({
         id: d.key,
         label: (
           <span className="inline-flex items-center gap-1">
-            ≤
-            {Object.entries(lv).map(([p, n]) => (
-              <span key={p} className="inline-flex items-center">
-                <span className={`pathicon Path_${p}`}>{p}</span>
-                {n}
-              </span>
-            ))}
+            {d.label}:
+            {PATH_ORDER.split('')
+              .filter((p) => lv[p] > 0)
+              .map((p) => (
+                <span key={p} className="inline-flex items-center font-semibold tabular-nums">
+                  <span className={`pathicon Path_${p}`}>{p}</span>
+                  {lv[p]}
+                </span>
+              ))}
+            {f[d.boostKey] ? <span className="text-muted">(+{f[d.boostKey]} boost)</span> : null}
           </span>
         ),
-        clear: { [d.key]: '' },
+        clear: { [d.key]: '', [d.boostKey]: '' },
       });
     }
     if (d.type === 'number' && o.moreInfo && f[d.key]) chips.push({ id: d.key, label: `${d.label} ${f[d.key]}`, clear: { [d.key]: '' } });

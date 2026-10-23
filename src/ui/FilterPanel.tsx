@@ -1,5 +1,5 @@
 import * as Popover from '@radix-ui/react-popover';
-import { Check, ChevronDown, Minus, Plus, RotateCcw, Search, X } from 'lucide-react';
+import { Check, ChevronDown, Plus, RotateCcw, Search, X } from 'lucide-react';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { FilterDef, PageDef } from '../pages';
 import type { DMI } from '../data/load';
@@ -9,6 +9,7 @@ import { tableApi } from './ResultsTable';
 import { UNIT_DERIVED, formatRange } from '../data/extensions/derived';
 import { EventEligibility } from './EventEligibility';
 import { NationFlag } from './nationFlag';
+import { isCasterSet } from '../data/extensions/casterLevels';
 
 interface Props {
   page: PageDef;
@@ -279,46 +280,85 @@ function FilterControl({ def, filters, DMI, setFilter, patch }: ControlProps) {
     }
     case 'pathLevels': {
       const lv: Record<string, number> = filters[def.key] ?? {};
-      const active = Object.values(lv).some((n) => n !== 9);
-      const setLv = (p: string, n: number) => {
-        const next = { ...lv, [p]: Math.max(0, Math.min(9, n)) };
-        if (next[p] === 9) delete next[p];
-        setFilter(def.key, Object.keys(next).length ? next : '');
-      };
+      const active = isCasterSet(lv);
       return (
-        <Section label={def.label} active={active} onReset={() => setFilter(def.key, '')} hint="hide entries needing a higher level than this in a path">
-          <div className="grid grid-cols-5 gap-1">
-            {def.paths.split('').map((p) => {
-              const n = lv[p] ?? 9;
-              return (
-                <div key={p} className={'flex flex-col items-center rounded-md border py-1 ' + (n !== 9 ? 'border-accent/70 bg-accent/10' : 'border-line bg-raised')} title={`${PATH_NAMES[p]} ≤ ${n}`}>
-                  <span className={`pathicon Path_${p} !h-4 !w-4`}>{p}</span>
-                  <div className="mt-0.5 flex items-center">
-                    <button className="px-0.5 text-muted hover:text-fg" onClick={() => setLv(p, n - 1)} aria-label={`Lower ${PATH_NAMES[p]}`}>
-                      <Minus size={11} />
-                    </button>
-                    <span className="w-3 text-center text-xs font-semibold tabular-nums">{n}</span>
-                    <button className="px-0.5 text-muted hover:text-fg" onClick={() => setLv(p, n + 1)} aria-label={`Raise ${PATH_NAMES[p]}`}>
-                      <Plus size={11} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <button
-            className="mt-1.5 text-xs text-muted underline-offset-2 hover:text-fg hover:underline"
-            onClick={() => setFilter(def.key, Object.fromEntries(def.paths.split('').map((p) => [p, 0])))}
-            title="set every path to 0, then raise the ones you have"
-          >
-            Set all to 0
-          </button>
+        <Section
+          label={def.label}
+          active={active || !!filters[def.boostKey]}
+          onReset={() => patch({ [def.key]: '', [def.boostKey]: '' })}
+          hint="the path levels your mage has; every other path counts as 0. Shows only what that mage can cast / forge"
+        >
+          <CasterPips paths={def.paths} value={lv} onChange={(v) => setFilter(def.key, isCasterSet(v) ? v : '')} />
+          {active && (
+            <div className="mt-2 flex items-center gap-2" title="also show entries the mage could reach with this many extra levels from boosters (shown dimmed)">
+              <span className="shrink-0 text-xs text-muted">Boost</span>
+              <Segmented
+                value={String(filters[def.boostKey] ?? '')}
+                options={[
+                  { value: '', label: '+0' },
+                  { value: '1', label: '+1' },
+                  { value: '2', label: '+2' },
+                ]}
+                onChange={(v) => setFilter(def.boostKey, v)}
+              />
+            </div>
+          )}
         </Section>
       );
     }
     default:
       return null;
   }
+}
+
+const PIPS = 9;
+
+/** One row of pips per path: clicking pip n sets that path to n, clicking the current top pip clears it. */
+function CasterPips({ paths, value, onChange }: { paths: string; value: Record<string, number>; onChange: (v: Record<string, number>) => void }) {
+  const [hover, setHover] = useState<[string, number] | null>(null);
+  const set = (p: string, n: number) => {
+    const next = { ...value };
+    if (n > 0) next[p] = n;
+    else delete next[p];
+    onChange(next);
+  };
+  return (
+    <div className="flex flex-col gap-px" onMouseLeave={() => setHover(null)}>
+      {paths.split('').map((p) => {
+        const n = value[p] ?? 0;
+        const shown = hover?.[0] === p ? hover[1] : n;
+        return (
+          <div key={p} className="flex h-5 items-center gap-1.5" role="radiogroup" aria-label={PATH_NAMES[p]}>
+            <span className={`pathicon Path_${p} !h-4 !w-4 shrink-0 ${n ? '' : 'opacity-50'}`} title={PATH_NAMES[p]}>
+              {p}
+            </span>
+            <div className="flex items-center">
+              {Array.from({ length: PIPS }, (_, i) => i + 1).map((k) => (
+                <button
+                  key={k}
+                  role="radio"
+                  aria-checked={n === k}
+                  aria-label={`${PATH_NAMES[p]} ${k}`}
+                  title={n === k ? `Clear ${PATH_NAMES[p]}` : `${PATH_NAMES[p]} ${k}`}
+                  className={'group flex h-5 items-center px-[2px] ' + (k === 6 ? 'ml-1' : '')}
+                  onMouseEnter={() => setHover([p, k])}
+                  onClick={() => set(p, n === k ? 0 : k)}
+                >
+                  <span
+                    className={
+                      'block h-2.5 w-2.5 rounded-full border transition-colors ' +
+                      (k <= shown ? (hover?.[0] === p && k > n ? 'border-accent bg-accent/40' : 'border-accent bg-accent') : 'border-line bg-raised group-hover:border-muted')
+                    }
+                  />
+                </button>
+              ))}
+            </div>
+            <span className={'w-3 text-xs font-semibold tabular-nums ' + (n ? 'text-fg' : 'text-transparent')}>{n || 0}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export const PATH_NAMES: Record<string, string> = {

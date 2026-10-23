@@ -19,7 +19,7 @@ export type FilterDef =
   | { type: 'nation'; key: string }
   | { type: 'select'; key: string; label: string; options: SelectOption[] }
   | { type: 'paths'; key: string; paths: string; icon: 'Path' | 'Gem'; label: string; inclusiveKey?: string }
-  | { type: 'pathLevels'; key: string; paths: string; label: string }
+  | { type: 'pathLevels'; key: string; paths: string; label: string; boostKey: string }
   | { type: 'scope'; nationalKey: string; genericKey: string }
   | { type: 'number'; key: string; label: string; title: string; mask?: boolean; moreInfo?: boolean }
   /** min/max ranges for calculated unit values (src/data/extensions/derived) */
@@ -169,7 +169,7 @@ export const PAGES: PageDef[] = [
       },
       { type: 'scope', nationalKey: 'national', genericKey: 'generic' },
       { type: 'paths', key: 'mpaths', paths: ALL_PATHS, icon: 'Path', label: 'Paths', inclusiveKey: 'inclusive' },
-      { type: 'pathLevels', key: 'mlevels', paths: ALL_PATHS, label: 'Max path level' },
+      { type: 'pathLevels', key: 'mlevels', paths: ALL_PATHS, label: 'Caster', boostKey: 'mboost' },
       { type: 'number', key: 'effect', label: 'Effect no', title: 'find spells that use a specific effect', moreInfo: true },
       { type: 'number', key: 'effect_mask', label: 'Damage mask', title: 'match masks on damage (use effect no 10 / 11 / 23). Numpad +/- doubles/halves', mask: true, moreInfo: true },
       { type: 'number', key: 'special_mask', label: 'Spec mask', title: 'match masks on special. Numpad +/- doubles/halves', mask: true, moreInfo: true },
@@ -223,7 +223,7 @@ export const PAGES: PageDef[] = [
       },
       { type: 'scope', nationalKey: 'national', genericKey: 'generic' },
       { type: 'paths', key: 'mpaths', paths: 'FAWESDNGB', icon: 'Path', label: 'Paths', inclusiveKey: 'inclusive' },
-      { type: 'pathLevels', key: 'mlevels', paths: ALL_PATHS, label: 'Max path level' },
+      { type: 'pathLevels', key: 'mlevels', paths: 'FAWESDNGB', label: 'Caster', boostKey: 'mboost' },
     ],
     thumb: (o) => o.sprite,
   },

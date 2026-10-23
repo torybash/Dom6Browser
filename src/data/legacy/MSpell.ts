@@ -2,6 +2,7 @@
 // Ported from larzm42/dom6inspector scripts/DMI/MSpell.js (GPLv3).
 // Mechanical port: logic kept as close to upstream as possible; jQuery/DOM/SlickGrid removed.
 import { $ } from './jq';
+import { isCasterSet, shortfall } from '../extensions/casterLevels';
 import { bitfields } from './bits';
 
 export function install(DMI: any) {
@@ -676,7 +677,9 @@ MSpell.grid = {
 			aquatic: f.aquatic || '',
 			summons: f.summons || '',
 
-			mlevels: Utils.merge({F:9,A:9,W:9,E:9,S:9,D:9,N:9,G:9,B:9,H:9}, f.mlevels || {}),
+			//caster levels (unlisted paths count as 0), plus how many missing levels boosters may cover
+			mlevels: isCasterSet(f.mlevels) ? f.mlevels : undefined,
+			mboost: parseInt(f.mboost) || 0,
 			mpaths: f.mpaths || ''
 		};
 
@@ -781,12 +784,8 @@ MSpell.grid = {
 			return false;
 
 		//magic levels
-		if (args.mlevels) {
-			if(args.mlevels[o.path1] < o.pathlevel1)
-				return false;
-			if(o.path2 && args.mlevels[o.path2] < o.pathlevel2)
-				return false;
-		}
+		if (args.mlevels && shortfall(o, args.mlevels) > args.mboost)
+			return false;
 
 		//magic paths
 		if (args.mpaths) {

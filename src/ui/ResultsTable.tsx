@@ -7,6 +7,8 @@ import { refFor, type GridColumn, type Results } from '../state/results';
 import { useSettings } from '../state/settings';
 import { useView } from '../state/view';
 import { usePreview } from './HoverPreview';
+import { PATH_NAMES } from './FilterPanel';
+import { isCasterSet, missingLevels } from '../data/extensions/casterLevels';
 
 const ROW_H = 34;
 
@@ -159,6 +161,14 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const calcCols = useView((s) => s.calcCols[page.id]);
+  // caster filter with a boost: rows that need boosters are dimmed, with what is missing on hover
+  const caster = useView((s) => s.filters[page.id]?.mlevels);
+  const boosted = useView((s) => !!s.filters[page.id]?.mboost) && isCasterSet(caster);
+  const nearMiss = (o: any) => {
+    if (!boosted) return undefined;
+    const m = missingLevels(o, caster);
+    return m.length ? 'Needs boosters: ' + m.map(([p, d]) => `+${d} ${PATH_NAMES[p]}`).join(', ') : undefined;
+  };
   const shownCalc = useMemo(() => shownCalcColumns(calcCols, sort?.col), [calcCols, sort?.col]);
   const [, remeasured] = useReducer((n: number) => n + 1, 0);
   const fits = fitCache.get(DMI)?.get(page.id) ?? NO_FITS;
@@ -344,6 +354,7 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
                 cols={cols}
                 template={template}
                 selected={ref === detailRef}
+                nearMiss={nearMiss(o)}
                 page={page}
                 DMI={DMI}
                 onClick={(e) => {
@@ -434,19 +445,22 @@ interface RowProps {
   cols: ViewColumn[];
   template: string;
   selected: boolean;
+  /** caster filter with boost: why this row needs boosters */
+  nearMiss?: string;
   page: PageDef;
   DMI: DMI;
   onClick: (e: React.MouseEvent) => void;
   onHoverRef: (info: any) => void;
 }
 
-const Row = memo(function Row({ o, index, top, cols, template, selected, page, DMI, onClick, onHoverRef }: RowProps) {
+const Row = memo(function Row({ o, index, top, cols, template, selected, nearMiss, page, DMI, onClick, onHoverRef }: RowProps) {
   return (
     <div
       role="row"
       aria-rowindex={index + 1}
       aria-selected={selected}
-      className="grid-row grid items-center text-[13px]"
+      className={'grid-row grid items-center text-[13px]' + (nearMiss ? ' opacity-50' : '')}
+      title={nearMiss}
       style={{ gridTemplateColumns: template, position: 'absolute', top, left: 0, right: 0, height: ROW_H }}
       onClick={onClick}
       onMouseOver={(e) => {

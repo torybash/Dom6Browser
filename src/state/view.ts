@@ -156,7 +156,7 @@ export function filtersToParams(f: Filters, p: URLSearchParams) {
     if (k === 'str') p.set('q', v);
     else if (k === 'mlevels') {
       const s = PATHS_ORDER.split('')
-        .filter((c) => v[c] !== undefined && Number(v[c]) !== 9)
+        .filter((c) => Number(v[c]) > 0)
         .map((c) => c + v[c])
         .join('');
       if (s) p.set('lv', s);

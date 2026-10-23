@@ -7,6 +7,9 @@ import { withCarries } from '../data/extensions/carries';
 import { withThroneInfo } from '../data/extensions/thrones';
 import { withIndependents } from '../data/extensions/independentsPage';
 import { attachStatTips } from './derivedTips';
+import { renderEventCard } from './eventCard';
+import { eligibilityDetailsHtml } from '../data/extensions/eventEligibility';
+import { useView } from '../state/view';
 
 export interface RenderedPane {
   html: string;
@@ -33,12 +36,18 @@ export function renderRef(DMI: DMI, ref: string, showModCmds: boolean): Rendered
     html =
       r.kind === 'rndmagic'
         ? wrapRandomMagic(DMI.MUnit.renderRandomMagic(r.o), r.o)
-        : withThroneInfo(r.o, withIndependents(DMI, r.o, withCarries(DMI, r.o, withCalculated(DMI, r.o, r.o.renderOverlay(r.o)))));
+        : withThroneInfo(r.o, withIndependents(DMI, r.o, withCarries(DMI, r.o, withCalculated(DMI, r.o, r.kind === 'event' ? withEligibility(DMI, r.o, renderEventCard(DMI, r.o)) : r.o.renderOverlay(r.o)))));
   } catch (e: any) {
     console.error(e);
     html = `<div class="overlay-main"><p class="text-bad">Failed to render ${ref}: ${escapeHtml(String(e?.message ?? e))}</p></div>`;
   }
   return { html, jobs: DMI.takeContentJobs(), kind: r.kind, o: r.o };
+}
+
+/** With a province described in the Events filters, the event card lists which requirements it meets. */
+function withEligibility(DMI: DMI, o: any, html: string): string {
+  const details = eligibilityDetailsHtml(o, useView.getState().filters.event ?? {}, DMI);
+  return details ? html.replace('<div class="overlay-main">', '<div class="overlay-main">' + details) : html;
 }
 
 function wrapRandomMagic(inner: string, o: any) {

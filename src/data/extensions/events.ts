@@ -279,6 +279,7 @@ export function eventTitle(description: string, max = 90): string {
     .replace(/##(\w+)##/g, (_, w) => GOD_WORDS[w.toLowerCase()] ?? w)
     .replace(/\s*\[[^\]]*\]\s*$/, '')
     .replace(/\s+/g, ' ')
+    .replace(/^["'\s]+/, '')
     .trim();
   const sentence = s.match(/^.+?[.!?](?=\s|$)/);
   if (sentence) s = sentence[0];
@@ -424,7 +425,11 @@ export function installEvents(DMI: any) {
       const x = stack.pop()!;
       comp.push(x);
       const e = info.get(x)!;
-      for (const l of [...e.prev, ...e.next]) if (!seen.has(l.id)) (seen.add(l.id), stack.push(l.id));
+      for (const l of [...e.prev, ...e.next]) {
+        if (seen.has(l.id)) continue;
+        seen.add(l.id);
+        stack.push(l.id);
+      }
     }
     comp.sort((a, b) => a - b);
     const starts = comp.filter((x) => !info.get(x)!.prev.length);
@@ -437,6 +442,10 @@ export function installEvents(DMI: any) {
     }
   }
   DMI.eventStorylines = storylines;
+
+  for (const ev of info.values())
+    if (ev.worldFlags.some((f) => f.use === 'needs' || f.use === 'needsnot') && !ev.triggers.includes('worldflag'))
+      ev.triggers.push('worldflag');
 
   for (const [id, ev] of info) Object.defineProperty(byId.get(id), 'ev', { value: ev, enumerable: false, configurable: true });
 }

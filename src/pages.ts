@@ -3,6 +3,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { Crown, Flag, Gem, MapPin, ScrollText, Shield, Sparkles, Swords, Tent, Users, Coins } from 'lucide-react';
 import { ERA_FILTER_OPTIONS, TERRAIN_FILTER_OPTIONS } from './data/extensions/independentsPage';
+import { KIND_OPTIONS, REWARD_OPTIONS, ROLE_OPTIONS, TRIGGER_OPTIONS, storylineOptions, type ChipOption } from './data/extensions/eventsGrid';
 
 export type PageId = 'unit' | 'spell' | 'item' | 'site' | 'merc' | 'event' | 'nation' | 'wpn' | 'armor' | 'independents';
 
@@ -21,7 +22,15 @@ export type FilterDef =
   | { type: 'scope'; nationalKey: string; genericKey: string }
   | { type: 'number'; key: string; label: string; title: string; mask?: boolean; moreInfo?: boolean }
   /** min/max ranges for calculated unit values (src/data/extensions/derived) */
-  | { type: 'calculated' };
+  | { type: 'calculated' }
+  /** one choice from a few, shown as a segmented control ('' = default) */
+  | { type: 'segmented'; key: string; label: string; options: SelectOption[]; hint?: string }
+  /** any number of choices as toggle chips; stored comma-separated in one key */
+  | { type: 'multi'; key: string; label: string; options: ChipOption[]; hint?: string }
+  /** a select whose options come from the loaded data */
+  | { type: 'dataSelect'; key: string; label: string; options: (DMI: any) => SelectOption[]; hint?: string }
+  /** a number range stored as "min~max", or a single number with `single` */
+  | { type: 'range'; key: string; label: string; hint?: string; single?: boolean; placeholder?: string };
 
 export interface PageDef {
   id: PageId;
@@ -330,7 +339,36 @@ export const PAGES: PageDef[] = [
     ],
   },
   { id: 'merc', label: 'Mercenaries', singular: 'Mercenary', icon: Coins, module: 'MMerc', refKind: 'merc', group: 'main', filters: [] },
-  { id: 'event', label: 'Events', singular: 'Event', icon: ScrollText, module: 'MEvent', refKind: 'event', group: 'main', filters: [] },
+  {
+    id: 'event',
+    label: 'Events',
+    singular: 'Event',
+    icon: ScrollText,
+    module: 'MEvent',
+    refKind: 'event',
+    group: 'main',
+    filters: [
+      {
+        type: 'segmented',
+        key: 'story',
+        label: 'Story events setting',
+        hint: 'the game setting: hides events (and whole storylines) that need a higher story event level',
+        options: [
+          { value: 'off', label: 'Off' },
+          { value: 'minor', label: 'Minor' },
+          { value: '', label: 'All' },
+        ],
+      },
+      { type: 'multi', key: 'kind', label: 'Kind', options: KIND_OPTIONS },
+      { type: 'nation', key: 'nation' },
+      { type: 'multi', key: 'trig', label: 'Triggered by (any of)', options: TRIGGER_OPTIONS, hint: 'events with any of these requirements' },
+      { type: 'multi', key: 'rew', label: 'Rewards (any of)', options: REWARD_OPTIONS, hint: 'events with any of these effects' },
+      { type: 'multi', key: 'role', label: 'Storyline role', options: ROLE_OPTIONS },
+      { type: 'dataSelect', key: 'storyline', label: 'Storyline', options: storylineOptions, hint: 'show one storyline’s events' },
+      { type: 'range', key: 'turn', label: 'Can happen by turn', single: true, placeholder: 'turn', hint: 'events whose earliest turn is at or before this and whose latest turn (if any) is not earlier' },
+      { type: 'range', key: 'chance', label: 'Chance %', hint: 'req_rare chance when rolled (events without one count as 100%)' },
+    ],
+  },
   {
     id: 'nation',
     label: 'Nations',

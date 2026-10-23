@@ -151,8 +151,10 @@ DMI.makeSortCmp = function(column, asc, prevSortCmp) {
 	var defaultVal = column.sortCmp == 'text'?'':0;
 	var numeric = column.sortCmp == 'num';
 	var sign = asc ? 1 : -1;
+	//new in this app: columns may compute their sort key (e.g. events read o.ev)
+	var get = column.sortValue || function(o){ return o[field]; };
 	return function (dataRow1, dataRow2) {
-		var value1 = (dataRow1[field] || defaultVal), value2 = (dataRow2[field] || defaultVal);
+		var value1 = (get(dataRow1) || defaultVal), value2 = (get(dataRow2) || defaultVal);
 		if (numeric) {
 			//numeric columns: values may be strings ("40", "5F") or carry suffixes
 			value1 = parseFloat(value1) || 0;

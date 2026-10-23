@@ -7,6 +7,7 @@ import { useSettings } from '../state/settings';
 import { useView, type Filters, type PropertyFilter } from '../state/view';
 import { tableApi } from './ResultsTable';
 import { UNIT_DERIVED, formatRange } from '../data/extensions/derived';
+import { EventEligibility } from './EventEligibility';
 
 interface Props {
   page: PageDef;
@@ -31,6 +32,7 @@ export function FilterPanel({ page, DMI }: Props) {
       {others.map((d) => (
         <FilterControl key={keyOf(d)} def={d} filters={filters} DMI={DMI} setFilter={setFilter} patch={patch} />
       ))}
+      {page.id === 'event' && <EventEligibility values={filters} set={(k, v) => setFilter(k, v ?? '')} DMI={DMI} />}
       {numbers.length > 0 && (
         <Section label="Effect masks" active={numbers.some((d) => d.type === 'number' && filters[d.key])} onReset={() => patch(Object.fromEntries(numbers.map((d) => [(d as any).key, ''])))}>
           <div className="grid grid-cols-3 gap-2">
@@ -163,6 +165,72 @@ function FilterControl({ def, filters, DMI, setFilter, patch }: ControlProps) {
       );
     case 'calculated':
       return <CalculatedRanges filters={filters} patch={patch} />;
+    case 'segmented':
+      return (
+        <Section label={def.label} active={!!filters[def.key]} onReset={() => setFilter(def.key, '')} hint={def.hint}>
+          <Segmented value={filters[def.key] ?? ''} options={def.options} onChange={(v) => setFilter(def.key, v)} />
+        </Section>
+      );
+    case 'multi': {
+      const sel = String(filters[def.key] ?? '').split(',').filter(Boolean);
+      const toggle = (v: string) => {
+        const next = sel.includes(v) ? sel.filter((x) => x !== v) : [...sel, v];
+        // keep the option order so the URL is stable
+        setFilter(def.key, def.options.map((o) => o.value).filter((x) => next.includes(x)).join(','));
+      };
+      return (
+        <Section label={def.label} active={sel.length > 0} onReset={() => setFilter(def.key, '')} hint={def.hint}>
+          <div className="filter-chips">
+            {def.options.map((o) => {
+              const on = sel.includes(o.value);
+              return (
+                <button key={o.value} aria-pressed={on} title={o.title ?? o.label} className={'filter-chip ' + (o.className ?? '') + (on ? ' on' : '')} onClick={() => toggle(o.value)}>
+                  {o.icon && <span className="filter-chip-icon" dangerouslySetInnerHTML={{ __html: o.icon }} />}
+                  <span>{o.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </Section>
+      );
+    }
+    case 'dataSelect':
+      return (
+        <Section label={def.label} active={!!filters[def.key]} onReset={() => setFilter(def.key, '')} hint={def.hint}>
+          <div className="relative">
+            <select className="input appearance-none pr-8" value={filters[def.key] ?? ''} onChange={(e) => setFilter(def.key, e.target.value)}>
+              {def.options(DMI).map((o) => (
+                <option key={o.value} value={o.value} title={o.title}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={14} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted" />
+          </div>
+        </Section>
+      );
+    case 'range': {
+      const clean = (v: string) => v.replace(/[^\d-]/g, '');
+      if (def.single) {
+        const v = String(filters[def.key] ?? '');
+        return (
+          <Section label={def.label} active={!!v} onReset={() => setFilter(def.key, '')} hint={def.hint}>
+            <input className="input w-24 px-2 py-1 tabular-nums" inputMode="numeric" placeholder={def.placeholder} aria-label={def.label} value={v} onChange={(e) => setFilter(def.key, clean(e.target.value))} onKeyDown={(e) => stepNumeric(e, v, (n) => setFilter(def.key, n))} />
+          </Section>
+        );
+      }
+      const [min = '', max = ''] = String(filters[def.key] ?? '').split('~');
+      const set = (lo: string, hi: string) => setFilter(def.key, lo || hi ? `${lo}~${hi}` : '');
+      return (
+        <Section label={def.label} active={!!(min || max)} onReset={() => setFilter(def.key, '')} hint={def.hint}>
+          <div className="flex items-center gap-1.5 text-xs text-muted">
+            <input className="input w-20 px-2 py-1 tabular-nums" inputMode="numeric" placeholder="min" aria-label={`${def.label} minimum`} value={min} onChange={(e) => set(clean(e.target.value), max)} />
+            –
+            <input className="input w-20 px-2 py-1 tabular-nums" inputMode="numeric" placeholder="max" aria-label={`${def.label} maximum`} value={max} onChange={(e) => set(min, clean(e.target.value))} />
+          </div>
+        </Section>
+      );
+    }
     case 'scope': {
       const v = filters[def.nationalKey] ? 'national' : filters[def.genericKey] ? 'generic' : '';
       return (

@@ -20,6 +20,8 @@ export interface GridColumn {
   defaultHidden?: boolean;
   title?: string;
   formatter?: (row: number, cell: number, value: any, col: GridColumn, o: any) => string;
+  /** sort key computed from the row instead of reading `field` */
+  sortValue?: (o: any) => any;
 }
 
 export interface GridSpec {

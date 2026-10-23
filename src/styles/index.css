@@ -1031,3 +1031,349 @@ button {
 :root:not(.opt-formulas) .stat-tip .tip-source {
   display: none;
 }
+
+/* ---- event table ---- */
+.grid-cell .ev-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ev-kind {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 0 6px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 17px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.ev-kind small {
+  font-weight: 400;
+  opacity: 0.8;
+}
+.ev-kind-good { color: rgb(var(--good)); background: rgb(var(--good) / 0.13); border-color: rgb(var(--good) / 0.35); }
+.ev-kind-bad { color: rgb(var(--bad)); background: rgb(var(--bad) / 0.12); border-color: rgb(var(--bad) / 0.35); }
+.ev-kind-always { color: rgb(var(--muted)); background: rgb(var(--muted) / 0.12); border-color: rgb(var(--muted) / 0.3); }
+.ev-kind-global { color: rgb(128 72 182); background: rgb(128 72 182 / 0.12); border-color: rgb(128 72 182 / 0.35); }
+.dark .ev-kind-global { color: rgb(190 150 245); background: rgb(190 150 245 / 0.12); border-color: rgb(190 150 245 / 0.35); }
+.ev-story {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 16px;
+  color: rgb(var(--accent));
+  border: 1px solid rgb(var(--accent) / 0.45);
+}
+.ev-story-2 { background: rgb(var(--accent) / 0.14); font-weight: 600; }
+.ev-story-inh { border-style: dashed; }
+.ev-story sup { margin-left: 1px; font-size: 9px; }
+.ev-sl {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+.ev-sl-glyph { flex-shrink: 0; width: 0.9em; text-align: center; font-size: 10px; color: rgb(var(--accent)); }
+.ev-sl-middle, .ev-sl-end { color: rgb(var(--muted)); }
+.evi-strip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  vertical-align: middle;
+}
+.evi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 4px;
+  font-size: 13px;
+  color: rgb(var(--fg) / 0.75);
+  background: rgb(var(--muted) / 0.12);
+}
+.evi svg { stroke-width: 2.2; }
+.evi-t { color: rgb(var(--muted)); }
+.evi-r-units, .evi-r-commander { color: rgb(var(--good)); background: rgb(var(--good) / 0.12); }
+.evi-r-item, .evi-r-gems, .evi-r-boost { color: rgb(150 90 200); background: rgb(150 90 200 / 0.13); }
+.evi-r-gold { color: rgb(190 140 20); background: rgb(190 140 20 / 0.15); }
+.evi-r-site, .evi-r-scale, .evi-r-dominion { color: rgb(var(--accent)); background: rgb(var(--accent) / 0.12); }
+.evi-r-world { color: rgb(128 72 182); background: rgb(128 72 182 / 0.12); }
+.evi-r-harm { color: rgb(var(--bad)); background: rgb(var(--bad) / 0.16); }
+.evi-r-storyflag { color: rgb(var(--fg) / 0.8); }
+
+/* generic chip filters (FilterDef 'multi') */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--line));
+  background: rgb(var(--raised));
+  font-size: 11.5px;
+  line-height: 18px;
+  color: rgb(var(--muted));
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+.filter-chip:hover { color: rgb(var(--fg)); }
+.filter-chip.ev-kind { font-weight: 400; }
+.filter-chip.on {
+  color: rgb(var(--fg));
+  border-color: rgb(var(--accent));
+  background: rgb(var(--accent) / 0.15);
+}
+.filter-chip-icon { display: inline-flex; font-size: 13px; }
+.filter-chip.evi-r-harm .filter-chip-icon { color: rgb(var(--bad)); }
+.filter-chip.ev-kind-good { color: rgb(var(--good)); }
+.filter-chip.ev-kind-bad { color: rgb(var(--bad)); }
+.filter-chip.ev-kind-global { color: rgb(128 72 182); }
+.dark .filter-chip.ev-kind-global { color: rgb(190 150 245); }
+/* ---- end event table ---- */
+/* ---- event card ---- */
+/* The event detail card (src/ui/eventCard.ts): badges, readable rows and the story map. */
+:root {
+  --evc-global: 128 72 182;
+}
+.dark {
+  --evc-global: 190 150 245;
+}
+.legacy .evc-kind-good { --evc-c: var(--good); }
+.legacy .evc-kind-bad { --evc-c: var(--bad); }
+.legacy .evc-kind-always { --evc-c: var(--muted); }
+.legacy .evc-kind-global { --evc-c: var(--evc-global); }
+.legacy .evc-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
+  max-width: 100%;
+  padding: 0 0.5em;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--line));
+  background: rgb(var(--stat-bg));
+  color: rgb(var(--muted));
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+  vertical-align: baseline;
+}
+.legacy .evc-badge.evc-kind {
+  color: rgb(var(--evc-c));
+  background: rgb(var(--evc-c) / 0.12);
+  border-color: rgb(var(--evc-c) / 0.4);
+}
+.legacy .evc-badge.evc-story {
+  color: rgb(var(--accent));
+  border-color: rgb(var(--accent) / 0.45);
+  background: transparent;
+}
+.legacy .evc-badge.evc-flag {
+  color: rgb(var(--fg));
+  font-weight: 400;
+  white-space: normal;
+}
+.legacy .evc-badge.evc-flag b { font-weight: 600; }
+.legacy .evc-flag-needsnot,
+.legacy .evc-flag-clears { border-style: dashed; }
+.legacy .evc-flag-sets { border-color: rgb(var(--accent) / 0.5); }
+.legacy .evc-head-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  padding-right: 4rem;
+}
+.legacy .evc-note {
+  color: rgb(var(--muted));
+  font-size: 0.85em;
+}
+.legacy table.overlay-table tr.evc-guess th {
+  text-decoration: underline dotted rgb(var(--muted));
+  text-underline-offset: 2px;
+}
+
+/* story map: a vertical flow (predecessors -> this event -> successors) that fits narrow cards */
+.legacy .evc-map {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgb(var(--line));
+}
+.legacy .evc-map-title {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+.legacy .evc-map-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.5rem;
+  font-size: 0.85em;
+  color: rgb(var(--muted));
+}
+.legacy .evc-map-flags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.legacy .evc-map-group,
+.legacy .evc-more-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.legacy .evc-more-list { margin-top: 0.4rem; }
+.legacy .evc-map-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(var(--muted));
+}
+.legacy .evc-map-via {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.legacy .evc-node {
+  min-width: 0;
+  padding: 0.35rem 0.55rem 0.3rem;
+  border: 1px solid rgb(var(--line));
+  border-left: 4px solid rgb(var(--evc-c));
+  border-radius: 6px;
+  background: rgb(var(--raised));
+}
+.legacy .evc-node.evc-cur {
+  background: rgb(var(--accent) / 0.08);
+  border-color: rgb(var(--accent) / 0.55);
+  border-left-color: rgb(var(--evc-c));
+  box-shadow: 0 0 0 1px rgb(var(--accent) / 0.3);
+}
+.legacy .evc-node.evc-cur .evc-node-title a.ref {
+  color: rgb(var(--fg));
+  border-bottom-color: transparent;
+}
+.legacy .evc-node-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.legacy .evc-node-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.5rem;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: rgb(var(--muted));
+}
+.legacy .evc-node-meta .evc-kind-label { color: rgb(var(--evc-c)); }
+.legacy .evc-role {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.legacy .evc-role-start { color: rgb(var(--accent)); }
+.legacy .evc-edge {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+.legacy .evc-edge span {
+  padding: 0 0.4em;
+  border: 1px solid rgb(var(--line));
+  border-radius: 4px;
+  background: rgb(var(--stat-bg));
+  color: rgb(var(--fg));
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+.legacy .evc-arrow {
+  align-self: center;
+  line-height: 1;
+  color: rgb(var(--muted));
+}
+.legacy .evc-arrow::before { content: '↓'; }
+.legacy .evc-branch {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.legacy ul.evc-hop2 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0.2rem 0 0 0.9rem;
+  padding: 0.1rem 0 0.1rem 0.6rem;
+  list-style: none;
+  border-left: 2px solid rgb(var(--line));
+  font-size: 0.8rem;
+}
+.legacy ul.evc-hop2 li {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.legacy .evc-hop2-label,
+.legacy .evc-hop2-more {
+  font-style: italic;
+  color: rgb(var(--muted));
+}
+.legacy .evc-hop-via {
+  font-size: 0.85em;
+  color: rgb(var(--muted));
+}
+.legacy .evc-hop-via::after { content: ' →'; }
+.legacy details.evc-more > summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: rgb(var(--link));
+}
+/* ---- end event card ---- */
+
+/* ---- event eligibility ---- */
+.elig-badge {
+  display: inline-block;
+  padding: 0 4px;
+  border: 1px solid rgb(var(--line));
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.elig-badge.elig-good { border-color: rgb(var(--good) / 0.6); color: rgb(var(--good)); background: rgb(var(--good) / 0.1); }
+.elig-badge.elig-bad { border-color: rgb(var(--bad) / 0.6); color: rgb(var(--bad)); background: rgb(var(--bad) / 0.1); }
+.elig-badge.elig-unknown { color: rgb(var(--muted)); }
+.elig-details { margin: 6px 0; font-size: 12px; }
+.elig-details .elig-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 2px; }
+.elig-details .elig-odds { font-size: 11px; opacity: 0.8; cursor: help; }
+.elig-details ul { margin: 0; padding: 0; list-style: none; }
+.elig-details li { display: flex; gap: 4px; line-height: 1.35; }
+.elig-details .elig-mark { width: 1em; flex-shrink: 0; text-align: center; }
+.elig-details li.elig-good .elig-mark { color: rgb(var(--good)); }
+.elig-details li.elig-bad { color: rgb(var(--bad)); }
+.elig-details li.elig-unknown { opacity: 0.7; }
+/* ---- end event eligibility ---- */

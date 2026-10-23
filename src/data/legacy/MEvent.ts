@@ -3,6 +3,7 @@
 // Mechanical port: logic kept as close to upstream as possible; jQuery/DOM/SlickGrid removed.
 import { $ } from './jq';
 import { bitfields } from './bits';
+import { eventGrid } from '../extensions/eventsGrid';
 
 export function install(DMI: any) {
 // upstream relied on sloppy-mode implicit globals; declared here (shared, like globals) for strict mode
@@ -158,15 +159,8 @@ MEvent.prepareData_PostMod = function() {
 //////////////////////////////////////////////////////////////////////////
 function formatScale(_,__,v){ return v=='z' ? "" : v; }
 
-MEvent.grid = {
-	page: 'event',
-	data: function(){ return modctx.eventdata; },
-	columns: [
-	    { id: "description",     width: 200, name: "Description", field: "description", sortable: true },
-		{ id: "rarity",     width: 20, name: "Rarity", field: "rarity", sortable: true },
-	],
-	searchFilter: DMI.basicSearchFilter
-};
+// new in this app: readable title, kind, chance, story, storyline, triggers/rewards columns and filters
+MEvent.grid = eventGrid(DMI, function(){ return modctx.eventdata; });
 MEvent.matchProperty = function(o, key, comp, val) {
 	if (DMI.matchProperty(o, key, comp, val))
 		return true;

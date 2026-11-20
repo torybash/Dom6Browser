@@ -73,7 +73,7 @@ describe('default column visibility', () => {
     const DMI = await vanilla();
     const grid = DMI.MUnit.grid;
     const results: any = { rows: [], total: 0, grid };
-    const visible = (p: any) => tableColumns(PAGE_BY_ID.unit, results, false, false, p).map((c) => c.id);
+    const visible = (p: any) => tableColumns(PAGE_BY_ID.unit, results, false, p).map((c) => c.id);
     const v = visible(none);
     expect(v).toEqual(expect.arrayContaining(['hp', 'prot', 'mr', 'mor', 'att', 'def']));
     for (const id of ['str', 'prec', 'size', 'enc', 'mapmove', 'ap', 'leader', 'magicleader', 'undeadleader']) expect(v).not.toContain(id);

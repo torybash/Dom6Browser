@@ -110,13 +110,12 @@ export function tableColumns(
   page: PageDef,
   results: Results,
   advanced: boolean,
-  thumbnails: boolean,
   prefs: ColPrefs,
   shownCalc: string[] = [],
   fits: Record<string, ColFit> = {},
 ): ViewColumn[] {
   const cols: ViewColumn[] = [];
-  if (thumbnails && page.thumb) cols.push({ id: '__thumb', label: '', width: 40, minWidth: 40, kind: 'thumb' });
+  if (page.thumb) cols.push({ id: '__thumb', label: '', width: 40, minWidth: 40, kind: 'thumb' });
   if (advanced) cols.push({ id: '__id', label: 'id', width: 56, minWidth: 40, kind: 'id', numeric: true });
   for (const c of results.grid.columns) {
     if (c.derived ? !shownCalc.includes(c.id) : isColHidden(prefs, c)) continue;
@@ -150,7 +149,6 @@ interface Props {
 
 export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }: Props) {
   const advanced = useSettings((s) => s.advanced);
-  const thumbnails = useSettings((s) => s.thumbnails);
   const detailRef = useView((s) => s.detailRef);
   const sort = useView((s) => s.sorts[page.id]);
   const setSort = useView((s) => s.setSort);
@@ -182,8 +180,8 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
     [DMI, page.id],
   );
   const cols = useMemo(
-    () => tableColumns(page, results, advanced, thumbnails, prefs, shownCalc, fits),
-    [page, results, advanced, thumbnails, prefs, shownCalc, fits],
+    () => tableColumns(page, results, advanced, prefs, shownCalc, fits),
+    [page, results, advanced, prefs, shownCalc, fits],
   );
   // text columns at their automatic width split any leftover room in proportion to their width
   const template = cols.map((c) => (c.flex ? `minmax(${c.width}px, ${c.width}fr)` : `${c.width}px`)).join(' ');

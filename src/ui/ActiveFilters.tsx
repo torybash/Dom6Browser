@@ -6,7 +6,6 @@ import { useView, type Filters } from '../state/view';
 import { nationLabel } from './FilterPanel';
 import { NationFlag } from './nationFlag';
 import { PATH_ORDER, isCasterSet } from '../data/extensions/casterLevels';
-import { UNIT_DERIVED, parseRange } from '../data/extensions/derived';
 
 interface Chip {
   id: string;
@@ -14,7 +13,7 @@ interface Chip {
   clear: Filters;
 }
 
-export function activeChips(page: PageDef, f: Filters, DMI: DMI, o: { advanced: boolean; moreInfo: boolean; customJs: boolean }): Chip[] {
+export function activeChips(page: PageDef, f: Filters, DMI: DMI, o: { advanced: boolean; customJs: boolean }): Chip[] {
   const chips: Chip[] = [];
   if (f.str) chips.push({ id: 'str', label: <>“{f.str}”</>, clear: { str: '' } });
   for (const d of page.filters) {
@@ -67,15 +66,7 @@ export function activeChips(page: PageDef, f: Filters, DMI: DMI, o: { advanced: 
         clear: { [d.key]: '', [d.boostKey]: '' },
       });
     }
-    if (d.type === 'number' && o.moreInfo && f[d.key]) chips.push({ id: d.key, label: `${d.label} ${f[d.key]}`, clear: { [d.key]: '' } });
-    if (d.type === 'calculated') {
-      for (const c of UNIT_DERIVED) {
-        const r = parseRange(f[c.field]);
-        if (!r) continue;
-        const range = r.min !== undefined && r.max !== undefined ? `${r.min}–${r.max}` : r.min !== undefined ? `≥ ${r.min}` : `≤ ${r.max}`;
-        chips.push({ id: c.field, label: `${c.shortLabel} ${range}`, clear: { [c.field]: '' } });
-      }
-    }
+    if (d.type === 'number' && o.advanced && f[d.key]) chips.push({ id: d.key, label: `${d.label} ${f[d.key]}`, clear: { [d.key]: '' } });
   }
   if (o.advanced && Array.isArray(f.properties)) {
     f.properties.forEach((p: any, i: number) => {
@@ -101,9 +92,8 @@ export function ActiveFilters({ page, DMI }: { page: PageDef; DMI: DMI }) {
   const patch = useView((s) => s.patchFilters);
   const reset = useView((s) => s.resetFilters);
   const advanced = useSettings((s) => s.advanced);
-  const moreInfo = useSettings((s) => s.moreInfo);
   const customJs = useSettings((s) => s.customJs);
-  const chips = activeChips(page, filters, DMI, { advanced, moreInfo, customJs });
+  const chips = activeChips(page, filters, DMI, { advanced, customJs });
   if (!chips.length) return null;
   return (
     <div className="flex flex-wrap items-center gap-1.5">

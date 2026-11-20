@@ -11,7 +11,6 @@ export function renderCalculatedHtml(DMI: DMI, o: any): string {
   if (!rows.length) return '';
   let approx = false;
   let html = '';
-  let formulas = '';
   for (const { def, result } of rows) {
     const likely = result.confidence === 'LIKELY';
     approx ||= likely;
@@ -23,11 +22,9 @@ export function renderCalculatedHtml(DMI: DMI, o: any): string {
     ].filter(Boolean).join('\n');
     html +=
       `<div class="ustat calc-row${likely ? ' calc-likely' : ''}" data-key="${def.field}" data-stat="${escapeHtml(def.stat ?? '')}" data-label="${escapeHtml(def.label)}"` +
-      ` data-value="${escapeHtml(formatDerived(def, result))}" data-formula="${escapeHtml(def.formula)}" data-source="${escapeHtml(def.source)}"` +
-      `${result.note ? ` data-note="${escapeHtml(result.note)}"` : ''}${likely ? ' data-likely="1"' : ''} title="${escapeHtml(title)}">` +
+      ` data-value="${escapeHtml(formatDerived(def, result))}"${likely ? ' data-likely="1"' : ''} title="${escapeHtml(title)}">` +
       `<span class="ustat-label">${escapeHtml(def.label)}</span>` +
       `<span class="stat-value">${escapeHtml(formatDerived(def, result))}</span></div>`;
-    formulas += `<dt>${escapeHtml(def.label)}</dt><dd>${escapeHtml(def.formula)} <span class="calc-source">(${escapeHtml(def.source)})</span></dd>`;
   }
   return (
     '<details class="calc-section">' +
@@ -35,7 +32,6 @@ export function renderCalculatedHtml(DMI: DMI, o: any): string {
     '<span class="calc-sub">base unit: no items, scales or province effects</span></summary>' +
     `<div class="calc-grid">${html}</div>` +
     (approx ? '<p class="calc-legend">≈ formula not yet confirmed against the game. Hover a value for its formula.</p>' : '') +
-    `<details class="calc-formulas"><summary>Formulas</summary><dl>${formulas}</dl></details>` +
     '</details>'
   );
 }

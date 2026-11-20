@@ -26,7 +26,6 @@ export function TopBar({ onToggleSidebar, compact }: { onToggleSidebar?: () => v
         <img src="images/magicicons/Path_S.png" alt="" className="h-6 w-6" />
         <div className="leading-none">
           <div className="font-display text-[15px] font-bold tracking-wide">Dom6 Browser</div>
-          {!compact && <div className="text-[10px] text-muted">Dominions 6 data reference</div>}
         </div>
       </div>
 
@@ -91,27 +90,8 @@ function SettingsMenu() {
               </button>
             ))}
           </div>
-          <div className="flex items-center justify-between px-2 py-1.5 text-sm">
-            <span>Text size</span>
-            <div className="flex items-center gap-1">
-              {[0.9, 1, 1.15, 1.3].map((v) => (
-                <button key={v} className={'rounded px-1.5 py-0.5 text-xs ' + (s.textScale === v ? 'bg-accent text-white dark:text-bg' : 'hover:bg-row-hover')} onClick={() => s.set({ textScale: v })}>
-                  {Math.round(v * 100)}%
-                </button>
-              ))}
-            </div>
-          </div>
-          <Dropdown.CheckboxItem className={item} checked={s.thumbnails} onCheckedChange={(v) => s.set({ thumbnails: v })} onSelect={(e) => e.preventDefault()}>
-            {check(s.thumbnails)} Sprite thumbnails in tables
-          </Dropdown.CheckboxItem>
-          <Dropdown.CheckboxItem className={item} checked={s.hoverPreviews} onCheckedChange={(v) => s.set({ hoverPreviews: v })} onSelect={(e) => e.preventDefault()}>
-            {check(s.hoverPreviews)} Preview links on hover
-          </Dropdown.CheckboxItem>
           <Dropdown.CheckboxItem className={item} checked={s.hideDescriptions} onCheckedChange={(v) => s.set({ hideDescriptions: v })} onSelect={(e) => e.preventDefault()}>
             {check(s.hideDescriptions)} Hide in-game descriptions
-          </Dropdown.CheckboxItem>
-          <Dropdown.CheckboxItem className={item} checked={s.showFormulas} onCheckedChange={(v) => s.set({ showFormulas: v })} onSelect={(e) => e.preventDefault()}>
-            {check(s.showFormulas)} Explain calculated values in tooltips
           </Dropdown.CheckboxItem>
           <Dropdown.CheckboxItem className={item} checked={s.unitStatLabels} onCheckedChange={(v) => s.set({ unitStatLabels: v })} onSelect={(e) => e.preventDefault()}>
             {check(s.unitStatLabels)} Stat names on unit cards
@@ -123,24 +103,7 @@ function SettingsMenu() {
             {check(s.advanced)}
             <span>
               Advanced mode
-              <span className="block text-[11px] text-muted">ids, hidden details, property filters</span>
-            </span>
-          </Dropdown.CheckboxItem>
-          <Dropdown.CheckboxItem className={item} disabled={!s.advanced} checked={s.modCmds} onCheckedChange={(v) => s.set({ modCmds: v })} onSelect={(e) => e.preventDefault()}>
-            {check(s.modCmds)} Expand mod commands
-          </Dropdown.CheckboxItem>
-          <Dropdown.CheckboxItem className={item} checked={s.moreInfo} onCheckedChange={(v) => s.set({ moreInfo: v })} onSelect={(e) => e.preventDefault()}>
-            {check(s.moreInfo)}
-            <span>
-              More info
-              <span className="block text-[11px] text-muted">modder details, effect/mask filters</span>
-            </span>
-          </Dropdown.CheckboxItem>
-          <Dropdown.CheckboxItem className={item} checked={s.showKeys} onCheckedChange={(v) => s.set({ showKeys: v })} onSelect={(e) => e.preventDefault()}>
-            {check(s.showKeys)}
-            <span>
-              Show keys
-              <span className="block text-[11px] text-muted">database keys, usable in property filters</span>
+              <span className="block text-[11px] text-muted">ids, modder details, database keys, property and effect filters</span>
             </span>
           </Dropdown.CheckboxItem>
           <Dropdown.CheckboxItem className={item} disabled={!s.advanced} checked={s.customJs} onCheckedChange={(v) => s.set({ customJs: v })} onSelect={(e) => e.preventDefault()}>

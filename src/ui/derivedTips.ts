@@ -15,8 +15,6 @@ function derivedHtml(rows: HTMLElement[]): string {
     const d = r.dataset;
     html += `<dt class="tip-label">${escapeHtml(d.label ?? '')}</dt>`;
     html += `<dd class="tip-value${d.likely ? ' tip-likely' : ''}">${escapeHtml(d.value ?? '')}</dd>`;
-    html += `<dd class="tip-formula">${escapeHtml(d.formula ?? '')}</dd>`;
-    html += `<dd class="tip-source">${escapeHtml('Source: ' + (d.source ?? '') + (d.note ? ' · ' + d.note : ''))}</dd>`;
   }
   return html + '</dl>';
 }

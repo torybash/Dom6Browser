@@ -21,7 +21,6 @@
   --row-hover: 240 232 216;
   --row-active: 233 219 192;
   --stat-bg: 245 239 228;
-  --font-scale: 1;
   color-scheme: light;
 }
 .dark {
@@ -48,7 +47,7 @@ body,
   height: 100%;
 }
 html {
-  font-size: calc(14px * var(--font-scale));
+  font-size: 14px;
 }
 body {
   @apply bg-bg text-fg font-sans antialiased;
@@ -242,9 +241,7 @@ button {
 /* ------------------------------------------------------------------------------------------
    Legacy detail html (rendered by the ported upstream renderers), restyled.
    Visibility classes are switched by root classes set from the settings menu:
-     .opt-advanced  -> .hidden-*   (ids, extra rows)
-     .opt-moreinfo  -> .modding-*  (modder info)
-     .opt-keys      -> .internal-* (database keys)
+     .opt-advanced  -> .hidden-* (ids, extra rows), .modding-* (modder info), .internal-* (database keys)
      .opt-nodescr   -> hides descriptions
      .opt-nostatlabels -> unit card stats as icon + value only
 ------------------------------------------------------------------------------------------- */
@@ -262,15 +259,9 @@ button {
 .legacy .internal-inline {
   display: none;
 }
-.opt-advanced .legacy .hidden-block { display: block; }
-.opt-advanced .legacy tr.hidden-row { display: table-row; }
-.opt-advanced .legacy .hidden-inline { display: inline; }
-.opt-moreinfo .legacy .modding-block { display: block; }
-.opt-moreinfo .legacy tr.modding-row { display: table-row; }
-.opt-moreinfo .legacy .modding-inline { display: inline; }
-.opt-keys .legacy .internal-block { display: block; }
-.opt-keys .legacy tr.internal-row { display: table-row; }
-.opt-keys .legacy .internal-inline { display: inline; }
+.opt-advanced .legacy :is(.hidden-block, .modding-block, .internal-block) { display: block; }
+.opt-advanced .legacy tr:is(.hidden-row, .modding-row, .internal-row) { display: table-row; }
+.opt-advanced .legacy :is(.hidden-inline, .modding-inline, .internal-inline) { display: inline; }
 .opt-nodescr .legacy .overlay-descr { display: none !important; }
 
 .legacy .hidden-row,
@@ -918,8 +909,7 @@ button {
   @apply font-semibold;
 }
 .legacy .calc-sub,
-.legacy .calc-legend,
-.legacy .calc-source {
+.legacy .calc-legend {
   @apply text-[11.5px] text-muted;
 }
 .legacy .calc-grid {
@@ -933,24 +923,11 @@ button {
 .legacy .calc-legend {
   @apply mb-0 mt-1;
 }
-.legacy .calc-formulas {
-  @apply mt-1 text-[11.5px];
-}
-.legacy .calc-formulas summary {
-  @apply cursor-pointer text-muted;
-}
-.legacy .calc-formulas dt {
-  @apply mt-1 font-semibold;
-}
-.legacy .calc-formulas dd {
-  @apply ml-0;
-}
-/* the raw rec points value is an autocalc code (e.g. 10000); shown only with database keys / modder info */
+/* the raw rec points value is an autocalc code (e.g. 10000); shown only in advanced mode */
 .legacy .ustat[data-key='rpcost'] {
   display: none;
 }
-.opt-keys .legacy .ustat[data-key='rpcost'],
-.opt-moreinfo .legacy .ustat[data-key='rpcost'] {
+.opt-advanced .legacy .ustat[data-key='rpcost'] {
   display: flex;
 }
 
@@ -1022,23 +999,6 @@ button {
   font-weight: 500;
   font-style: italic;
   color: #cdb77f;
-}
-.stat-tip .tip-formula,
-.stat-tip .tip-source {
-  grid-column: 1 / -1;
-  margin: 0;
-  font-size: 11px;
-  color: #9d9482;
-}
-.stat-tip .tip-source {
-  font-size: 10px;
-  font-style: italic;
-  color: #857d6c;
-}
-/* formula/source lines are opt-in (settings: "Explain calculated values in tooltips") */
-:root:not(.opt-formulas) .stat-tip .tip-formula,
-:root:not(.opt-formulas) .stat-tip .tip-source {
-  display: none;
 }
 
 /* ---- event table ---- */

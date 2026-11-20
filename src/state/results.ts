@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { PAGE_BY_ID, UNIT_TYPE_VALUES, type PageId } from '../pages';
 import type { DMI } from '../data/load';
 import type { Filters, Sort } from './view';
-import { inCalcRanges } from '../data/extensions/derived';
 
 export interface GridColumn {
   id: string;
@@ -42,7 +41,6 @@ export function gridFor(DMI: DMI, page: PageId): GridSpec {
 
 export interface FilterOptions {
   advanced: boolean;
-  moreInfo: boolean;
   customJs: boolean;
 }
 
@@ -53,13 +51,11 @@ export function toUpstreamFilters(page: PageId, f: Filters, o: FilterOptions): F
   if (!o.advanced) {
     delete out.properties;
     delete out.customjs;
-  }
-  if (!o.customJs) delete out.customjs;
-  if (!o.moreInfo) {
     delete out.effect;
     delete out.effect_mask;
     delete out.special_mask;
   }
+  if (!o.customJs) delete out.customjs;
   return out;
 }
 
@@ -137,7 +133,6 @@ export function useResults(
     try {
       const args = buildArgs(DMI, grid, f);
       rows = data.filter((o) => grid.searchFilter(o, args));
-      if (page === 'unit') rows = rows.filter((o) => inCalcRanges(o, filters));
       if (DMI.customJsError) error = DMI.customJsError;
     } catch (e: any) {
       console.error(e);
@@ -148,7 +143,7 @@ export function useResults(
     if (cmp) rows.sort(cmp);
     return { rows, total: data.length, grid, error };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [DMI, version, page, filters, sort?.col, sort?.asc, sort?.n, opts.advanced, opts.moreInfo, opts.customJs]);
+  }, [DMI, version, page, filters, sort?.col, sort?.asc, sort?.n, opts.advanced, opts.customJs]);
 }
 
 /** Ref string used by upstream links for a row of the given page. */

@@ -22,7 +22,6 @@ export const usePreview = create<PreviewState>((set) => ({
       set({ target: null });
       return;
     }
-    if (!useSettings.getState().hoverPreviews) return;
     const rect = info.anchor.getBoundingClientRect();
     timer = setTimeout(() => set({ target: { ref: info.ref, rect } }), 280);
   },
@@ -41,7 +40,7 @@ if (typeof window !== 'undefined') {
 export function HoverPreview() {
   const target = usePreview((s) => s.target);
   const DMI = useData((s) => s.DMI);
-  const showModCmds = useSettings((s) => s.advanced && s.modCmds);
+  const showModCmds = useSettings((s) => s.advanced);
   const cardRef = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
 

@@ -69,7 +69,7 @@ function useStoredBool(key: string, initial: boolean) {
   return [v, setV] as const;
 }
 
-/** Applies theme / text size / advanced-visibility classes on <html>. */
+/** Applies theme and advanced-visibility classes on <html>. */
 function useRootClasses() {
   const s = useSettings();
   const systemDark = useMediaQuery('(prefers-color-scheme: dark)');
@@ -77,13 +77,9 @@ function useRootClasses() {
     const c = document.documentElement.classList;
     c.toggle('dark', s.theme === 'dark' || (s.theme === 'system' && systemDark));
     c.toggle('opt-advanced', s.advanced);
-    c.toggle('opt-moreinfo', s.moreInfo);
-    c.toggle('opt-keys', s.showKeys);
     c.toggle('opt-nodescr', s.hideDescriptions);
-    c.toggle('opt-formulas', s.showFormulas);
     c.toggle('opt-nostatlabels', !s.unitStatLabels);
-    document.documentElement.style.setProperty('--font-scale', String(s.textScale));
-  }, [s.theme, systemDark, s.advanced, s.moreInfo, s.showKeys, s.hideDescriptions, s.showFormulas, s.unitStatLabels, s.textScale]);
+  }, [s.theme, systemDark, s.advanced, s.hideDescriptions, s.unitStatLabels]);
 }
 
 export function App() {
@@ -139,9 +135,8 @@ function usePageResults(page: PageDef) {
   const filters = useView((s) => s.filters[page.id]) ?? EMPTY;
   const sort = useView((s) => s.sorts[page.id]);
   const advanced = useSettings((s) => s.advanced);
-  const moreInfo = useSettings((s) => s.moreInfo);
   const customJs = useSettings((s) => s.customJs);
-  const results = useResults(DMI, version, page.id, filters, sort, { advanced, moreInfo, customJs })!;
+  const results = useResults(DMI, version, page.id, filters, sort, { advanced, customJs })!;
   return { DMI, results };
 }
 const EMPTY = {};
@@ -304,9 +299,8 @@ function ResultsPane({ page, onOpenFilters, onActivate }: { page: PageDef; onOpe
   const [prefs, setPrefs] = useColumnPrefs(page.id);
   const filters = useView((s) => s.filters[page.id]) ?? EMPTY;
   const advanced = useSettings((s) => s.advanced);
-  const moreInfo = useSettings((s) => s.moreInfo);
   const customJs = useSettings((s) => s.customJs);
-  const nChips = activeChips(page, filters, DMI, { advanced, moreInfo, customJs }).length;
+  const nChips = activeChips(page, filters, DMI, { advanced, customJs }).length;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -336,8 +330,6 @@ function ResultsPane({ page, onOpenFilters, onActivate }: { page: PageDef; onOpe
 }
 
 function ColumnPicker({ page, results, prefs, setPrefs }: { page: PageDef; results: any; prefs: any; setPrefs: any }) {
-  const thumbnails = useSettings((s) => s.thumbnails);
-  const set = useSettings((s) => s.set);
   const calcCols = useView((s) => s.calcCols[page.id]);
   const sortCol = useView((s) => s.sorts[page.id]?.col);
   const setCalcCols = useView((s) => s.setCalcCols);
@@ -351,12 +343,6 @@ function ColumnPicker({ page, results, prefs, setPrefs }: { page: PageDef; resul
       <Popover.Portal>
         <Popover.Content align="end" sideOffset={4} className="z-50 w-56 rounded-lg border border-line bg-panel p-2 shadow-xl animate-in">
           <div className="section-label px-1 pb-1">Columns</div>
-          {page.thumb && (
-            <label className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-row-hover">
-              <input type="checkbox" checked={thumbnails} onChange={(e) => set({ thumbnails: e.target.checked })} className="accent-[rgb(var(--accent))]" />
-              Thumbnail
-            </label>
-          )}
           {results.grid.columns.filter((c: any) => !c.derived).map((c: any) => (
             <label key={c.id} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-row-hover">
               <input

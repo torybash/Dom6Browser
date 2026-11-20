@@ -114,7 +114,7 @@ const FloatingCard = memo(function FloatingCard({ k, g, onRendered }: { k: strin
   const ref = loose ? detailRef : k;
   const DMI = useData((s) => s.DMI);
   const version = useData((s) => s.version);
-  const showModCmds = useSettings((s) => s.advanced && s.modCmds);
+  const showModCmds = useSettings((s) => s.advanced);
   const boardH = useCards((s) => s.bounds.h);
   const canBack = useView((s) => loose && s.historyIndex > 0);
   const canForward = useView((s) => loose && s.historyIndex < s.history.length - 1);

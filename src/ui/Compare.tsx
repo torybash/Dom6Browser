@@ -48,9 +48,11 @@ export function PinTray({ mobile }: { mobile?: boolean }) {
         })}
       </div>
       {cards && <BoardControls />}
-      <button className="btn-primary shrink-0 py-1" onClick={() => setCompareOpen(true)} disabled={pins.length < 1}>
-        <Columns3 size={14} /> Compare{pins.length > 1 ? ` ${pins.length}` : ''}
-      </button>
+      {!cards && (
+        <button className="btn-primary shrink-0 py-1" onClick={() => setCompareOpen(true)} title="Compare pinned entries side by side">
+          <Columns3 size={14} /> Compare{pins.length > 1 ? ` ${pins.length}` : ''}
+        </button>
+      )}
       <button className="btn-ghost shrink-0 px-2 text-xs" onClick={clear} title="Unpin all">
         Clear
       </button>
@@ -101,7 +103,7 @@ export function CompareView() {
   const unpin = useView((s) => s.unpin);
   const DMI = useData((s) => s.DMI);
   const version = useData((s) => s.version);
-  const showModCmds = useSettings((s) => s.advanced && s.modCmds);
+  const showModCmds = useSettings((s) => s.advanced);
   const { onHover } = useRefHandlers();
   const navigate = useView((s) => s.navigate);
   const togglePin = useView((s) => s.togglePin);

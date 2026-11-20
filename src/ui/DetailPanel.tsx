@@ -34,7 +34,7 @@ export function DetailPanel({ onClose }: { onClose?: () => void }) {
   const forward = useView((s) => s.forward);
   const pins = useView((s) => s.pins);
   const togglePin = useView((s) => s.togglePin);
-  const showModCmds = useSettings((s) => s.advanced && s.modCmds);
+  const showModCmds = useSettings((s) => s.advanced);
   const { onRef, onHover } = useRefHandlers();
   const [copied, setCopied] = useState(false);
 

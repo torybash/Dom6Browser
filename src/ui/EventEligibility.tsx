@@ -7,6 +7,7 @@ import {
   ELIGIBILITY_KEYS, MONTHS, ORDERS, PATH_LETTERS, SCALES, SEASONS, TERRAINS, checkEvent, eligibilitySummary, eventOdds,
   formatPaths, hasProvinceState, parsePaths, parseProvinceState, type CheckResult,
 } from '../data/extensions/eventEligibility';
+import { NationPicker } from './NationPicker';
 
 export interface EventEligibilityProps {
   values: Record<string, any>;
@@ -66,7 +67,7 @@ export function EventEligibility({ values, set, DMI, defaultOpen }: EventEligibi
       {open && (
         <div className="flex flex-col gap-3 border-t border-line p-2">
           <Row label="Owner">
-            <NationSelect DMI={DMI} value={v('p_nation')} onChange={(x) => setv('p_nation', x)} />
+            <NationPicker DMI={DMI} value={v('p_nation')} onChange={(x) => setv('p_nation', x)} head={OWNER_HEAD} eras={false} className="py-1 text-xs" />
           </Row>
           <div className="grid grid-cols-2 gap-2">
             <Row label="Turn">
@@ -358,27 +359,10 @@ function PathLevels({ value, onChange }: { value: string; onChange: (v: string) 
   );
 }
 
-function NationSelect({ DMI, value, onChange }: { DMI: any; value: string; onChange: (v: string) => void }) {
-  const groups: { label: string; nations: { id: number; name: string }[] }[] = DMI?.modctx?.nationOptions ?? [];
-  return (
-    <div className="relative">
-      <select className="input appearance-none py-1 pr-7 text-xs" value={value} onChange={(e) => onChange(e.target.value)} aria-label="Province owner">
-        <option value="">Any owner</option>
-        <option value="indep">Independents</option>
-        {groups.map((g) => (
-          <optgroup key={g.label} label={g.label[0].toUpperCase() + g.label.slice(1)}>
-            {g.nations.map((n) => (
-              <option key={n.id} value={n.id}>
-                {n.name}
-              </option>
-            ))}
-          </optgroup>
-        ))}
-      </select>
-      <ChevronDown size={14} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted" />
-    </div>
-  );
-}
+const OWNER_HEAD = [
+  { value: '', label: 'Any owner' },
+  { value: 'indep', label: 'Independents' },
+];
 
 /* ---------------------------------------------------------------------------------------------- */
 

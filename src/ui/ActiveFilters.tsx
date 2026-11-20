@@ -3,7 +3,7 @@ import type { PageDef } from '../pages';
 import type { DMI } from '../data/load';
 import { useSettings } from '../state/settings';
 import { useView, type Filters } from '../state/view';
-import { nationLabel } from './FilterPanel';
+import { nationLabel } from './NationPicker';
 import { NationFlag } from './nationFlag';
 import { PATH_ORDER, isCasterSet } from '../data/extensions/casterLevels';
 

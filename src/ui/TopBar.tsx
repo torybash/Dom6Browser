@@ -96,6 +96,13 @@ function SettingsMenu() {
           <Dropdown.CheckboxItem className={item} checked={s.unitStatLabels} onCheckedChange={(v) => s.set({ unitStatLabels: v })} onSelect={(e) => e.preventDefault()}>
             {check(s.unitStatLabels)} Stat names on unit cards
           </Dropdown.CheckboxItem>
+          <Dropdown.CheckboxItem className={item} checked={s.ctrlOpensCard} onCheckedChange={(v) => s.set({ ctrlOpensCard: v })} onSelect={(e) => e.preventDefault()}>
+            {check(s.ctrlOpensCard)}
+            <span>
+              Hold Ctrl to open a new card
+              <span className="block text-[11px] text-muted">a plain click on a row reuses one card</span>
+            </span>
+          </Dropdown.CheckboxItem>
 
           <Dropdown.Separator className="my-1.5 h-px bg-line" />
           <Dropdown.Label className="section-label px-2 pb-1">Advanced</Dropdown.Label>

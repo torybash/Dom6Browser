@@ -5,6 +5,7 @@ import type { PageDef, PageId } from '../pages';
 import type { DMI } from '../data/load';
 import { refFor, type GridColumn, type Results } from '../state/results';
 import { useSettings } from '../state/settings';
+import { useCards } from '../state/cards';
 import { useView } from '../state/view';
 import { usePreview } from './HoverPreview';
 import { PATH_NAMES } from './FilterPanel';
@@ -155,6 +156,7 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
   const select = useView((s) => s.select);
   const navigate = useView((s) => s.navigate);
   const togglePin = useView((s) => s.togglePin);
+  const ctrlOpensCard = useSettings((s) => s.ctrlOpensCard);
   const showPreview = usePreview((s) => s.show);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -364,11 +366,15 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
                     onActivate?.();
                     return;
                   }
-                  if (e.shiftKey || e.ctrlKey || e.metaKey) togglePin(ref);
-                  else {
-                    select(ref);
-                    onActivate?.();
-                  }
+                  const mod = e.shiftKey || e.ctrlKey || e.metaKey;
+                  if (onActivate || ctrlOpensCard) {
+                    if (mod) togglePin(ref);
+                    else {
+                      select(ref);
+                      onActivate?.();
+                    }
+                  } else if (mod) select(ref);
+                  else openCard(ref);
                 }}
                 onHoverRef={showPreview}
               />
@@ -498,4 +504,13 @@ function Cell({ c, o, index, page, DMI }: { c: ViewColumn; o: any; index: number
       {v == null ? '' : String(v)}
     </div>
   );
+}
+
+/** Upstream row click: open the entry as its own card, or bring its card forward when it is already open. */
+function openCard(ref: string) {
+  const v = useView.getState();
+  const open = v.pins.includes(ref) || v.detailRef === ref;
+  v.pin(ref);
+  v.select(ref);
+  if (open) useCards.getState().focus(ref);
 }

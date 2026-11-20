@@ -12,6 +12,8 @@ export interface Settings {
   theme: Theme;
   /** stat names on unit cards; off shows only icon + value in a tighter grid */
   unitStatLabels: boolean;
+  /** off (upstream): clicking a row opens it as its own card; on: a click shows it in the loose card and Ctrl/Shift+click opens a card */
+  ctrlOpensCard: boolean;
   set: (patch: Partial<Omit<Settings, 'set'>>) => void;
 }
 
@@ -23,6 +25,7 @@ export const useSettings = create<Settings>()(
       customJs: false,
       theme: 'system',
       unitStatLabels: true,
+      ctrlOpensCard: false,
       set: (patch) => set(patch),
     }),
     { name: 'dom6browser:settings', version: 1 },

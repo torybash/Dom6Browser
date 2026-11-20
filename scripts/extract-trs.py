@@ -14,11 +14,18 @@ The second form writes the named unit-card icons listed in UNIT_ICONS (this is
 how public/gameicons/ is produced), e.g.
     python -I scripts/extract-trs.py --unit-icons ".../Dominions6/data" public/gameicons
 
-The third form writes OUT_DIR/<nation id>.png, the nation emblems drawn on
-in-game flags, cropped to their content (public/gameicons/flags/). flag.trs
-holds banner parts at 0-504 and the emblem of nation N at 500 + N; unused
-nation slots use one of two placeholder images (as at nation_35 and nation_45),
-which are skipped.
+The third form writes OUT_DIR/<nation id>.png, each nation's flag
+(public/gameicons/flags/), composed the way the game's own flag exporter does
+it (Dominions6.exe 0x140122B10, "createflags"): flag.trs 501 (pole), 502 (cloth)
+multiplied by the nation's #color, 503 (cloth trim) multiplied by its
+#secondarycolor, then the emblem at 500 + N; each part overwrites the pixels it
+covers (alpha is 0 or 255). Unused nation slots have one of two placeholder
+emblems (as at nation_35 and nation_45) and are skipped. Vanilla colors exist
+only in the exe's nation table (records of NATION_SIZE bytes; name at 0, file
+base name at 0x4F, #color at 0x94, #secondarycolor at 0xA0, three float32
+each), read from Dominions6.exe next to GAME_DATA_DIR. All flags share one
+height (topmost emblem to FLAG_POLE px below the cloth), so the cloth is the
+same size in each; widths are cropped per flag.
 
 Requires Pillow. Game assets are copyrighted by Illwinter Game Design.
 
@@ -212,28 +219,52 @@ def extract_unit_icons(data_dir, out):
     print('%d icons written to %s' % (len(UNIT_ICONS), out))
 
 
-def extract_nation_flags(data_dir, out, size=40):
+NATION_SIZE = 0xBB8
+FLAG_POLE = 4
+
+
+def nation_colors(exe_path):
+    exe = open(exe_path, 'rb').read()
+    base = exe.index(b'early_arcoscephale\0') - 0x4F - 5 * NATION_SIZE
+    if not exe.startswith(b'Mekone\0', base + 6 * NATION_SIZE):
+        raise ValueError('nation table layout changed in ' + exe_path)
+
+    def colors(n):
+        rec = base + n * NATION_SIZE
+        return struct.unpack_from('<3f', exe, rec + 0x94), struct.unpack_from('<3f', exe, rec + 0xA0)
+    return colors
+
+
+def tint(im, rgb):
+    """Multiply each channel by a 0..1 float32 color like the game: c * int(f * 255) / 255."""
+    ks = [int(struct.unpack('<f', struct.pack('<f', f * 255.0))[0]) for f in rgb]
+    r, g, b, a = im.split()
+    return Image.merge('RGBA', [ch.point(lambda c, k=k: c * k // 255) for ch, k in zip((r, g, b), ks)] + [a])
+
+
+def extract_nation_flags(data_dir, out):
     os.makedirs(out, exist_ok=True)
+    colors = nation_colors(os.path.join(data_dir, os.pardir, 'Dominions6.exe'))
     blocks = {i: (w, h, fl, blk) for i, w, h, fl, blk in read_archive(os.path.join(data_dir, 'flag.trs'))}
+    part = lambda i: decode_block(blocks[i][3], *blocks[i][:3])[0].convert('RGBA')
+    pole, cloth, trim = part(501), part(502), part(503)
+    bottom = cloth.getbbox()[3] + FLAG_POLE
     placeholders = {blocks[535][3], blocks[545][3]}
-    count = 0
-    for i, (w, h, fl, blk) in sorted(blocks.items()):
-        if i < 505 or blk in placeholders:
+    flags = {}
+    for i in sorted(blocks):
+        if i < 505 or blocks[i][3] in placeholders:
             continue
-        im = decode_block(blk, w, h, fl)[0]
-        box = im.getbbox()
-        if not box:
-            continue
-        im = im.crop(box)
-        side = max(im.size)
-        sq = Image.new('RGBA', (side, side), (0, 0, 0, 0))
-        sq.paste(im, ((side - im.width) // 2, (side - im.height) // 2))
-        if side > size:
-            sq = sq.resize((size, size), Image.LANCZOS)
-        sq = sq.quantize(64, method=Image.FASTOCTREE)
-        sq.save(os.path.join(out, '%d.png' % (i - 500)), optimize=True)
-        count += 1
-    print('%d nation flags written to %s' % (count, out))
+        main, second = colors(i - 500)
+        im = pole.copy()
+        for layer in (tint(cloth, main), tint(trim, second), part(i)):
+            im.paste(layer, mask=layer)
+        flags[i - 500] = im
+    top = min(im.getbbox()[1] for im in flags.values())
+    for n, im in flags.items():
+        left, _, right, _ = im.getbbox()
+        im = im.crop((left, top, right, bottom)).quantize(64, method=Image.FASTOCTREE)
+        im.save(os.path.join(out, '%d.png' % n), optimize=True)
+    print('%d nation flags written to %s' % (len(flags), out))
 
 
 def main(argv):

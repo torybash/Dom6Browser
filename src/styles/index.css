@@ -503,14 +503,16 @@ button {
   width: 100%;
   height: auto;
 }
-/* nation flag emblem before a nation name (src/data/nationFlags.ts) */
+/* nation flag before a nation name (src/data/nationFlags.ts); the box fits the common 67x113
+   flag, wider emblems shrink to fit */
 .nflag {
   display: inline-block;
-  width: 1.25em;
-  height: 1.25em;
-  margin-right: 0.25em;
-  vertical-align: -0.3em;
+  width: 0.9em;
+  height: 1.5em;
+  margin-right: 0.3em;
+  vertical-align: -0.35em;
   object-fit: contain;
+  object-position: center bottom;
 }
 .legacy .uslot .gicon {
   width: 100%;

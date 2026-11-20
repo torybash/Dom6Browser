@@ -454,7 +454,7 @@ Utils.unitRef  = function(id, text) {
 Utils.spellRef = function(id, text) { return objectRef('spell', id, text); }
 Utils.wpnRef   = function(id, text) { return objectRef('wpn',   id, text); }
 Utils.armorRef = function(id, text) { return objectRef('armor', id, text); }
-// flag emblem inside the link (added in this app)
+// nation flag inside the link (added in this app)
 Utils.nationRef = function(id, text) {
 	var o = (DMI.modctx.nationlookup || {})[id];
 	if (!o) return objectRef('nation', id, text);

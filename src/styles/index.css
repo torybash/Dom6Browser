@@ -18,6 +18,7 @@
   --bad: 190 50 50;
   --mid: 196 140 20;
   --link: 40 92 160;
+  --row-alt: 252 250 245;
   --row-hover: 240 232 216;
   --row-active: 233 219 192;
   --stat-bg: 245 239 228;
@@ -35,6 +36,7 @@
   --bad: 240 110 110;
   --mid: 230 190 80;
   --link: 125 175 240;
+  --row-alt: 24 28 35;
   --row-hover: 33 39 49;
   --row-active: 52 46 34;
   --stat-bg: 30 35 44;
@@ -150,6 +152,9 @@ button {
 ------------------------------------------------------------------------------------------- */
 .grid-row {
   @apply cursor-pointer border-b border-line/50;
+}
+.grid-row-alt {
+  background: rgb(var(--row-alt));
 }
 .grid-row:hover {
   background: rgb(var(--row-hover));

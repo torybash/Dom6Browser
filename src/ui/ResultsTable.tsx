@@ -463,7 +463,8 @@ const Row = memo(function Row({ o, index, top, cols, template, selected, nearMis
       role="row"
       aria-rowindex={index + 1}
       aria-selected={selected}
-      className={'grid-row grid items-center text-[13px]' + (nearMiss ? ' opacity-50' : '')}
+      // striped by data index, not DOM position: virtualized rows come and go as the list scrolls
+      className={'grid-row grid items-center text-[13px]' + (index % 2 ? ' grid-row-alt' : '') + (nearMiss ? ' opacity-50' : '')}
       title={nearMiss}
       style={{ gridTemplateColumns: template, position: 'absolute', top, left: 0, right: 0, height: ROW_H }}
       onClick={onClick}

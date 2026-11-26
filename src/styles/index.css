@@ -16,12 +16,18 @@
   --accent: 152 64 34;
   --good: 46 125 80;
   --bad: 190 50 50;
-  --mid: 196 140 20;
+  --mid: 150 100 0;
   --link: 40 92 160;
   --row-alt: 252 250 245;
   --row-hover: 240 232 216;
   --row-active: 233 219 192;
   --stat-bg: 245 239 228;
+  /* backing for game art: mid-dark pixel art with hard alpha and no outlines reads fine on
+     parchment but melts into the dark theme, so dark mode rims small art (halo) and lights
+     up the area behind large art (glow) */
+  --art-halo: 0 0 0 / 0;
+  --art-glow: 255 255 255 / 0;
+  --art-halo-filter: none;
   color-scheme: light;
 }
 .dark {
@@ -40,6 +46,10 @@
   --row-hover: 33 39 49;
   --row-active: 52 46 34;
   --stat-bg: 30 35 44;
+  --art-halo: 236 226 205 / 0.5;
+  --art-glow: 236 226 205 / 0.2;
+  --art-halo-filter: drop-shadow(1px 0 0 rgb(var(--art-halo))) drop-shadow(-1px 0 0 rgb(var(--art-halo)))
+    drop-shadow(0 1px 0 rgb(var(--art-halo))) drop-shadow(0 -1px 0 rgb(var(--art-halo)));
   color-scheme: dark;
 }
 
@@ -241,6 +251,24 @@ button {
 .sprite-thumb {
   image-rendering: pixelated;
   object-fit: contain;
+}
+
+/* art backing (see --art-halo / --art-glow): every piece of art gets the halo, large art also
+   sits in a spotlight (.art-spot) */
+.art-halo,
+.sprite-thumb,
+.chead-pic img,
+.legacy .ref-sprite,
+.pathicon,
+.gemicon,
+.abilityicon,
+.nflag,
+.grid-cell .summon-icon img,
+.legacy .gicon img {
+  filter: var(--art-halo-filter);
+}
+.art-spot {
+  background: radial-gradient(closest-side, rgb(var(--art-glow)), transparent);
 }
 
 /* ------------------------------------------------------------------------------------------
@@ -466,6 +494,8 @@ button {
 }
 .legacy .gicon {
   width: 1.45em;
+  /* the art carries its own halo; the svg icons' drop shadow would double it */
+  filter: none;
 }
 .legacy .gicon img {
   width: 100%;

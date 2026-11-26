@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+// (renderRef splits the card header off with a <template>)
 import { describe, expect, it } from 'vitest';
 import { PAGE_BY_ID, PAGES, pageForRefKind } from '../src/pages';
 import { renderRef } from '../src/ui/legacy';
@@ -10,8 +12,12 @@ const run = (DMI: any, f: Record<string, any>) => {
   const args = g.getSearchArgs(f);
   return g.data().filter((o: any) => g.searchFilter(o, args)).map((o: any) => o.id) as number[];
 };
-const pane = (DMI: any, ref: string) => renderRef(DMI, ref, false)!.html;
-const text = (html: string) => html.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&ndash;/g, '-').replace(/&minus;/g, '-').replace(/\s+/g, ' ');
+/** what the card shows: its header (title, subtitle) and body */
+const pane = (DMI: any, ref: string) => {
+  const p = renderRef(DMI, ref, false)!;
+  return `<h2>${p.head.title}</h2><p>${p.head.sub}</p>` + p.html;
+};
+const text = (html: string) => html.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&ndash;|–/g, '-').replace(/&minus;|−/g, '-').replace(/\s+/g, ' ');
 const pdRows = (html: string) => [...html.matchAll(/<tr><td>([\s\S]*?)<\/tr>/g)].map((m) => text(m[1]).trim());
 
 describe('Independents page', () => {

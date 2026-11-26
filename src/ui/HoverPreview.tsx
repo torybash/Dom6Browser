@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { useData } from '../state/data';
 import { useSettings } from '../state/settings';
 import { useView } from '../state/view';
+import { CardHead } from './CardHead';
 import { renderRef } from './legacy';
 import { LegacyHtml, type RefEventInfo } from './LegacyHtml';
 
@@ -72,6 +73,7 @@ export function HoverPreview() {
       className="preview-card pointer-events-none fixed z-50 w-[380px] max-w-[92vw] overflow-hidden rounded-lg border border-line bg-panel shadow-2xl animate-in"
       style={{ left: pos?.left ?? -9999, top: pos?.top ?? 0, maxHeight: '72vh' }}
     >
+      <CardHead pane={pane} className="border-b border-line" />
       <LegacyHtml html={pane.html} jobs={pane.jobs} />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-panel" />
     </div>

@@ -8,6 +8,7 @@ import { displayName } from '../state/results';
 import { useSettings } from '../state/settings';
 import { useView } from '../state/view';
 import { useRefHandlers } from './DetailPanel';
+import { CardHead } from './CardHead';
 import { renderRef } from './legacy';
 import { LegacyHtml } from './LegacyHtml';
 
@@ -151,13 +152,22 @@ export function CompareView() {
           <div ref={rootRef} className="flex min-h-0 flex-1 gap-3 overflow-auto p-3">
             {panes.map(({ ref, pane }) => (
               <div key={ref} data-compare-col className="relative w-[400px] shrink-0 self-start rounded-lg border border-line bg-panel">
-                <button className="absolute right-2 top-2 z-10 btn-ghost p-1" onClick={() => unpin(ref)} title="Unpin" aria-label="Unpin">
-                  <X size={14} />
-                </button>
                 {pane ? (
-                  <LegacyHtml html={pane.html} jobs={pane.jobs} onRef={onRef} onHover={onHover} onRendered={highlight} />
+                  <>
+                    <CardHead pane={pane} onRef={onRef} onHover={onHover} className="border-b border-line">
+                      <button className="btn-ghost self-start p-1" onClick={() => unpin(ref)} title="Unpin" aria-label="Unpin">
+                        <X size={14} />
+                      </button>
+                    </CardHead>
+                    <LegacyHtml html={pane.html} jobs={pane.jobs} onRef={onRef} onHover={onHover} onRendered={highlight} />
+                  </>
                 ) : (
-                  <p className="p-4 text-sm text-muted">{ref} not found</p>
+                  <p className="flex items-center justify-between p-4 text-sm text-muted">
+                    {ref} not found
+                    <button className="btn-ghost p-1" onClick={() => unpin(ref)} title="Unpin" aria-label="Unpin">
+                      <X size={14} />
+                    </button>
+                  </p>
                 )}
               </div>
             ))}

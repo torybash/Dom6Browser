@@ -3,7 +3,10 @@
 
 const UPSTREAM_REF = /<a class="ref" style="cursor:pointer;"><input value="([^"]*)" type="hidden" \/>/g;
 const UPSTREAM_DASHED_REF = /<a-class="ref"-style="cursor:pointer;"><input-value="([^"]*)"-type="hidden"-\/>/g;
-const PORT_REF = /<a class="ref" data-ref="([^"]*)">/g;
+// (unit links also carry data-sprite, added in the port)
+const PORT_REF = /<a class="ref" data-ref="([^"]*)"(?: data-sprite="[^"]*")?>/g;
+// a run of nation links with its separators and any plain text after it (upstream's "MA, LA Abysia")
+const NATION_REFS = /(?:(?:<span class="modding-inline refid">#\d+&nbsp;<\/span>)?<a ref="nation \d+">[^<]*<\/a>(?:,(?:&nbsp;)? ?)?)+[^<]*/g;
 
 export function normalizeHtml(h) {
   if (typeof h !== 'string') return h;
@@ -23,6 +26,9 @@ export function normalizeHtml(h) {
     // nation flag emblems before nation names (added in the port)
     .replace(/<img class="nflag" src="[^"]*" alt="">/g, '')
     .replace(/\s+/g, ' ')
+    // nation links: the port names each nation "flag + era name" (Utils.nationRef), also in
+    // MNation.nationUnitRefs; compare only which nations are linked, in order
+    .replace(NATION_REFS, (m) => [...m.matchAll(/<a ref="(nation \d+)">/g)].map((x) => `<a ref="${x[1]}"/>`).join(''))
     // mod command lists: jQuery show/hide links vs <details>
     .replace(/\s*<a class="show-mod-commands".*?<p class="mod-cmds"[^>]*>\s*(.*?)\s*<\/p>\s*/g, '[[modded:$1]]')
     .replace(/\s*<details class="mod-cmds-block"[^>]*><summary>.*?<\/summary><p class="mod-cmds">\s*(.*?)\s*<\/p><\/details>\s*/g, '[[modded:$1]]')

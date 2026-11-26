@@ -641,28 +641,10 @@ MNation.nationSummary = function(hsh) {
 }
 
 MNation.nationUnitRefs = function(hsh) {
-	var refs = [], longRefs = [], eras = [], singlename = null;
-
-	var k;
-	for (k in hsh) {
-		refs.push( Utils.ref('nation '+hsh[k].id, hsh[k].eracode) );
-		longRefs.push( Utils.ref('nation '+hsh[k].id, hsh[k].shortname) );
-
-		var name = hsh[k].name;
-		singlename = (name==singlename || !singlename) ? name : -1;
-	}
+	var refs = [];
+	for (var k in hsh) refs.push( Utils.nationRef(hsh[k].id) );
 	if (refs.length == 0) return '';
-
-	if (refs.length == 1)
-		return Utils.ref('nation '+hsh[k].id, hsh[k].shortname);
-
-	if (refs.length > 1 && singlename != -1) {
-		return refs.join(', ') +' '+ singlename;
-	}
-
-	if (refs.length <= 3)
-		return longRefs.join(',&nbsp; ')
-
+	if (refs.length <= 3) return refs.join(',&nbsp; ');
 	return MNation.nationSummary(hsh).replace('Various ','Various nations');
 }
 

@@ -405,8 +405,13 @@ Utils.renderModded = function(o) {
 ////////////////////////////////////////////////////////////
 
 //ref links are resolved by the UI via event delegation on a.ref[data-ref]
-Utils.ref = function(ref, text) {
-	return '<a class="ref" data-ref="'+String(ref).replace(/"/g,'&quot;')+'">'+text+'</a>';
+Utils.ref = function(ref, text, attrs) {
+	return '<a class="ref" data-ref="'+String(ref).replace(/"/g,'&quot;')+'"'+(attrs || '')+'>'+text+'</a>';
+}
+// unit links carry their sprite; the UI shows it outside long lists (added in this app)
+function unitSpriteAttr(o) {
+	DMI.MUnit.prepareForRender(o);
+	return o.sprite && o.sprite.url1 ? ' data-sprite="'+String(o.sprite.url1).replace(/"/g,'&quot;')+'"' : '';
 }
 
 //make ref from object of type?
@@ -420,7 +425,7 @@ function objectRef(type, id, text, suffix) {
 	if (suffix) text += suffix;
 
 	var suffix = parseInt(o.id) ? '<span class="modding-inline refid">#'+o.id+'&nbsp;</span>' : '';
-	return suffix + Utils.ref(type+' '+o.id, text);//+'<span class="modding-inline refid">&nbsp;'+o.id+'</span>';
+	return suffix + Utils.ref(type+' '+o.id, text, type == 'unit' ? unitSpriteAttr(o) : '');
 }
 Utils.parseObjectRefs = function(html) {
 	return html.replace(/\[(\w+) ([^,\]]+),?\s*([^,\]]*),?([^,\]]*)\]/g, function(_,$1,$2,$3,$4){ return objectRef($1,$2,null,$4); });
@@ -454,11 +459,11 @@ Utils.unitRef  = function(id, text) {
 Utils.spellRef = function(id, text) { return objectRef('spell', id, text); }
 Utils.wpnRef   = function(id, text) { return objectRef('wpn',   id, text); }
 Utils.armorRef = function(id, text) { return objectRef('armor', id, text); }
-// nation flag inside the link (added in this app)
+// nation flag + era and name ("LA Abysia") inside the link (added in this app)
 Utils.nationRef = function(id, text) {
 	var o = (DMI.modctx.nationlookup || {})[id];
 	if (!o) return objectRef('nation', id, text);
-	return objectRef('nation', id, nationFlagHtml(o.id) + (typeof(text) == 'string' ? text : o.fullname || o.name));
+	return objectRef('nation', id, nationFlagHtml(o.id) + (typeof(text) == 'string' ? text : o.shortname || o.name));
 }
 Utils.nationFlag = nationFlagHtml;
 Utils.siteRef = function(id, text) { return objectRef('site', id, text); }
@@ -472,7 +477,7 @@ Utils.unitOfTypeRef = function(id, utype) {
 	var o = DMI.modctx.unitlookup[id];
 	if (!o) return v;
 	var suffix = '<span class="modding-inline refid">#'+o.id+'&nbsp;</span>';
-	return suffix + Utils.ref(utype+' '+o.id, o.linkname);
+	return suffix + Utils.ref(utype+' '+o.id, o.linkname, unitSpriteAttr(o));
 }
 Utils.rndMagicRef = function(id, text) {
 	var o = DMI.modctx.unitlookup[id];

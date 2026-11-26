@@ -309,33 +309,6 @@ button {
   display: none;
 }
 
-/* header */
-.legacy .overlay-header {
-  @apply relative rounded-t-lg px-4 pb-3 pt-3.5;
-  background: linear-gradient(180deg, rgb(var(--raised)), rgb(var(--panel)));
-  border-bottom: 1px solid rgb(var(--line));
-}
-.legacy .overlay-header .h2replace {
-  @apply font-display text-xl font-bold leading-tight text-fg;
-  margin: 0 0 0.25rem;
-  padding-right: 4rem;
-}
-.legacy .overlay-header p {
-  @apply text-xs text-muted;
-  margin: 0;
-}
-.legacy .overlay-header .item-image {
-  float: right;
-}
-.legacy .overlay-header .item-image img {
-  margin: 0 !important;
-  max-width: 48px;
-  image-rendering: pixelated;
-}
-.legacy .overlay-header span.modding-inline {
-  visibility: visible;
-}
-
 /* main */
 .legacy .overlay-main {
   @apply px-4 py-3;
@@ -426,16 +399,6 @@ button {
 .legacy {
   container-type: inline-size;
 }
-.unit.overlay-contents > .overlay-header .h2replace {
-  display: inline-block;
-  padding: 0.15rem 0.9rem 0.2rem;
-  margin-bottom: 0.4rem;
-  border-radius: 6px 6px 3px 3px;
-  font-style: italic;
-  color: #2b2218;
-  background: linear-gradient(180deg, #efe3c6, #d9c59d);
-  box-shadow: inset 0 0 0 1px #a88d5f, 0 1px 2px rgb(0 0 0 / 0.25);
-}
 .legacy .ucard {
   @apply mb-3 rounded-lg px-2.5 py-1.5;
   background: rgb(var(--stat-bg) / 0.55);
@@ -522,21 +485,6 @@ button {
 .legacy .uslot .gicon {
   width: 100%;
   filter: none;
-}
-/* the sprite sits in the header next to the name, like the item image on item cards */
-.legacy .usprite {
-  @apply float-right ml-3 flex items-end gap-1;
-}
-.legacy .usprite img.unit-sprite {
-  float: none;
-  margin: 0;
-  cursor: pointer;
-  image-rendering: pixelated;
-  max-width: 128px;
-  max-height: 96px;
-  object-fit: contain;
-  object-position: bottom;
-  background: none;
 }
 .legacy .uslots {
   @apply mt-1.5 flex flex-wrap gap-1 border-t border-line/60 pt-1.5;
@@ -628,7 +576,7 @@ button {
   grid-column: span 2;
 }
 
-/* unit description folded away (ui/unitCard.ts) */
+/* descriptions folded away (ui/legacy.ts foldDescription) */
 .legacy details.descr-fold {
   @apply mt-2;
 }
@@ -642,7 +590,7 @@ button {
   @apply mt-1;
 }
 .opt-nodescr .legacy details.descr-fold,
-.legacy details.descr-fold:has(> .overlay-descr:empty) {
+.legacy details.descr-fold:not(:has(> div:not(:empty))) {
   display: none;
 }
 
@@ -782,6 +730,60 @@ button {
   background: rgb(var(--bad) / 0.12) !important;
 }
 
+/* card header (ui/CardHead.tsx): picture, title, subtitle; the part of a card that stays when collapsed */
+.chead {
+  @apply flex min-h-[4.5rem] items-start gap-2.5 py-2 pl-2.5 pr-1.5;
+  background: linear-gradient(180deg, rgb(var(--raised)), rgb(var(--panel)));
+}
+.chead-pic {
+  @apply flex h-14 w-14 shrink-0 items-center justify-center self-center;
+}
+.chead-pic .legacy {
+  @apply flex h-full w-full items-end justify-center gap-0.5;
+  container-type: normal;
+}
+.chead-pic img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+/* (fixImage doubles small sprites by width; here the box decides) */
+.chead-pic img.unit-sprite {
+  width: auto !important;
+  min-width: 0;
+  cursor: pointer;
+}
+.chead-title {
+  @apply line-clamp-2 break-words font-display text-lg font-bold leading-tight text-fg;
+}
+.chead-sub {
+  @apply mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs leading-snug text-muted;
+  container-type: normal;
+}
+.chead-sub .chead-part + .chead-part::before {
+  content: '·';
+  margin-right: 0.375rem;
+  opacity: 0.6;
+}
+.chead-sub .abilityicon {
+  height: 1.1em;
+  vertical-align: -0.2em;
+}
+/* unit links with their sprite (ui/legacy.ts addUnitSprites) */
+.legacy a.ref-unit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  vertical-align: middle;
+}
+.legacy .ref-sprite {
+  max-height: 40px;
+  max-width: 48px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
 /* cards view */
 .float-card {
   @apply overflow-hidden rounded-lg border border-line bg-panel;
@@ -793,9 +795,6 @@ button {
   box-shadow:
     0 1px 2px rgb(0 0 0 / 0.3),
     0 14px 36px -8px rgb(0 0 0 / 0.6);
-}
-.float-card-title {
-  background: linear-gradient(180deg, rgb(var(--raised)), rgb(var(--panel)));
 }
 .float-card-title:active {
   cursor: grabbing;
@@ -870,9 +869,6 @@ button {
     animation: none;
   }
 }
-.legacy .uslots-text {
-  @apply ml-1.5 self-center text-xs text-muted;
-}
 
 /* Calculated values (src/ui/calculated.ts): set apart from raw game data by a dashed frame. */
 .legacy .calc-section {
@@ -915,7 +911,6 @@ button {
 .legacy .calc-title {
   @apply font-semibold;
 }
-.legacy .calc-sub,
 .legacy .calc-legend {
   @apply text-[11.5px] text-muted;
 }
@@ -976,6 +971,15 @@ button {
 .stat-tip .tip-text {
   color: #b9b09c;
 }
+.stat-tip .tip-derived + .tip-text {
+  margin-top: 0.4rem;
+}
+/* a weapon's secondary effect */
+.stat-tip .tip-sub {
+  margin-top: 0.45rem;
+  font-weight: 700;
+  color: #e2be6e;
+}
 .stat-tip .tip-derived {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -988,6 +992,9 @@ button {
   margin-top: 0;
   padding-top: 0;
   border-top: 0;
+}
+.stat-tip .tip-label::first-letter {
+  text-transform: capitalize;
 }
 .stat-tip .tip-label {
   grid-column: 1;

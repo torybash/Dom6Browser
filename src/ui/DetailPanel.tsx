@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useData } from '../state/data';
 import { useSettings } from '../state/settings';
 import { useView, type Filters } from '../state/view';
+import { CardHead } from './CardHead';
 import { usePreview } from './HoverPreview';
 import { renderRef } from './legacy';
 import { LegacyHtml, type RefEventInfo } from './LegacyHtml';
@@ -97,7 +98,10 @@ export function DetailPanel({ onClose }: { onClose?: () => void }) {
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
         {pane ? (
-          <LegacyHtml key={detailRef} html={pane.html} jobs={pane.jobs} onRef={onRef} onHover={onHover} className="animate-in" />
+          <div key={detailRef} className="animate-in">
+            <CardHead pane={pane} onRef={onRef} onHover={onHover} className="border-b border-line" />
+            <LegacyHtml html={pane.html} jobs={pane.jobs} onRef={onRef} onHover={onHover} />
+          </div>
         ) : (
           <EmptyDetail missing={!!detailRef} />
         )}

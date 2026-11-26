@@ -2,7 +2,6 @@
 // card (dashed outline) shows the current detailRef, i.e. whatever row or link was clicked last.
 import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp, Pin, X } from 'lucide-react';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { PAGES, pageForRefKind } from '../pages';
 import {
   CARD_EST_H,
   CARD_MAX_W,
@@ -16,9 +15,9 @@ import {
   type CardGeom,
 } from '../state/cards';
 import { useData } from '../state/data';
-import { displayName } from '../state/results';
 import { useSettings } from '../state/settings';
 import { useView } from '../state/view';
+import { CardHead } from './CardHead';
 import { clampToBounds, MARGIN, placeFree, placeNear, snap, type Rect } from './cardLayout';
 import { clearDiffs, markDiffs } from './Compare';
 import { usePreview } from './HoverPreview';
@@ -128,9 +127,7 @@ const FloatingCard = memo(function FloatingCard({ k, g, onRendered }: { k: strin
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [DMI, version, ref, showModCmds],
   );
-  const page = pane ? PAGES.find((p) => p.id === pageForRefKind(pane.kind)) : undefined;
-  const thumb = pane && DMI && page?.thumb ? page.thumb(pane.o, DMI) : undefined;
-  const name = pane ? displayName(pane.o) : (ref ?? '');
+  const name = pane ? pane.head.title : (ref ?? '');
 
   // heights feed placement, snapping and tidy
   useLayoutEffect(() => {
@@ -176,7 +173,7 @@ const FloatingCard = memo(function FloatingCard({ k, g, onRendered }: { k: strin
   };
 
   const drag = (e: React.PointerEvent) => {
-    if (e.button !== 0 || (e.target as HTMLElement).closest('button')) return;
+    if (e.button !== 0 || (e.target as HTMLElement).closest('button, a, [data-action]')) return;
     e.preventDefault();
     const start = { px: e.clientX, py: e.clientY, x: g.x, y: g.y };
     const others = rectsExcept(k);
@@ -203,6 +200,38 @@ const FloatingCard = memo(function FloatingCard({ k, g, onRendered }: { k: strin
   };
 
   const iconBtn = 'btn-ghost p-1';
+  const buttons = (
+    <div className="flex shrink-0 items-center gap-0.5 self-start">
+      {loose && (
+        <>
+          <span className="mr-0.5 rounded bg-accent/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-accent">Preview</span>
+          <button className={iconBtn} disabled={!canBack} onClick={useView.getState().back} title="Back (Alt+←)" aria-label="Back">
+            <ArrowLeft size={14} />
+          </button>
+          <button className={iconBtn} disabled={!canForward} onClick={useView.getState().forward} title="Forward (Alt+→)" aria-label="Forward">
+            <ArrowRight size={14} />
+          </button>
+          {ref && (
+            <button className={iconBtn + ' text-accent'} onClick={() => useView.getState().pin(ref)} title="Pin: keep this card open (Enter)" aria-label="Pin">
+              <Pin size={14} />
+            </button>
+          )}
+        </>
+      )}
+      <button
+        className={iconBtn}
+        onClick={() => useCards.getState().toggleCollapse(k)}
+        title={g.collapsed ? 'Expand' : 'Collapse'}
+        aria-label={g.collapsed ? 'Expand' : 'Collapse'}
+        aria-expanded={!g.collapsed}
+      >
+        {g.collapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+      </button>
+      <button className={iconBtn} onClick={close} title={loose ? 'Close' : 'Close (unpin)'} aria-label="Close">
+        <X size={14} />
+      </button>
+    </div>
+  );
   return (
     <section
       ref={elRef}
@@ -220,41 +249,21 @@ const FloatingCard = memo(function FloatingCard({ k, g, onRendered }: { k: strin
       onAnimationEnd={(e) => e.target === e.currentTarget && e.currentTarget.classList.remove('card-pulse')}
     >
       <div
-        className={'float-card-title flex h-9 shrink-0 cursor-grab touch-none select-none items-center gap-1.5 pl-2 pr-1 ' + (g.collapsed ? '' : 'border-b border-line')}
+        className={'float-card-title shrink-0 cursor-grab touch-none select-none ' + (g.collapsed ? '' : 'border-b border-line')}
         onPointerDown={drag}
-        onDoubleClick={(e) => !(e.target as HTMLElement).closest('button') && useCards.getState().toggleCollapse(k)}
+        onDoubleClick={(e) => !(e.target as HTMLElement).closest('button, a, [data-action]') && useCards.getState().toggleCollapse(k)}
         title="Drag to move (Alt: no snapping) · double-click to collapse"
       >
-        {thumb ? <img src={thumb} alt="" className="sprite-thumb h-5 w-5 shrink-0" /> : page ? <page.icon size={14} className="shrink-0 text-muted" /> : null}
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">{name}</span>
-        {loose && (
-          <>
-            <span className="rounded bg-accent/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-accent">Preview</span>
-            <button className={iconBtn} disabled={!canBack} onClick={useView.getState().back} title="Back (Alt+←)" aria-label="Back">
-              <ArrowLeft size={14} />
-            </button>
-            <button className={iconBtn} disabled={!canForward} onClick={useView.getState().forward} title="Forward (Alt+→)" aria-label="Forward">
-              <ArrowRight size={14} />
-            </button>
-            {ref && (
-              <button className={iconBtn + ' text-accent'} onClick={() => useView.getState().pin(ref)} title="Pin: keep this card open (Enter)" aria-label="Pin">
-                <Pin size={14} />
-              </button>
-            )}
-          </>
+        {pane ? (
+          <CardHead pane={pane} onRef={onRef} onHover={showPreview}>
+            {buttons}
+          </CardHead>
+        ) : (
+          <div className="chead">
+            <span className="min-w-0 flex-1 self-center truncate text-sm text-muted">{name}</span>
+            {buttons}
+          </div>
         )}
-        <button
-          className={iconBtn}
-          onClick={() => useCards.getState().toggleCollapse(k)}
-          title={g.collapsed ? 'Expand' : 'Collapse'}
-          aria-label={g.collapsed ? 'Expand' : 'Collapse'}
-          aria-expanded={!g.collapsed}
-        >
-          {g.collapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-        </button>
-        <button className={iconBtn} onClick={close} title={loose ? 'Close' : 'Close (unpin)'} aria-label="Close">
-          <X size={14} />
-        </button>
       </div>
       {!g.collapsed && (
         <>

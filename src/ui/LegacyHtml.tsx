@@ -77,6 +77,8 @@ export const LegacyHtml = memo(function LegacyHtml({ html, jobs, className, onRe
     let hovering: HTMLElement | null = null;
     const over = (e: MouseEvent) => {
       const info = refInfo(e);
+      // links with a stat tooltip (weapons, armor) show that instead of a card preview
+      if (info?.anchor.dataset.tip) return;
       if (info && info.anchor !== hovering) {
         hovering = info.anchor;
         handlers.current.onHover?.(info);

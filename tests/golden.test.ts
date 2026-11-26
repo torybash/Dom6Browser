@@ -79,7 +79,8 @@ function paritySuite(label: string, file: string, load: () => Promise<any>) {
         const diffs: string[] = [];
         for (const id of Object.keys(golden.html[kind])) {
           const a = html[kind][id];
-          const b = golden.html[kind][id];
+          // fixtures are stored normalised; normalising again applies rules added since the dump
+          const b = normalizeHtml(golden.html[kind][id]);
           if (a !== b) {
             let i = 0;
             while (i < Math.min(a?.length ?? 0, b?.length ?? 0) && a![i] === b[i]) i++;

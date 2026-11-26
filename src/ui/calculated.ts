@@ -28,10 +28,11 @@ export function renderCalculatedHtml(DMI: DMI, o: any): string {
   }
   return (
     '<details class="calc-section">' +
-    `<summary class="calc-head"><span class="uicon">${Calculator}</span><span class="calc-title">Calculated</span>` +
-    '<span class="calc-sub">base unit: no items, scales or province effects</span></summary>' +
+    `<summary class="calc-head"><span class="uicon">${Calculator}</span><span class="calc-title">Calculated</span></summary>` +
     `<div class="calc-grid">${html}</div>` +
-    (approx ? '<p class="calc-legend">≈ formula not yet confirmed against the game. Hover a value for its formula.</p>' : '') +
+    '<p class="calc-legend">Base unit: no items, scales or province effects.' +
+    (approx ? ' ≈ formula not yet confirmed against the game. Hover a value for its formula.' : '') +
+    '</p>' +
     '</details>'
   );
 }

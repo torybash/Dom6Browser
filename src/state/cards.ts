@@ -38,6 +38,8 @@ interface CardsState {
   focus: (key: string) => void;
   toggleCollapse: (key: string) => void;
   setAllCollapsed: (keys: string[], collapsed: boolean) => void;
+  /** collapse all when any is expanded, else expand all */
+  toggleAllCollapsed: (keys: string[]) => void;
   /** the loose card was pinned: it keeps its place under its ref, the next loose card gets a new one */
   adoptLoose: (ref: string) => void;
   /** forget geometry of cards that are no longer open */
@@ -89,6 +91,10 @@ export const useCards = create<CardsState>((set, get) => ({
     for (const k of keys) if (geom[k]) geom[k] = { ...geom[k], collapsed };
     set({ geom });
   },
+  toggleAllCollapsed: (keys) => {
+    const s = get();
+    s.setAllCollapsed(keys, anyExpanded(keys, s.geom));
+  },
   adoptLoose: (ref) => {
     const s = get();
     const g = s.geom[LOOSE];
@@ -137,6 +143,42 @@ export const useCards = create<CardsState>((set, get) => ({
 /** Keys of the open cards, in pin order with the loose card last. */
 export function openCardKeys(pins: string[], detailRef: string | null): string[] {
   return detailRef && !pins.includes(detailRef) ? [...pins, LOOSE] : pins;
+}
+
+/** Keys of the open cards in the current view. */
+export function currentCardKeys(): string[] {
+  const v = useView.getState();
+  return openCardKeys(v.pins, v.detailRef);
+}
+
+export function anyExpanded(keys: string[], geom: Record<string, CardGeom>) {
+  return keys.some((k) => geom[k] && !geom[k].collapsed);
+}
+
+/** The open card on top, or null when there is none. */
+export function frontCardKey(): string | null {
+  const { geom } = useCards.getState();
+  let top: string | null = null;
+  for (const k of currentCardKeys()) if (geom[k] && (!top || geom[k].z > geom[top].z)) top = k;
+  return top;
+}
+
+/** Bring the next (1) or previous (-1) open card, in pin order, to the front. */
+export function cycleCard(dir: 1 | -1) {
+  const { geom, focus } = useCards.getState();
+  const keys = currentCardKeys().filter((k) => geom[k]);
+  if (!keys.length) return;
+  const i = keys.indexOf(frontCardKey() ?? '');
+  focus(keys[i < 0 ? 0 : (i + dir + keys.length) % keys.length]);
+}
+
+/** Close a card: unpin it, and hide it if it is the loose card. */
+export function closeCard(key: string) {
+  const v = useView.getState();
+  const ref = cardRef(key);
+  if (key !== LOOSE) v.unpin(key);
+  // a closed card should not reappear as the loose card
+  if (v.detailRef === ref) useView.setState({ detailRef: null });
 }
 
 /** The ref shown by a card key. */

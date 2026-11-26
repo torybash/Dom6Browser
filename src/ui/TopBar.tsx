@@ -5,6 +5,7 @@ import { useMods } from '../state/mods';
 import { useSettings, type Theme } from '../state/settings';
 import { useGlobalSearch } from './GlobalSearch';
 import { useModsDialog } from './ModsDialog';
+import { ShortcutHelp } from './Shortcuts';
 
 export function TopBar({ onToggleSidebar, compact }: { onToggleSidebar?: () => void; compact?: boolean }) {
   const setSearchOpen = useGlobalSearch((s) => s.setOpen);
@@ -121,30 +122,6 @@ function SettingsMenu() {
         </Dropdown.Content>
       </Dropdown.Portal>
     </Dropdown.Root>
-  );
-}
-
-function ShortcutHelp() {
-  const rows: [string, string][] = [
-    ['Ctrl K  or  /', 'search everything'],
-    ['↑ ↓  (Ctrl in search box)', 'move through results'],
-    ['Enter', 'pin selected'],
-    ['Alt ← →', 'detail history'],
-    ['Ctrl ← →', 'switch page'],
-    ['Esc', 'close / clear search'],
-    ['Alt + drag', 'move a card without snapping'],
-    ['Dbl-click title', 'collapse a card'],
-  ];
-  return (
-    <div className="px-2 pb-1 text-[11px] text-muted">
-      <div className="section-label mb-1">Keyboard</div>
-      {rows.map(([k, d]) => (
-        <div key={k} className="flex justify-between gap-2 py-0.5">
-          <span className="font-mono">{k}</span>
-          <span>{d}</span>
-        </div>
-      ))}
-    </div>
   );
 }
 

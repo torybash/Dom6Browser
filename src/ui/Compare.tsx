@@ -2,7 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { ChevronsDownUp, ChevronsUpDown, Columns3, Diff, LayoutDashboard, Pin, X } from 'lucide-react';
 import { useCallback, useMemo, useRef } from 'react';
 import { PAGES, pageForRefKind } from '../pages';
-import { openCardKeys, useCards } from '../state/cards';
+import { anyExpanded, currentCardKeys, useCards } from '../state/cards';
 import { useData } from '../state/data';
 import { displayName } from '../state/results';
 import { useSettings } from '../state/settings';
@@ -64,23 +64,16 @@ export function PinTray({ mobile }: { mobile?: boolean }) {
 /** Cards view: arrange, collapse and diff the open cards. */
 function BoardControls() {
   const diff = useCards((s) => s.diff);
-  const keys = () => {
-    const v = useView.getState();
-    return openCardKeys(v.pins, v.detailRef);
-  };
-  const anyOpen = useCards((s) => {
-    const v = useView.getState();
-    return openCardKeys(v.pins, v.detailRef).some((k) => s.geom[k] && !s.geom[k].collapsed);
-  });
+  const anyOpen = useCards((s) => anyExpanded(currentCardKeys(), s.geom));
   return (
     <div className="flex shrink-0 items-center gap-0.5 border-r border-line pr-2">
-      <button className="btn-ghost px-2 text-xs" onClick={() => useCards.getState().tidy(keys())} title="Arrange cards in columns">
+      <button className="btn-ghost px-2 text-xs" onClick={() => useCards.getState().tidy(currentCardKeys())} title="Arrange cards in columns (T)">
         <LayoutDashboard size={14} /> Tidy
       </button>
       <button
         className="btn-ghost px-2 text-xs"
-        onClick={() => useCards.getState().setAllCollapsed(keys(), anyOpen)}
-        title={anyOpen ? 'Collapse all cards to their title bars' : 'Expand all cards'}
+        onClick={() => useCards.getState().toggleAllCollapsed(currentCardKeys())}
+        title={(anyOpen ? 'Collapse all cards to their title bars' : 'Expand all cards') + ' (C)'}
       >
         {anyOpen ? <ChevronsDownUp size={14} /> : <ChevronsUpDown size={14} />} {anyOpen ? 'Collapse' : 'Expand'}
       </button>
@@ -88,7 +81,7 @@ function BoardControls() {
         className={'btn-ghost px-2 text-xs ' + (diff ? 'bg-accent/10 text-accent' : '')}
         onClick={() => useCards.getState().setDiff(!diff)}
         aria-pressed={diff}
-        title="Highlight values that differ between cards of the same kind"
+        title="Highlight values that differ between cards of the same kind (D)"
       >
         <Diff size={14} /> Diff
       </button>

@@ -18,6 +18,7 @@ import { GlobalSearch, useGlobalSearch } from './GlobalSearch';
 import { HoverPreview, usePreview } from './HoverPreview';
 import { ModsDialog } from './ModsDialog';
 import { isColHidden, ResultsTable, shownCalcColumns, tableApi, toggleCol, useColumnPrefs } from './ResultsTable';
+import { keyAction, ShortcutDialog } from './Shortcuts';
 import { LoadingScreen, TopBar } from './TopBar';
 
 function useMediaQuery(q: string) {
@@ -119,6 +120,7 @@ export function App() {
       <GlobalSearch />
       <ModsDialog />
       <CompareView />
+      <ShortcutDialog />
       <HoverPreview />
     </>
   );
@@ -486,9 +488,10 @@ function isTyping(el: Element | null) {
 
 function useGlobalShortcuts() {
   useEffect(() => {
+    let lastEsc = 0;
     const onKey = (e: KeyboardEvent) => {
       const typing = isTyping(document.activeElement);
-      const dialogOpen = !!document.querySelector('[role="dialog"]');
+      const dialogOpen = !!document.querySelector('[role="dialog"], [role="menu"]');
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         useGlobalSearch.getState().setOpen(true);
@@ -514,7 +517,19 @@ function useGlobalShortcuts() {
         v.setPage(next.id);
         return;
       }
-      if (typing) return;
+      if (typing) {
+        // a text box that did not use Esc itself (e.g. an empty search) lets go of the focus
+        if (e.key === 'Escape') (document.activeElement as HTMLElement).blur();
+        return;
+      }
+      const cardsView = !window.matchMedia('(max-width: 767px)').matches;
+      const action = keyAction(e, cardsView);
+      // Space on a focused button presses it
+      if (action && !(e.key === ' ' && (document.activeElement as HTMLElement | null)?.closest('button, a, summary'))) {
+        e.preventDefault();
+        action.run(e);
+        return;
+      }
       const inTable = !!(document.activeElement as HTMLElement | null)?.closest?.('[data-results-table]');
       if (!inTable && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
         e.preventDefault();
@@ -525,8 +540,11 @@ function useGlobalShortcuts() {
         // upstream: close the top popup; with none open, clear filters and focus the search box
         if (usePreview.getState().target) return usePreview.getState().show(null);
         // desktop cards: Esc closes the loose card first (pinned cards stay)
-        const cardsView = !window.matchMedia('(max-width: 767px)').matches;
         if (cardsView && v.detailRef && !v.pins.includes(v.detailRef)) return useView.setState({ detailRef: null });
+        // with nothing left to close, a second Esc in quick succession clears the filters
+        const now = Date.now();
+        if (now - lastEsc > 600) return void (lastEsc = now);
+        lastEsc = 0;
         v.resetFilters();
         document.getElementById('page-search')?.focus();
       }

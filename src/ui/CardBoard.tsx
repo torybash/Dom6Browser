@@ -9,6 +9,8 @@ import {
   CARD_W,
   cardHeights,
   cardRect,
+  closeCard,
+  currentCardKeys,
   LOOSE,
   openCardKeys,
   useCards,
@@ -26,13 +28,8 @@ import { LegacyHtml, type RefEventInfo } from './LegacyHtml';
 
 const NEW_CARD = { w: CARD_W, h: CARD_EST_H };
 
-function currentKeys() {
-  const v = useView.getState();
-  return openCardKeys(v.pins, v.detailRef);
-}
-
 function rectsExcept(key: string | null): Rect[] {
-  return currentKeys()
+  return currentCardKeys()
     .filter((k) => k !== key)
     .map(cardRect)
     .filter((r): r is Rect => !!r);
@@ -165,12 +162,7 @@ const FloatingCard = memo(function FloatingCard({ k, g, onRendered }: { k: strin
     [k],
   );
 
-  const close = () => {
-    const v = useView.getState();
-    if (!loose) v.unpin(k);
-    // a closed card should not reappear as the loose card
-    if (v.detailRef === ref) useView.setState({ detailRef: null });
-  };
+  const close = () => closeCard(k);
 
   const drag = (e: React.PointerEvent) => {
     if (e.button !== 0 || (e.target as HTMLElement).closest('button, a, [data-action]')) return;

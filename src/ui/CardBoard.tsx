@@ -213,13 +213,13 @@ const FloatingCard = memo(function FloatingCard({ k, g, onRendered }: { k: strin
       <button
         className={iconBtn}
         onClick={() => useCards.getState().toggleCollapse(k)}
-        title={g.collapsed ? 'Expand' : 'Collapse'}
+        title={(g.collapsed ? 'Expand' : 'Collapse') + ' (Space on the top card)'}
         aria-label={g.collapsed ? 'Expand' : 'Collapse'}
         aria-expanded={!g.collapsed}
       >
         {g.collapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
       </button>
-      <button className={iconBtn} onClick={close} title={loose ? 'Close' : 'Close (unpin)'} aria-label="Close">
+      <button className={iconBtn} onClick={close} title={(loose ? 'Close' : 'Close (unpin)') + ' (X on the top card)'} aria-label="Close">
         <X size={14} />
       </button>
     </div>

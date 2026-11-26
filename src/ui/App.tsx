@@ -18,7 +18,7 @@ import { GlobalSearch, useGlobalSearch } from './GlobalSearch';
 import { HoverPreview, usePreview } from './HoverPreview';
 import { ModsDialog } from './ModsDialog';
 import { isColHidden, ResultsTable, shownCalcColumns, tableApi, toggleCol, useColumnPrefs } from './ResultsTable';
-import { keyAction, ShortcutDialog } from './Shortcuts';
+import { KeyHint, keyAction, pageDigit, ShortcutDialog } from './Shortcuts';
 import { LoadingScreen, TopBar } from './TopBar';
 
 function useMediaQuery(q: string) {
@@ -267,6 +267,7 @@ function PageNav({ onPick }: { onPick?: () => void }) {
   const item = (p: PageDef) => (
     <button
       key={p.id}
+      aria-keyshortcuts={pageDigit(p.id)}
       onClick={() => {
         setPage(p.id);
         onPick?.();
@@ -280,6 +281,7 @@ function PageNav({ onPick }: { onPick?: () => void }) {
       <p.icon size={16} className={pageId === p.id ? 'text-accent' : ''} />
       <span className="flex-1">{p.label}</span>
       <span className="text-[11px] tabular-nums text-muted/80">{counts[p.id]?.toLocaleString()}</span>
+      <KeyHint k={pageDigit(p.id) ?? ''} className="w-2 text-right" />
     </button>
   );
   return (

@@ -107,6 +107,15 @@ button {
 .kbd {
   @apply rounded border border-line bg-raised px-1 font-mono text-[10px] text-muted;
 }
+.key-hint {
+  @apply pointer-events-none font-mono text-[10px] font-normal leading-none text-muted/50;
+}
+/* no keyboard to speak of on touch screens */
+@media (pointer: coarse) {
+  .key-hint {
+    display: none;
+  }
+}
 .section-label {
   @apply text-[11px] font-semibold uppercase tracking-wider text-muted;
 }

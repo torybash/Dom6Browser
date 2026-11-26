@@ -7,6 +7,7 @@ import { useView, type Filters, type PropertyFilter } from '../state/view';
 import { tableApi } from './ResultsTable';
 import { EventEligibility } from './EventEligibility';
 import { NationPicker } from './NationPicker';
+import { KeyHint } from './Shortcuts';
 import { isCasterSet } from '../data/extensions/casterLevels';
 
 interface Props {
@@ -81,7 +82,8 @@ function SearchBox({ page, value, onChange }: { page: PageDef; value: string; on
       <Search size={15} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
       <input
         id="page-search"
-        className="input pl-8 pr-8"
+        aria-keyshortcuts="F"
+        className="peer input pl-8 pr-8"
         placeholder={`Search ${page.label.toLowerCase()} by name or id`}
         value={local}
         spellCheck={false}
@@ -100,6 +102,7 @@ function SearchBox({ page, value, onChange }: { page: PageDef; value: string; on
           } else stepNumeric(e, local, (v) => setLocal(v));
         }}
       />
+      {!local && <KeyHint k="F" className="absolute right-3 top-1/2 -translate-y-1/2 peer-focus:hidden" />}
       {local && (
         <button
           className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted hover:text-fg"

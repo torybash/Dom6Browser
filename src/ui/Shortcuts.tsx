@@ -60,6 +60,21 @@ export const KEY_ACTIONS: KeyAction[] = [
   },
 ];
 
+/** The digit that opens a page, if it has one. */
+export function pageDigit(id: string): string | undefined {
+  const i = PAGES.findIndex((p) => p.id === id);
+  return i >= 0 ? DIGITS[i] : undefined;
+}
+
+/** A quiet glyph on a control naming the key that does the same thing. */
+export function KeyHint({ k, className = '' }: { k: string; className?: string }) {
+  return (
+    <kbd aria-hidden className={'key-hint ' + className}>
+      {k}
+    </kbd>
+  );
+}
+
 /** The action for a key press, or undefined. Modifier combos are left to the browser (Shift only for '?'). */
 export function keyAction(e: KeyboardEvent, cardsView: boolean) {
   if (e.ctrlKey || e.metaKey || e.altKey) return undefined;

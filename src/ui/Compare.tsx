@@ -11,6 +11,7 @@ import { useRefHandlers } from './DetailPanel';
 import { CardHead } from './CardHead';
 import { renderRef } from './legacy';
 import { LegacyHtml } from './LegacyHtml';
+import { KeyHint } from './Shortcuts';
 
 /** Bottom tray listing pinned entries (replaces upstream's draggable popups). */
 export function PinTray({ mobile }: { mobile?: boolean }) {
@@ -67,23 +68,25 @@ function BoardControls() {
   const anyOpen = useCards((s) => anyExpanded(currentCardKeys(), s.geom));
   return (
     <div className="flex shrink-0 items-center gap-0.5 border-r border-line pr-2">
-      <button className="btn-ghost px-2 text-xs" onClick={() => useCards.getState().tidy(currentCardKeys())} title="Arrange cards in columns (T)">
-        <LayoutDashboard size={14} /> Tidy
+      <button className="btn-ghost px-2 text-xs" onClick={() => useCards.getState().tidy(currentCardKeys())} title="Arrange cards in columns (T)" aria-keyshortcuts="T">
+        <LayoutDashboard size={14} /> Tidy <KeyHint k="T" />
       </button>
       <button
         className="btn-ghost px-2 text-xs"
         onClick={() => useCards.getState().toggleAllCollapsed(currentCardKeys())}
         title={(anyOpen ? 'Collapse all cards to their title bars' : 'Expand all cards') + ' (C)'}
+        aria-keyshortcuts="C"
       >
-        {anyOpen ? <ChevronsDownUp size={14} /> : <ChevronsUpDown size={14} />} {anyOpen ? 'Collapse' : 'Expand'}
+        {anyOpen ? <ChevronsDownUp size={14} /> : <ChevronsUpDown size={14} />} {anyOpen ? 'Collapse' : 'Expand'} <KeyHint k="C" />
       </button>
       <button
         className={'btn-ghost px-2 text-xs ' + (diff ? 'bg-accent/10 text-accent' : '')}
         onClick={() => useCards.getState().setDiff(!diff)}
         aria-pressed={diff}
         title="Highlight values that differ between cards of the same kind (D)"
+        aria-keyshortcuts="D"
       >
-        <Diff size={14} /> Diff
+        <Diff size={14} /> Diff <KeyHint k="D" />
       </button>
     </div>
   );

@@ -17,14 +17,13 @@ function sortBy(DMI: any, mod: string, id: string, asc: boolean) {
 describe('value columns', () => {
   it('units: stat columns exist, numeric, with the agreed default visibility', async () => {
     const DMI = await vanilla();
-    const shown = ['hp', 'prot', 'mr', 'mor', 'att', 'def'];
-    const hidden = ['str', 'prec', 'size', 'enc', 'mapmove', 'ap', 'leader', 'magicleader', 'undeadleader'];
-    for (const id of [...shown, ...hidden]) {
+    const hidden = ['hp', 'prot', 'mr', 'mor', 'att', 'def', 'str', 'prec', 'size', 'enc', 'mapmove', 'ap', 'leader', 'magicleader', 'undeadleader'];
+    for (const id of hidden) {
       const c = cols(DMI, 'MUnit').find((x) => x.id === id);
       expect(c, id).toBeTruthy();
       expect(c.cssClass).toBe('numeric');
       expect(c.sortCmp).toBe('num');
-      expect(!!c.defaultHidden, id).toBe(hidden.includes(id));
+      expect(c.defaultHidden, id).toBe(true);
     }
   });
 
@@ -75,8 +74,7 @@ describe('default column visibility', () => {
     const results: any = { rows: [], total: 0, grid };
     const visible = (p: any) => tableColumns(PAGE_BY_ID.unit, results, false, p).map((c) => c.id);
     const v = visible(none);
-    expect(v).toEqual(expect.arrayContaining(['hp', 'prot', 'mr', 'mor', 'att', 'def']));
-    for (const id of ['str', 'prec', 'size', 'enc', 'mapmove', 'ap', 'leader', 'magicleader', 'undeadleader']) expect(v).not.toContain(id);
+    expect(v).toEqual(['__thumb', 'name', 'nation', 'sorttype', 'goldcost', 'rcostsort', 'sacredsort', 'listed_mpath']);
     // legacy prefs without a `shown` list behave the same
     expect(visible({ hidden: ['gold'], widths: {} })).not.toContain('str');
   });
@@ -84,15 +82,15 @@ describe('default column visibility', () => {
   it('toggling shows/hides and reset restores defaults', async () => {
     const DMI = await vanilla();
     const str = cols(DMI, 'MUnit').find((c) => c.id === 'str');
-    const hp = cols(DMI, 'MUnit').find((c) => c.id === 'hp');
+    const gold = cols(DMI, 'MUnit').find((c) => c.id === 'goldcost');
     let p = toggleCol(none, str, true);
     expect(isColHidden(p, str)).toBe(false);
     p = toggleCol(p, str, false);
     expect(isColHidden(p, str)).toBe(true);
-    p = toggleCol(none, hp, false);
-    expect(isColHidden(p, hp)).toBe(true);
-    expect(toggleCol(p, hp, true).hidden).toEqual([]);
-    expect(isColHidden({ hidden: [], shown: [], widths: {} }, hp)).toBe(false);
+    p = toggleCol(none, gold, false);
+    expect(isColHidden(p, gold)).toBe(true);
+    expect(toggleCol(p, gold, true).hidden).toEqual([]);
+    expect(isColHidden({ hidden: [], shown: [], widths: {} }, gold)).toBe(false);
   });
 
   it('other pages ship some hidden columns', async () => {

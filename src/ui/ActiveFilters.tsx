@@ -21,7 +21,9 @@ export function activeChips(page: PageDef, f: Filters, DMI: DMI, o: { advanced: 
       chips.push({ id: d.key, label: <><NationFlag id={f[d.key]} />{nationLabel(DMI, f[d.key])}</>, clear: { [d.key]: '' } });
     if (d.type === 'select' && f[d.key]) {
       const opt = d.options.find((x) => x.value === f[d.key]);
-      chips.push({ id: d.key, label: `${d.label}: ${opt?.label ?? f[d.key]}`, clear: { [d.key]: '' } });
+      // button labels are shortened; their title holds the full wording
+      const text = (d.buttons ? opt?.title : undefined) ?? opt?.label ?? f[d.key];
+      chips.push({ id: d.key, label: `${d.label}: ${text}`, clear: { [d.key]: '' } });
     }
     if (d.type === 'scope') {
       if (f[d.nationalKey]) chips.push({ id: 'national', label: 'National only', clear: { [d.nationalKey]: false } });

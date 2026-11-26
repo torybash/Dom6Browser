@@ -147,6 +147,9 @@ function FilterControl({ def, filters, DMI, setFilter, patch }: ControlProps) {
     case 'select':
       return (
         <Section label={def.label} active={!!filters[def.key]} onReset={() => setFilter(def.key, '')}>
+          {def.buttons ? (
+            <Segmented value={filters[def.key] ?? ''} options={def.options} onChange={(v) => setFilter(def.key, v)} />
+          ) : (
           <div className="relative">
             <select className="input appearance-none pr-8" value={filters[def.key] ?? ''} onChange={(e) => setFilter(def.key, e.target.value)}>
               {def.options.map((o) =>
@@ -163,6 +166,7 @@ function FilterControl({ def, filters, DMI, setFilter, patch }: ControlProps) {
             </select>
             <ChevronDown size={14} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-muted" />
           </div>
+          )}
         </Section>
       );
     case 'segmented':
@@ -373,7 +377,7 @@ function NumberField({ def, value, onChange }: { def: Extract<FilterDef, { type:
   );
 }
 
-export function Segmented({ value, options, onChange }: { value: string; options: { value: string; label: string }[]; onChange: (v: string) => void }) {
+export function Segmented({ value, options, onChange }: { value: string; options: { value: string; label: string; title?: string }[]; onChange: (v: string) => void }) {
   return (
     <div className="flex rounded-md border border-line bg-raised p-0.5" role="radiogroup">
       {options.map((o) => (
@@ -381,6 +385,7 @@ export function Segmented({ value, options, onChange }: { value: string; options
           key={o.value}
           role="radio"
           aria-checked={value === o.value}
+          title={o.title}
           className={'flex-1 rounded px-2 py-1 text-xs transition-colors ' + (value === o.value ? 'bg-accent text-white shadow-sm dark:text-bg' : 'text-muted hover:text-fg')}
           onClick={() => onChange(o.value)}
         >

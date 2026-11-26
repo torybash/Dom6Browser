@@ -17,7 +17,8 @@ export interface SelectOption {
 
 export type FilterDef =
   | { type: 'nation'; key: string }
-  | { type: 'select'; key: string; label: string; options: SelectOption[] }
+  /** one choice from a list; `buttons` shows a short list as a segmented control instead of a dropdown */
+  | { type: 'select'; key: string; label: string; options: SelectOption[]; buttons?: boolean }
   | { type: 'paths'; key: string; paths: string; icon: 'Path' | 'Gem'; label: string; inclusiveKey?: string }
   | { type: 'pathLevels'; key: string; paths: string; label: string; boostKey: string }
   | { type: 'scope'; nationalKey: string; genericKey: string }
@@ -135,20 +136,22 @@ export const PAGES: PageDef[] = [
         type: 'select',
         key: 'type',
         label: 'Kind',
+        buttons: true,
         options: [
-          { value: '', label: 'Ritual & combat' },
+          { value: '', label: 'All', title: 'Rituals and combat spells' },
           { value: 'Ritual', label: 'Rituals' },
-          { value: 'Combat', label: 'Combat spells' },
+          { value: 'Combat', label: 'Combat', title: 'Combat spells' },
         ],
       },
       {
         type: 'select',
         key: 'aquatic',
         label: 'Where',
+        buttons: true,
         options: [
-          { value: '', label: 'Underwater & land' },
-          { value: 'uw', label: 'Works underwater' },
-          { value: 'land', label: 'Works on dry land' },
+          { value: '', label: 'All', title: 'Underwater and on land' },
+          { value: 'uw', label: 'Underwater', title: 'Works underwater' },
+          { value: 'land', label: 'Land', title: 'Works on dry land' },
         ],
       },
       {
@@ -280,8 +283,9 @@ export const PAGES: PageDef[] = [
         type: 'select',
         key: 'sitetype',
         label: 'Kind',
+        buttons: true,
         options: [
-          { value: '', label: 'All types' },
+          { value: '', label: 'All', title: 'All types' },
           { value: 'Normal', label: 'Normal' },
           { value: 'Capitals', label: 'Capitals' },
           { value: 'Thrones', label: 'Thrones' },
@@ -304,22 +308,24 @@ export const PAGES: PageDef[] = [
         type: 'select',
         key: 'caster',
         label: 'Commanders',
+        buttons: true,
         options: [
-          { value: '', label: 'Any' },
-          { value: 'mage', label: 'Has a mage' },
-          { value: 'priest', label: 'Has a priest' },
-          { value: 'none', label: 'No mage or priest' },
+          { value: '', label: 'All', title: 'Any commanders' },
+          { value: 'mage', label: 'Mage', title: 'Has a mage' },
+          { value: 'priest', label: 'Priest', title: 'Has a priest' },
+          { value: 'none', label: 'Neither', title: 'No mage or priest' },
         ],
       },
       {
         type: 'select',
         key: 'source',
         label: 'Source',
+        buttons: true,
         options: [
-          { value: '', label: 'Vanilla and mods' },
-          { value: 'base', label: 'Unmodified vanilla' },
-          { value: 'edited', label: 'Vanilla, edited by a mod' },
-          { value: 'added', label: 'Added by a mod' },
+          { value: '', label: 'All', title: 'Vanilla and mods' },
+          { value: 'base', label: 'Vanilla', title: 'Unmodified vanilla' },
+          { value: 'edited', label: 'Edited', title: 'Vanilla, edited by a mod' },
+          { value: 'added', label: 'Added', title: 'Added by a mod' },
         ],
       },
       {
@@ -333,7 +339,13 @@ export const PAGES: PageDef[] = [
           { value: 'none', label: 'Not placed by the map generator' },
         ],
       },
-      { type: 'select', key: 'era', label: 'Era', options: [{ value: '', label: 'All eras' }, ...ERA_FILTER_OPTIONS] },
+      {
+        type: 'select',
+        key: 'era',
+        label: 'Era',
+        buttons: true,
+        options: [{ value: '', label: 'All', title: 'All eras' }, ...ERA_FILTER_OPTIONS.map((o) => ({ ...o, label: o.label.replace(/ era$/, ''), title: o.label }))],
+      },
     ],
   },
   { id: 'merc', label: 'Mercenaries', singular: 'Mercenary', icon: Coins, module: 'MMerc', refKind: 'merc', group: 'main', filters: [] },
@@ -381,11 +393,12 @@ export const PAGES: PageDef[] = [
         type: 'select',
         key: 'era',
         label: 'Era',
+        buttons: true,
         options: [
-          { value: '', label: 'All eras' },
-          { value: '1', label: 'Early era' },
-          { value: '2', label: 'Middle era' },
-          { value: '3', label: 'Late era' },
+          { value: '', label: 'All', title: 'All eras' },
+          { value: '1', label: 'Early', title: 'Early era' },
+          { value: '2', label: 'Middle', title: 'Middle era' },
+          { value: '3', label: 'Late', title: 'Late era' },
         ],
       },
     ],

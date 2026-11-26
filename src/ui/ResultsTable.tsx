@@ -72,34 +72,28 @@ interface ViewColumn {
   minWidth: number;
   kind: 'thumb' | 'id' | 'data';
   numeric?: boolean;
-  /** text column at its automatic width: takes a share of any leftover room */
-  flex?: boolean;
-}
-
-/** Content width of a column, measured from sampled rows: p95 sets the default, max is what double-click fits to. */
-export interface ColFit {
-  p95: number;
-  max: number;
 }
 
 const MIN_COL_W = 36;
-const MAX_AUTO_W = 360;
 const MAX_FIT_W = 640;
+/** Rows measured up front; the rest are measured afterwards in chunks so a big page doesn't stall. */
 const MEASURE_ROWS = 150;
+const MEASURE_CHUNK = 300;
 
-/** Default and full-fit widths from measured cell widths; the header label is a floor for both. */
-export function fitFromSamples(cellWidths: number[], headerWidth: number): ColFit {
-  const s = [...cellWidths].sort((a, b) => a - b);
-  const max = Math.max(MIN_COL_W, headerWidth, s[s.length - 1] ?? 0);
-  let p95 = Math.max(MIN_COL_W, headerWidth, s[Math.floor((s.length - 1) * 0.95)] ?? 0);
-  // a near-miss outlier costs little room, so show it whole
-  if (max - p95 <= 24) p95 = max;
-  return { p95: Math.min(MAX_AUTO_W, Math.ceil(p95)), max: Math.min(MAX_FIT_W, Math.ceil(max)) };
+/** Tight width of a column from measured cell widths: its widest value, with the header label as a floor. */
+export function fitFromSamples(cellWidths: number[], headerWidth: number): number {
+  return Math.min(MAX_FIT_W, Math.ceil(Math.max(MIN_COL_W, headerWidth, ...cellWidths)));
 }
 
-/** Measured fits per loaded game data and page, so revisiting a page doesn't re-measure. */
-const fitCache = new WeakMap<object, Map<string, Record<string, ColFit>>>();
-const NO_FITS: Record<string, ColFit> = {};
+/** A column's measured tight width; `done` once every row has been measured, not just the sample. */
+interface Fit {
+  w: number;
+  done: boolean;
+}
+
+/** Measured tight widths per loaded game data and page, so revisiting a page doesn't re-measure. */
+const fitCache = new WeakMap<object, Map<string, Record<string, Fit>>>();
+const NO_FITS: Record<string, Fit> = {};
 
 /** Calculated-value columns to show: the chosen ones, plus the sort column so a shared sort is visible. */
 export function shownCalcColumns(calcCols: string[] | undefined, sortCol: string | undefined): string[] {
@@ -113,7 +107,7 @@ export function tableColumns(
   advanced: boolean,
   prefs: ColPrefs,
   shownCalc: string[] = [],
-  fits: Record<string, ColFit> = {},
+  fits: Record<string, number> = {},
 ): ViewColumn[] {
   const cols: ViewColumn[] = [];
   if (page.thumb) cols.push({ id: '__thumb', label: '', width: 40, minWidth: 40, kind: 'thumb' });
@@ -121,19 +115,16 @@ export function tableColumns(
   for (const c of results.grid.columns) {
     if (c.derived ? !shownCalc.includes(c.id) : isColHidden(prefs, c)) continue;
     const isName = c.id === 'name' || c.id === 'description';
-    const custom = prefs.widths[c.id];
-    const numeric = c.cssClass === 'numeric';
     cols.push({
       id: c.id,
       label: c.name,
       html: c.nameHtml,
       col: c,
       // until measured, scale the upstream (relative) widths up for the roomier layout
-      width: custom ?? fits[c.id]?.p95 ?? Math.round(c.width * (isName ? 2 : 1.35)),
+      width: prefs.widths[c.id] ?? fits[c.id] ?? Math.round(c.width * (isName ? 2 : 1.35)),
       minWidth: MIN_COL_W,
       kind: 'data',
-      numeric,
-      flex: custom === undefined && !numeric,
+      numeric: c.cssClass === 'numeric',
     });
   }
   return cols;
@@ -172,25 +163,27 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
   const shownCalc = useMemo(() => shownCalcColumns(calcCols, sort?.col), [calcCols, sort?.col]);
   const [, remeasured] = useReducer((n: number) => n + 1, 0);
   const fits = fitCache.get(DMI)?.get(page.id) ?? NO_FITS;
+  const fitW = useMemo(() => Object.fromEntries(Object.entries(fits).map(([id, f]) => [id, f.w])), [fits]);
   const onMeasured = useCallback(
-    (measured: Record<string, ColFit>) => {
+    (measured: Record<string, number>, done: boolean) => {
       let byPage = fitCache.get(DMI);
       if (!byPage) fitCache.set(DMI, (byPage = new Map()));
-      byPage.set(page.id, { ...byPage.get(page.id), ...measured });
+      const next = { ...byPage.get(page.id) };
+      for (const id in measured) next[id] = { w: measured[id], done };
+      byPage.set(page.id, next);
       remeasured();
     },
     [DMI, page.id],
   );
   const cols = useMemo(
-    () => tableColumns(page, results, advanced, prefs, shownCalc, fits),
-    [page, results, advanced, prefs, shownCalc, fits],
+    () => tableColumns(page, results, advanced, prefs, shownCalc, fitW),
+    [page, results, advanced, prefs, shownCalc, fitW],
   );
-  // text columns at their automatic width split any leftover room in proportion to their width
-  const template = cols.map((c) => (c.flex ? `minmax(${c.width}px, ${c.width}fr)` : `${c.width}px`)).join(' ');
+  const template = cols.map((c) => `${c.width}px`).join(' ');
   const totalMin = cols.reduce((a, c) => a + c.width, 0);
 
   const rows = results.rows;
-  const unmeasured = useMemo(() => cols.filter((c) => c.kind === 'data' && !fits[c.id]), [cols, fits]);
+  const unmeasured = useMemo(() => cols.filter((c) => c.kind === 'data' && !fits[c.id]?.done), [cols, fits]);
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
@@ -254,10 +247,8 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
     e.preventDefault();
     e.stopPropagation();
     const startX = e.clientX;
-    // flexible columns render wider than c.width, so measure what is actually on screen
-    const startW = (e.currentTarget as HTMLElement).parentElement?.getBoundingClientRect().width ?? c.width;
     const move = (ev: PointerEvent) => {
-      const w = Math.max(c.minWidth, Math.round(startW + ev.clientX - startX));
+      const w = Math.max(c.minWidth, Math.round(c.width + ev.clientX - startX));
       setPrefs((p) => ({ ...p, widths: { ...p.widths, [c.id]: w } }));
     };
     const up = () => {
@@ -316,24 +307,14 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
                     onClick={(e) => e.stopPropagation()}
                     onDoubleClick={(e) => {
                       e.stopPropagation();
-                      // fit the longest value, sampled or on screen; double-clicking a fitted column returns it to automatic
-                      const i = cols.indexOf(c);
-                      const onScreen = [...(scrollRef.current?.querySelectorAll<HTMLElement>('.grid-row') ?? [])].map((r) => {
-                        const cell = r.children[i];
-                        if (!cell) return 0;
-                        const range = document.createRange();
-                        range.selectNodeContents(cell);
-                        return range.getBoundingClientRect().width + 20; // px-2.5 either side
-                      });
-                      const fit = fits[c.id] && Math.min(MAX_FIT_W, Math.ceil(Math.max(fits[c.id].max, ...onScreen)));
+                      // the default width already fits the longest value, so fitting is dropping the custom width
                       setPrefs((p) => {
                         const widths = { ...p.widths };
-                        if (fit === undefined || widths[c.id] === fit) delete widths[c.id];
-                        else widths[c.id] = fit;
+                        delete widths[c.id];
                         return { ...p, widths };
                       });
                     }}
-                    title="Drag to resize · double-click to fit everything (again for automatic)"
+                    title="Drag to resize · double-click to fit everything"
                   />
                 )}
               </div>
@@ -396,27 +377,33 @@ export function ResultsTable({ page, DMI, results, prefs, setPrefs, onActivate }
 const SORT_ICON_W = 16;
 
 /**
- * Renders a sample of rows off-screen at their natural width, once, and reports how wide each column's
- * content is. Real cells are used because most columns are formatter HTML (icons, gems), not plain text.
+ * Renders rows off-screen at their natural width and reports how wide each column's content is. Real cells
+ * are used because most columns are formatter HTML (icons, gems), not plain text. An even sample is measured
+ * and reported at once; then every row is measured a chunk at a time, and the result reported once at the end.
  */
-function ColumnMeasurer({ cols, rows, page, DMI, onMeasured }: { cols: ViewColumn[]; rows: any[]; page: PageDef; DMI: DMI; onMeasured: (f: Record<string, ColFit>) => void }) {
+function ColumnMeasurer({ cols, rows, page, DMI, onMeasured }: { cols: ViewColumn[]; rows: any[]; page: PageDef; DMI: DMI; onMeasured: (f: Record<string, number>, done: boolean) => void }) {
   const ref = useRef<HTMLDivElement>(null);
+  const widest = useRef<Record<string, number>>({});
+  // pass 0 is the sample, pass k the k-th chunk of all rows
+  const [pass, setPass] = useState(0);
   const n = Math.min(rows.length, MEASURE_ROWS);
-  const sample = Array.from({ length: n }, (_, i) => rows[Math.floor((i * rows.length) / n)]);
+  const batch = pass === 0 ? Array.from({ length: n }, (_, i) => rows[Math.floor((i * rows.length) / n)]) : rows.slice((pass - 1) * MEASURE_CHUNK, pass * MEASURE_CHUNK);
   useLayoutEffect(() => {
     const root = ref.current;
     if (!root) return;
     const width = (el: Element) => el.getBoundingClientRect().width;
-    const out: Record<string, ColFit> = {};
     cols.forEach((c, j) => {
       const head = root.querySelector(`[data-mh="${j}"]`);
       const cells = [...root.querySelectorAll(`[data-mc="${j}"]`)].map(width);
-      out[c.id] = fitFromSamples(cells, (head ? width(head) : 0) + SORT_ICON_W);
+      widest.current[c.id] = Math.max(widest.current[c.id] ?? 0, fitFromSamples(cells, (head ? width(head) : 0) + SORT_ICON_W));
     });
-    onMeasured(out);
-    // measure once per column set; the caller unmounts this when done
+    const done = rows.length <= MEASURE_ROWS || pass * MEASURE_CHUNK >= rows.length;
+    if (pass === 0 || done) onMeasured({ ...widest.current }, done);
+    if (done) return;
+    const t = setTimeout(() => setPass(pass + 1));
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pass]);
   return (
     <div ref={ref} aria-hidden className="pointer-events-none invisible absolute left-0 top-0 h-0 overflow-hidden">
       <div className="flex text-xs font-semibold">
@@ -426,7 +413,7 @@ function ColumnMeasurer({ cols, rows, page, DMI, onMeasured }: { cols: ViewColum
           </div>
         ))}
       </div>
-      {sample.map((o, i) => (
+      {batch.map((o, i) => (
         <div key={i} className="flex text-[13px]">
           {cols.map((c, j) => (
             <div key={c.id} data-mc={j} className="w-max flex-none">

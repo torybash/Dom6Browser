@@ -101,12 +101,10 @@ describe('default column visibility', () => {
 });
 
 describe('column auto-width', () => {
-  it('defaults to p95 of content, fits the max, and never goes under the header', () => {
-    const cells = [...Array(99).fill(100), 300];
-    expect(fitFromSamples(cells, 50)).toEqual({ p95: 100, max: 300 });
-    // a near-miss outlier is shown whole
-    expect(fitFromSamples([...Array(99).fill(100), 120], 50).p95).toBe(120);
-    expect(fitFromSamples([20, 20], 70)).toEqual({ p95: 70, max: 70 });
-    expect(fitFromSamples([], 10)).toEqual({ p95: 36, max: 36 });
+  it('fits the widest value, never under the header or past the cap', () => {
+    expect(fitFromSamples([...Array(99).fill(100), 300], 50)).toBe(300);
+    expect(fitFromSamples([20, 20], 70)).toBe(70);
+    expect(fitFromSamples([], 10)).toBe(36);
+    expect(fitFromSamples([900], 10)).toBe(640);
   });
 });
